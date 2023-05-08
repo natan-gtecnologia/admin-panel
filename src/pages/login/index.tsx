@@ -1,13 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
-import { Input } from '@growth/growforce-admin-ui/components/Common/Form/Input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { NextPage } from 'next';
-import Head from 'next/head';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
+import { Input } from "@growth/growforce-admin-ui/components/Common/Form/Input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { NextPage } from "next";
+import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import {
   Button,
   Card,
@@ -18,21 +18,24 @@ import {
   Label,
   Row,
   Spinner,
-} from 'reactstrap';
-import { z } from 'zod';
-import { useAuth } from '../../contexts/AuthContext';
-import { useSettings } from '../../contexts/SettingsContext';
-import { withSSRGuest } from '../../utils/withSSRGuest';
-import LogoGrowforce from '/public/svg/logo-growforce.svg';
+} from "reactstrap";
+import { z } from "zod";
+import { useAuth } from "../../contexts/AuthContext";
+import { useSettings } from "../../contexts/SettingsContext";
+import { withSSRGuest } from "../../utils/withSSRGuest";
+import LogoGrowforce from "/public/svg/logo-growforce.svg";
 
-const emailSchema = z.string().email('Este e-mail é inválido');
-const usernameSchema = z.string().min(3, 'Por favor, insira um nome de usuário com no mínimo 3 caracteres.');
+const emailSchema = z.string().email("Este e-mail é inválido");
+const usernameSchema = z
+  .string()
+  .min(3, "Por favor, insira um nome de usuário com no mínimo 3 caracteres.");
 
 const schema = z.object({
-  usernameOrEmail: z.string()
-    .min(1, 'Nome de usuário ou e-mail não pode ser vazio')
+  usernameOrEmail: z
+    .string()
+    .min(1, "Nome de usuário ou e-mail não pode ser vazio")
     .refine((value) => {
-      if (value.includes('@')) {
+      if (value.includes("@")) {
         try {
           emailSchema.parse(value);
           return true;
@@ -46,15 +49,15 @@ const schema = z.object({
       } catch {
         return false;
       }
-    }, 'Por favor, insira um e-mail ou um nome de usuário válido'),
-  password: z.string().min(8, 'Senha deve ter no mínimo 8 caracteres'),
+    }, "Por favor, insira um e-mail ou um nome de usuário válido"),
+  password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
 });
 type FormProps = z.infer<typeof schema>;
 type Required<T> = {
   [P in keyof T]-?: T[P];
 };
 
-import styles from './Loader.module.css';
+import styles from "./Loader.module.css";
 
 const Loader = () => {
   return (
@@ -64,20 +67,26 @@ const Loader = () => {
   );
 };
 
-const ParticlesAuth = ({ children, backgroudColor }) => {
+const ParticlesAuth = ({
+  children,
+  backgroudColor,
+}: {
+  children: React.ReactNode;
+  backgroudColor?: string;
+}) => {
   return (
     <div className="auth-page-wrapper pt-4">
       <div
         className="auth-one-bg-position auth-one-bg"
-        style={{ backgroundImage: 'none' }}
+        style={{ backgroundImage: "none" }}
         id="auth-particles"
       >
         <div
           style={{
-            background: `${backgroudColor || '#6233D6'}`,
-            width: '100%',
-            height: '100%',
-            opacity: '0.9',
+            background: `${backgroudColor || "#6233D6"}`,
+            width: "100%",
+            height: "100%",
+            opacity: "0.9",
           }}
         ></div>
 
@@ -101,7 +110,7 @@ const ParticlesAuth = ({ children, backgroudColor }) => {
             <div className="col-lg-12">
               <div className="text-center">
                 <p className="mb-0 text-muted">
-                  &copy; {new Date().getFullYear()} Growforce. Criado com{' '}
+                  &copy; {new Date().getFullYear()} Growforce. Criado com{" "}
                   <i className="mdi mdi-heart text-danger"></i> por time de
                   produto
                 </p>
@@ -122,10 +131,10 @@ const Login: NextPage = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const { handleSubmit, register, formState } = useForm<FormProps>({
     resolver: zodResolver(schema),
-    mode: 'onSubmit',
+    mode: "onSubmit",
     defaultValues: {
-      usernameOrEmail: '',
-      password: '',
+      usernameOrEmail: "",
+      password: "",
     },
   });
 
@@ -149,10 +158,10 @@ const Login: NextPage = () => {
       setLoaded(false);
     };
 
-    window.addEventListener('load', handleLoad);
+    window.addEventListener("load", handleLoad);
 
     return () => {
-      window.removeEventListener('load', handleLoad);
+      window.removeEventListener("load", handleLoad);
     };
   }, []);
 
@@ -160,7 +169,7 @@ const Login: NextPage = () => {
     try {
       await signIn(data);
     } catch {
-      toast.error('Email ou senha incorretos');
+      toast.error("Email ou senha incorretos");
     }
   };
 
@@ -200,12 +209,20 @@ const Login: NextPage = () => {
                   <CardBody className="p-4">
                     <div className="text-center mt-2">
                       <h5 className="user-name-text">Bem-vindo de volta!</h5>
-                      <p className="text-muted">{`Faça login para continuar para ${config?.name_system || 'Growforce'}`}</p>
+                      <p className="text-muted">{`Faça login para continuar para ${
+                        config?.name_system || "Growforce"
+                      }`}</p>
                     </div>
                     <div className="p-2 mt-4">
-                      <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+                      <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        autoComplete="off"
+                      >
                         <div className="mb-3">
-                          <Label htmlFor="usernameOrEmail" className="form-label">
+                          <Label
+                            htmlFor="usernameOrEmail"
+                            className="form-label"
+                          >
                             Nome de Usuário ou Email
                           </Label>
                           <Input
@@ -213,7 +230,7 @@ const Login: NextPage = () => {
                             type="text"
                             placeholder="Digite o acesso"
                             invalid={!!formState.errors.usernameOrEmail}
-                            {...register('usernameOrEmail')}
+                            {...register("usernameOrEmail")}
                           />
                           <FormFeedback type="invalid">
                             {formState.errors.usernameOrEmail?.message}
@@ -226,17 +243,20 @@ const Login: NextPage = () => {
                             Esqueceu a senha?
                           </Link>
                         </div>*/}
-                          <Label className="form-label" htmlFor="password-input">
+                          <Label
+                            className="form-label"
+                            htmlFor="password-input"
+                          >
                             Senha
                           </Label>
                           <div className="position-relative auth-pass-inputgroup">
                             <Input
                               name="password"
-                              type={showPassword === true ? 'text' : 'password'}
+                              type={showPassword === true ? "text" : "password"}
                               className="form-control pe-5"
                               placeholder="Digite a senha"
                               invalid={!!formState.errors.password}
-                              {...register('password', {
+                              {...register("password", {
                                 // trim password on change
                                 onChange: (e) => {
                                   e.target.value = e.target.value.trim();
@@ -282,7 +302,7 @@ const Login: NextPage = () => {
                                 <span className="ms-2">Entrando...</span>
                               </span>
                             ) : (
-                              'Entrar'
+                              "Entrar"
                             )}
                           </Button>
                         </div>

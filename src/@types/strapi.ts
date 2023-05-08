@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export type MetaData = {
   id: number;
   key: string;
@@ -47,9 +46,9 @@ export interface IStrapiProduct {
     slug: string;
     description: string;
     shortDescription?: string;
-    type: 'simple' | 'grouped' | 'kit';
-    status: 'available' | 'not_available';
-    productType: 'physical' | 'digital';
+    type: "simple" | "grouped" | "kit";
+    status: "available" | "not_available";
+    productType: "physical" | "digital";
     featured: boolean;
     sku: string;
     createdAt: string;
@@ -95,7 +94,7 @@ export interface IStrapiProduct {
         };
       }[];
     };
-    groupType: 'simple' | 'grouped' | 'kit';
+    groupType: "simple" | "grouped" | "kit";
     metaData?: MetaData[];
     features: {
       id: number;
@@ -127,7 +126,7 @@ export interface IStrapiProduct {
         };
       }[];
     };
-    stockStatus: 'in_stock' | 'out_of_stock' | 'on_back_order';
+    stockStatus: "in_stock" | "out_of_stock" | "on_back_order";
     stockQuantity: number;
     totalSales: number;
 
@@ -166,10 +165,10 @@ export interface IStrapiBanner {
   attributes: {
     title: string;
     page_link: string;
-    page: 'product' | 'homepage' | 'products';
+    page: "product" | "homepage" | "products";
     order: number;
-    type: 'hero' | 'section';
-    link_type: 'product' | 'page' | 'category';
+    type: "hero" | "section";
+    link_type: "product" | "page" | "category";
     desktop_image: {
       data: IStrapiImage;
     };
@@ -198,21 +197,21 @@ export interface IStrapiCoupon {
     automatic: boolean;
     accumulative: boolean;
     firstShop: boolean;
-    discountType: 'price' | 'percentage';
+    discountType: "price" | "percentage";
     type:
-    | 'all_store'
-    | 'specific_products'
-    | 'specific_categories'
-    | 'specific_customers'
-    | 'free_shipping_by_region'
-    | 'free_shipping_by_products'
-    | 'buy_and_earn_by_products'
-    | 'buy_and_earn_by_categories'
-    | 'buy_and_earn_by_cart_price';
+      | "all_store"
+      | "specific_products"
+      | "specific_categories"
+      | "specific_customers"
+      | "free_shipping_by_region"
+      | "free_shipping_by_products"
+      | "buy_and_earn_by_products"
+      | "buy_and_earn_by_categories"
+      | "buy_and_earn_by_cart_price";
     initialDate?: string;
     finalDate?: string;
-    shippingType: 'not_apply' | 'to_shipping' | 'free_shipping';
-    shippingDiscountType: 'price' | 'percentage';
+    shippingType: "not_apply" | "to_shipping" | "free_shipping";
+    shippingDiscountType: "price" | "percentage";
     maximumUseQuantity?: number;
     minimumPrice?: number;
     maximumPrice?: number;
@@ -223,7 +222,7 @@ export interface IStrapiCoupon {
     accumulatedDiscountLimit?: number;
     shippingDiscount?: number;
     minimumCartAmount?: number;
-    applicationType: 'all_store' | 'specific_products' | 'specific_products';
+    applicationType: "all_store" | "specific_products" | "specific_products";
     buyAndEarnProducts?: {
       buyProducts?: IStrapiCartProduct;
       earnProducts?: IStrapiCartProduct;
@@ -321,7 +320,7 @@ export interface IStrapiCompany {
     cnpj?: string;
     phone?: string;
     email?: string;
-    type?: 'virtual' | 'online' | 'physical';
+    type?: "virtual" | "online" | "physical";
     nodeId?: string;
     address?: {
       address1: string;
@@ -352,14 +351,14 @@ export interface IStrapiOrder {
     createdAt: string;
     updatedAt: string;
     status:
-    | 'PENDING'
-    | 'PAID'
-    | 'SHIPPING'
-    | 'SHIPPING_LAST_STEP'
-    | 'COMPLETED'
-    | 'FAILED'
-    | 'CANCELED'
-    | 'REFUNDED';
+      | "PENDING"
+      | "PAID"
+      | "SHIPPING"
+      | "SHIPPING_LAST_STEP"
+      | "COMPLETED"
+      | "FAILED"
+      | "CANCELED"
+      | "REFUNDED";
     uuid: string;
     orderId: string;
     billingAddress: {
@@ -412,7 +411,7 @@ export interface IStrapiOrder {
           offPrice?: number;
         };
         metaData: MetaData[];
-      },
+      }
     ];
     totals: {
       id: number;
@@ -451,7 +450,7 @@ export interface IStrapiOrder {
     metaData: MetaData[];
     payment: {
       id: number;
-      method: 'pix' | 'credit_card' | 'boleto';
+      method: "pix" | "credit_card" | "boleto";
       qrCode: string;
       code: string;
       installments: number;
@@ -461,17 +460,17 @@ export interface IStrapiOrder {
       description: string;
       discount: number;
       type:
-      | 'all_store'
-      | 'specific_products'
-      | 'specific_categories'
-      | 'specific_customers'
-      | 'free_shipping_by_region'
-      | 'free_shipping_by_products'
-      | 'buy_and_earn_by_products'
-      | 'buy_and_earn_by_categories'
-      | 'buy_and_earn_by_cart_price';
-      discountType: 'price' | 'percentage';
-      shippingType: 'not_apply' | 'to_shipping' | 'free_shipping';
+        | "all_store"
+        | "specific_products"
+        | "specific_categories"
+        | "specific_customers"
+        | "free_shipping_by_region"
+        | "free_shipping_by_products"
+        | "buy_and_earn_by_products"
+        | "buy_and_earn_by_categories"
+        | "buy_and_earn_by_cart_price";
+      discountType: "price" | "percentage";
+      shippingType: "not_apply" | "to_shipping" | "free_shipping";
       code: string;
     }[];
     shipping: {
@@ -481,9 +480,9 @@ export interface IStrapiOrder {
       trackingEvents: {
         sk_event: string;
         uf?: string;
-        tag: 'added' | 'collected' | 'movement' | 'onroute' | 'delivered';
+        tag: "added" | "collected" | "movement" | "onroute" | "delivered";
         city?: string;
-        date: '2022-11-17T03:05:52.000Z';
+        date: "2022-11-17T03:05:52.000Z";
         local?: string;
         events: string;
         comment?: string;
@@ -518,7 +517,7 @@ export interface IStrapiCustomer {
     birthDate: string;
     email: string;
     document: string;
-    documentType: 'cpf' | 'cnpj' | 'passport';
+    documentType: "cpf" | "cnpj" | "passport";
     createdAt: string;
     updatedAt: string;
     firstName: string;
@@ -582,10 +581,9 @@ export interface IStrapiDistributionCenter {
   };
 }
 
-export type IStrapiFileResponse = IStrapiImage['attributes'] & {
+export type IStrapiFileResponse = IStrapiImage["attributes"] & {
   id: number;
 };
-
 
 // livestream
 export interface IStrapiLiveStream {
@@ -646,56 +644,56 @@ export interface IStrapiLiveStream {
 }
 
 export interface IStrapiChat {
-  id: number
+  id: number;
   attributes: {
-    released: boolean
-    createdAt: string
-    updatedAt: string
+    released: boolean;
+    createdAt: string;
+    updatedAt: string;
     messages: {
       data: {
-        id: number
+        id: number;
         attributes: {
-          message: string
-          datetime: string
-          createdAt: string
-          updatedAt: string
+          message: string;
+          datetime: string;
+          createdAt: string;
+          updatedAt: string;
           author: {
             data: {
-              id: number
+              id: number;
               attributes: {
-                firstName: string
-                lastName: string
-                email: string
-                socketId?: string
-                createdAt: string
-                updatedAt: string
-              }
-            }
-          }
-          exclusion: any
-        }
-      }[]
-    }
+                firstName: string;
+                lastName: string;
+                email: string;
+                socketId?: string;
+                createdAt: string;
+                updatedAt: string;
+              };
+            };
+          };
+          exclusion: any;
+        };
+      }[];
+    };
     users: {
-      id: number
-      joinedAt: string
-      blocked: boolean
-      blockedAt: any
-      isOnline: boolean
+      id: number;
+      joinedAt: string;
+      blocked: boolean;
+      blockedAt: any;
+      isOnline: boolean;
       chat_user: {
-        id: number
+        id: number;
         attributes: {
-          firstName: string
-          lastName: string
-          email: string
-          socketId: string
-          createdAt: string
-          updatedAt: string
-        }
-      }
-    }[]
+          firstName: string;
+          lastName: string;
+          email: string;
+          socketId: string;
+          createdAt: string;
+          updatedAt: string;
+        };
+      };
+    }[];
     //liveStream: {
     //  data: IStrapiLiveStream
     //}
-  }
+  };
 }

@@ -1,18 +1,18 @@
-import Link from '@growth/growforce-admin-ui/components/Common/Link';
-import React, { useEffect } from 'react';
-import SimpleBar from 'simplebar-react';
+import Link from "@growth/growforce-admin-ui/components/Common/Link";
+import React, { useEffect } from "react";
+import SimpleBar from "simplebar-react";
 //import logo
-import logoDark from '@growth/growforce-admin-ui/assets/images/logo-dark.png';
-import logoLight from '@growth/growforce-admin-ui/assets/images/logo-light.png';
+import logoDark from "@growth/growforce-admin-ui/assets/images/logo-dark.png";
+import logoLight from "@growth/growforce-admin-ui/assets/images/logo-light.png";
 
 //Import Components
-import HorizontalLayout from '@growth/growforce-admin-ui/Layouts/HorizontalLayout';
-import TwoColumnLayout from '@growth/growforce-admin-ui/Layouts/TwoColumnLayout';
-import VerticalLayout from '@growth/growforce-admin-ui/Layouts/VerticalLayouts';
-import { useLayout } from '@growth/growforce-admin-ui/hooks/useLayout';
-import Image from 'next/image';
-import { Container } from 'reactstrap';
-import { useSettings } from '../../contexts/SettingsContext';
+import HorizontalLayout from "@growth/growforce-admin-ui/Layouts/HorizontalLayout";
+import TwoColumnLayout from "@growth/growforce-admin-ui/Layouts/TwoColumnLayout";
+import VerticalLayout from "@growth/growforce-admin-ui/Layouts/VerticalLayouts";
+import { useLayout } from "@growth/growforce-admin-ui/hooks/useLayout";
+import Image from "next/legacy/image";
+import { Container } from "reactstrap";
+import { useSettings } from "../../contexts/SettingsContext";
 
 const Sidebar = () => {
   const { layoutType } = useLayout();
@@ -20,10 +20,10 @@ const Sidebar = () => {
 
   useEffect(() => {
     const verticalOverlay =
-      document?.getElementsByClassName('vertical-overlay');
+      document?.getElementsByClassName("vertical-overlay");
     if (verticalOverlay) {
-      verticalOverlay[0].addEventListener('click', function () {
-        document?.body.classList.remove('vertical-sidebar-enable');
+      verticalOverlay[0].addEventListener("click", function () {
+        document?.body.classList.remove("vertical-sidebar-enable");
       });
     }
   }, []);
@@ -31,19 +31,19 @@ const Sidebar = () => {
   const addEventListenerOnSmHoverMenu = () => {
     // add listener Sidebar Hover icon on change layout from setting
     if (
-      document?.documentElement.getAttribute('data-sidebar-size') === 'sm-hover'
+      document?.documentElement.getAttribute("data-sidebar-size") === "sm-hover"
     ) {
       document?.documentElement.setAttribute(
-        'data-sidebar-size',
-        'sm-hover-active',
+        "data-sidebar-size",
+        "sm-hover-active"
       );
     } else if (
-      document?.documentElement.getAttribute('data-sidebar-size') ===
-      'sm-hover-active'
+      document?.documentElement.getAttribute("data-sidebar-size") ===
+      "sm-hover-active"
     ) {
-      document?.documentElement.setAttribute('data-sidebar-size', 'sm-hover');
+      document?.documentElement.setAttribute("data-sidebar-size", "sm-hover");
     } else {
-      document?.documentElement.setAttribute('data-sidebar-size', 'sm-hover');
+      document?.documentElement.setAttribute("data-sidebar-size", "sm-hover");
     }
   };
   return (
@@ -104,7 +104,7 @@ const Sidebar = () => {
             <i className="ri-record-circle-line"></i>
           </button>
         </div>
-        {layoutType === 'horizontal' ? (
+        {layoutType === "horizontal" ? (
           <div id="scrollbar">
             <Container fluid>
               <div id="two-column-menu"></div>
@@ -113,7 +113,7 @@ const Sidebar = () => {
               </ul>
             </Container>
           </div>
-        ) : layoutType === 'twocolumn' ? (
+        ) : layoutType === "twocolumn" ? (
           <React.Fragment>
             <TwoColumnLayout />
             <div className="sidebar-background"></div>

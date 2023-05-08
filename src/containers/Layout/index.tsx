@@ -1,11 +1,10 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from "react";
 
 //import Components
-import RightSidebar from '@growth/growforce-admin-ui/components/Common/RightSidebar';
-import Footer from './Footer';
-import Header from './Header';
-import Sidebar from './Sidebar';
-import { useSettings } from '../../contexts/SettingsContext';
+import RightSidebar from "@growth/growforce-admin-ui/components/Common/RightSidebar";
+import Footer from "./Footer";
+import Header from "./Header";
+import Sidebar from "./Sidebar";
 
 //import actions
 
@@ -15,19 +14,19 @@ export type LayoutProps = {
 };
 
 const Layout = (props: LayoutProps) => {
-  const [headerClass, setHeaderClass] = useState('');
+  const [headerClass, setHeaderClass] = useState("");
 
   // class add remove in header
   useEffect(() => {
-    window.addEventListener('scroll', scrollNavigation, true);
+    window.addEventListener("scroll", scrollNavigation, true);
   }, []);
 
   function scrollNavigation() {
     const scrollup = document?.documentElement.scrollTop;
     if (scrollup > 50) {
-      setHeaderClass('topbar-shadow');
+      setHeaderClass("topbar-shadow");
     } else {
-      setHeaderClass('');
+      setHeaderClass("");
     }
   }
 
