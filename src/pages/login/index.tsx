@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import { Input } from "@growth/growforce-admin-ui/components/Common/Form/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -57,6 +56,7 @@ type Required<T> = {
   [P in keyof T]-?: T[P];
 };
 
+import { Input } from "@/components/Common/Form/Input";
 import styles from "./Loader.module.css";
 
 const Loader = () => {
@@ -226,7 +226,6 @@ const Login: NextPage = () => {
                             Nome de Usuário ou Email
                           </Label>
                           <Input
-                            name="usernameOrEmail"
                             type="text"
                             placeholder="Digite o acesso"
                             invalid={!!formState.errors.usernameOrEmail}
@@ -251,7 +250,6 @@ const Login: NextPage = () => {
                           </Label>
                           <div className="position-relative auth-pass-inputgroup">
                             <Input
-                              name="password"
                               type={showPassword === true ? "text" : "password"}
                               className="form-control pe-5"
                               placeholder="Digite a senha"

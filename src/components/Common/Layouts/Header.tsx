@@ -2,21 +2,22 @@ import { useState } from "react";
 import { Dropdown, DropdownMenu, DropdownToggle, Form } from "reactstrap";
 
 //import images
+import ProfileDropdown from "@/containers/Layout/ProfileDropdown";
+import FullScreenDropdown from "../FullScreenDropdown";
+import LightDark from "../LightDark";
+import Link from "../Link";
+import SearchOption from "../SearchOption";
+import logoDark from "../assets/images/logo-dark.png";
+import logoLight from "../assets/images/logo-light.png";
+import logoSm from "../assets/images/logo-sm.png";
 
 //import Components
-//import NotificationDropdown from '@growth/growforce-admin-ui/components/Common/NotificationDropdown';
-import FullScreenDropdown from "@/components/Common/FullScreenDropdown";
-import LightDark from "@/components/Common/LightDark";
-import Link from "@/components/Common/Link";
-import Image from "next/image";
-import ProfileDropdown from "./ProfileDropdown";
 
 export type HeaderProps = {
   headerClass: string;
-  logo: any;
 };
 
-const Header = ({ headerClass, logo }: HeaderProps) => {
+const Header = ({ headerClass }: HeaderProps) => {
   const [search, setSearch] = useState(false);
   const toogleSearch = () => {
     setSearch(!search);
@@ -71,47 +72,19 @@ const Header = ({ headerClass, logo }: HeaderProps) => {
             <div className="navbar-brand-box horizontal-logo">
               <Link href="/" className="logo logo-dark">
                 <span className="logo-sm">
-                  <Image
-                    src={logo}
-                    alt=""
-                    style={{
-                      filter:
-                        "invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%)",
-                    }}
-                  />
+                  <img src={logoSm.src} alt="" height="22" />
                 </span>
                 <span className="logo-lg">
-                  <Image
-                    src={logo}
-                    alt=""
-                    style={{
-                      filter:
-                        "invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%)",
-                    }}
-                  />
+                  <img src={logoDark.src} alt="" height="17" />
                 </span>
               </Link>
 
               <Link href="/" className="logo logo-light">
                 <span className="logo-sm">
-                  <Image
-                    src={logo}
-                    alt=""
-                    style={{
-                      filter:
-                        "invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%)",
-                    }}
-                  />
+                  <img src={logoSm.src} alt="" height="22" />
                 </span>
                 <span className="logo-lg">
-                  <Image
-                    src={logo}
-                    alt=""
-                    style={{
-                      filter:
-                        "invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%)",
-                    }}
-                  />
+                  <img src={logoLight.src} alt="" height="17" />
                 </span>
               </Link>
             </div>
@@ -129,7 +102,7 @@ const Header = ({ headerClass, logo }: HeaderProps) => {
               </span>
             </button>
 
-            {/*<SearchOption />*/}
+            <SearchOption />
           </div>
 
           <div className="d-flex align-items-center">
@@ -163,6 +136,12 @@ const Header = ({ headerClass, logo }: HeaderProps) => {
                 </Form>
               </DropdownMenu>
             </Dropdown>
+
+            {/* LanguageDropdown */}
+            {/*<LanguageDropdown />*/}
+
+            {/* WebAppsDropdown */}
+            {/*<WebAppsDropdown />*/}
 
             {/* FullScreenDropdown */}
             <FullScreenDropdown />

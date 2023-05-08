@@ -1,8 +1,8 @@
-import { Button } from '@growth/growforce-admin-ui/components/Common/Button';
-import { Input } from '@growth/growforce-admin-ui/components/Common/Form/Input';
-import { Controller, useFormContext } from 'react-hook-form';
-import { ButtonGroup, Col, FormFeedback, Label, Row } from 'reactstrap';
-import CustomEditor from './CustomEditor';
+import { Controller, useFormContext } from "react-hook-form";
+import { ButtonGroup, Col, FormFeedback, Label, Row } from "reactstrap";
+import { Button } from "./Common/Button";
+import { Input } from "./Common/Form/Input";
+import CustomEditor from "./CustomEditor";
 
 type Props = {
   indexKey: number;
@@ -11,7 +11,7 @@ type Props = {
 
 export function MetaData({ indexKey, onRemove }: Props) {
   const { formState, register, control, setError, clearErrors, watch } =
-    useFormContext();
+    useFormContext<any>();
   const valueBoolean = watch(`metaData.${indexKey}.valueBoolean`);
 
   return (
@@ -21,12 +21,12 @@ export function MetaData({ indexKey, onRemove }: Props) {
           <Label>Key</Label>
           <Input
             placeholder="20 cm"
-            invalid={!!formState.errors?.metaData?.[indexKey]?.key}
+            invalid={!!(formState.errors as any).metaData?.[indexKey]?.key}
             {...register(`metaData.${indexKey}.key`)}
           />
-          {formState.errors?.metaData?.[indexKey]?.key && (
+          {(formState.errors as any)?.metaData?.[indexKey]?.key && (
             <FormFeedback type="invalid">
-              {formState.errors?.metaData?.[indexKey]?.key.message}
+              {(formState.errors as any)?.metaData?.[indexKey]?.key.message}
             </FormFeedback>
           )}
         </Col>
@@ -34,12 +34,17 @@ export function MetaData({ indexKey, onRemove }: Props) {
           <Label>Valor String</Label>
           <Input
             placeholder="20 cm"
-            invalid={!!formState.errors?.metaData?.[indexKey]?.valueString}
+            invalid={
+              !!(formState.errors as any)?.metaData?.[indexKey]?.valueString
+            }
             {...register(`metaData.${indexKey}.valueString`)}
           />
-          {formState.errors?.metaData?.[indexKey]?.valueString && (
+          {(formState.errors as any)?.metaData?.[indexKey]?.valueString && (
             <FormFeedback type="invalid">
-              {formState.errors?.metaData?.[indexKey]?.valueString.message}
+              {
+                (formState.errors as any)?.metaData?.[indexKey]?.valueString
+                  .message
+              }
             </FormFeedback>
           )}
         </Col>
@@ -51,16 +56,21 @@ export function MetaData({ indexKey, onRemove }: Props) {
               step={1}
               placeholder="20"
               defaultValue={0}
-              invalid={!!formState.errors?.metaData?.[indexKey]?.valueInteger}
+              invalid={
+                !!(formState.errors as any)?.metaData?.[indexKey]?.valueInteger
+              }
               {...register(`metaData.${indexKey}.valueInteger`, {
                 valueAsNumber: true,
               })}
             />
             <Button onClick={() => onRemove(indexKey)} close />
           </div>
-          {formState.errors?.metaData?.[indexKey]?.valueInteger && (
+          {(formState.errors as any)?.metaData?.[indexKey]?.valueInteger && (
             <FormFeedback type="invalid">
-              {formState.errors?.metaData?.[indexKey]?.valueInteger.message}
+              {
+                (formState.errors as any)?.metaData?.[indexKey]?.valueInteger
+                  .message
+              }
             </FormFeedback>
           )}
         </Col>
@@ -74,14 +84,19 @@ export function MetaData({ indexKey, onRemove }: Props) {
             step={0.1}
             placeholder="20"
             defaultValue={0}
-            invalid={!!formState.errors?.metaData?.[indexKey]?.valueDecimal}
+            invalid={
+              !!(formState.errors as any)?.metaData?.[indexKey]?.valueDecimal
+            }
             {...register(`metaData.${indexKey}.valueDecimal`, {
               valueAsNumber: true,
             })}
           />
-          {formState.errors?.metaData?.[indexKey]?.valueDecimal && (
+          {(formState.errors as any)?.metaData?.[indexKey]?.valueDecimal && (
             <FormFeedback type="invalid">
-              {formState.errors?.metaData?.[indexKey]?.valueDecimal.message}
+              {
+                (formState.errors as any)?.metaData?.[indexKey]?.valueDecimal
+                  .message
+              }
             </FormFeedback>
           )}
         </Col>
@@ -91,15 +106,20 @@ export function MetaData({ indexKey, onRemove }: Props) {
             type="number"
             step={1}
             placeholder="20"
-            invalid={!!formState.errors?.metaData?.[indexKey]?.valueBigInteger}
+            invalid={
+              !!(formState.errors as any)?.metaData?.[indexKey]?.valueBigInteger
+            }
             defaultValue={0}
             {...register(`metaData.${indexKey}.valueBigInteger`, {
               valueAsNumber: true,
             })}
           />
-          {formState.errors?.metaData?.[indexKey]?.valueBigInteger && (
+          {(formState.errors as any)?.metaData?.[indexKey]?.valueBigInteger && (
             <FormFeedback type="invalid">
-              {formState.errors?.metaData?.[indexKey]?.valueBigInteger.message}
+              {
+                (formState.errors as any)?.metaData?.[indexKey]?.valueBigInteger
+                  .message
+              }
             </FormFeedback>
           )}
         </Col>
@@ -109,15 +129,20 @@ export function MetaData({ indexKey, onRemove }: Props) {
             type="number"
             step={0.1}
             placeholder="20"
-            invalid={!!formState.errors?.metaData?.[indexKey]?.valueFloat}
+            invalid={
+              !!(formState.errors as any)?.metaData?.[indexKey]?.valueFloat
+            }
             defaultValue={0}
             {...register(`metaData.${indexKey}.valueFloat`, {
               valueAsNumber: true,
             })}
           />
-          {formState.errors?.metaData?.[indexKey]?.valueFloat && (
+          {(formState.errors as any)?.metaData?.[indexKey]?.valueFloat && (
             <FormFeedback type="invalid">
-              {formState.errors?.metaData?.[indexKey]?.valueFloat.message}
+              {
+                (formState.errors as any)?.metaData?.[indexKey]?.valueFloat
+                  .message
+              }
             </FormFeedback>
           )}
         </Col>
@@ -127,10 +152,9 @@ export function MetaData({ indexKey, onRemove }: Props) {
             <Input
               type="radio"
               className="btn-check"
-              name="options"
               id="option1"
               value="true"
-              checked={valueBoolean === 'true' || valueBoolean === true}
+              checked={valueBoolean === "true" || valueBoolean === true}
               {...register(`metaData.${indexKey}.valueBoolean`)}
             />
             <Label className="btn btn-secondary shadow-none" htmlFor="option1">
@@ -140,19 +164,21 @@ export function MetaData({ indexKey, onRemove }: Props) {
             <Input
               type="radio"
               className="btn-check"
-              name="options"
               id="option2"
               value="false"
-              checked={valueBoolean === 'false' || valueBoolean === false}
+              checked={valueBoolean === "false" || valueBoolean === false}
               {...register(`metaData.${indexKey}.valueBoolean`)}
             />
             <Label className="btn btn-secondary shadow-none" htmlFor="option2">
               False
             </Label>
           </ButtonGroup>
-          {formState.errors?.metaData?.[indexKey]?.valueBoolean && (
+          {(formState.errors as any)?.metaData?.[indexKey]?.valueBoolean && (
             <FormFeedback type="invalid">
-              {formState.errors?.metaData?.[indexKey]?.valueBoolean.message}
+              {
+                (formState.errors as any)?.metaData?.[indexKey]?.valueBoolean
+                  .message
+              }
             </FormFeedback>
           )}
         </Col>
@@ -175,12 +201,12 @@ export function MetaData({ indexKey, onRemove }: Props) {
                     setError(
                       `metaData.${indexKey}.valueJson`,
                       {
-                        type: 'manual',
-                        message: 'O valor deve ser um JSON válido.',
+                        type: "manual",
+                        message: "O valor deve ser um JSON válido.",
                       },
                       {
                         shouldFocus: true,
-                      },
+                      }
                     );
                   } else {
                     clearErrors(`metaData.${indexKey}.valueJson`);
@@ -189,9 +215,13 @@ export function MetaData({ indexKey, onRemove }: Props) {
               />
             )}
           />
-          {formState.errors?.metaData?.[indexKey]?.valueJson && (
+          {(formState.errors as any as any)?.metaData?.[indexKey]
+            ?.valueJson && (
             <FormFeedback type="invalid" className="d-block">
-              {formState.errors?.metaData?.[indexKey]?.valueJson.message}
+              {
+                (formState.errors as any)?.metaData?.[indexKey]?.valueJson
+                  .message
+              }
             </FormFeedback>
           )}
         </div>

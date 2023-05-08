@@ -1,22 +1,19 @@
 import React, { useEffect } from "react";
 import SimpleBar from "simplebar-react";
 //import logo
-import logoDark from "@growth/growforce-admin-ui/assets/images/logo-dark.png";
-import logoLight from "@growth/growforce-admin-ui/assets/images/logo-light.png";
+import logoDark from "../assets/images/logo-dark.png";
+import logoLight from "../assets/images/logo-light.png";
 
 //Import Components
-import HorizontalLayout from "@/components/Common/Layouts/HorizontalLayout";
-import TwoColumnLayout from "@/components/Common/Layouts/TwoColumnLayout";
-import VerticalLayouts from "@/components/Common/Layouts/VerticalLayouts";
-import Link from "@/components/Common/Link";
 import { useLayout } from "@/hooks/useLayout";
-import Image from "next/legacy/image";
 import { Container } from "reactstrap";
-import { useSettings } from "../../contexts/SettingsContext";
+import Link from "../Link";
+import HorizontalLayout from "./HorizontalLayout";
+import TwoColumnLayout from "./TwoColumnLayout";
+import VerticalLayout from "./VerticalLayouts";
 
-const Sidebar = () => {
+const Sidebar = ({ logo }: any) => {
   const { layoutType } = useLayout();
-  const { config } = useSettings();
 
   useEffect(() => {
     const verticalOverlay =
@@ -52,47 +49,19 @@ const Sidebar = () => {
         <div className="navbar-brand-box">
           <Link href="/" className="logo logo-dark">
             <span className="logo-sm">
-              <Image
-                src={
-                  config?.logoSidebar ? String(config?.logoSidebar) : logoDark
-                }
-                alt=""
-                width={50}
-                height="30"
-              />
+              <img src={logo ? logo.src : logoDark.src} alt="" height="22" />
             </span>
             <span className="logo-lg">
-              <Image
-                src={
-                  config?.logoSidebar ? String(config?.logoSidebar) : logoLight
-                }
-                alt=""
-                width={50}
-                height="30"
-              />
+              <img src={logo ? logo.src : logoLight.src} alt="" height="17" />
             </span>
           </Link>
 
           <Link href="/" className="logo logo-light">
             <span className="logo-sm">
-              <Image
-                src={
-                  config?.logoSidebar ? String(config?.logoSidebar) : logoLight
-                }
-                alt=""
-                width={50}
-                height="30"
-              />
+              <img src={logo ? logo.src : logoLight.src} alt="" height="22" />
             </span>
             <span className="logo-lg">
-              <Image
-                src={
-                  config?.logoSidebar ? String(config?.logoSidebar) : logoLight
-                }
-                alt=""
-                width={50}
-                height="30"
-              />
+              <img src={logo ? logo.src : logoLight.src} alt="" height="17" />
             </span>
           </Link>
           <button
@@ -124,7 +93,7 @@ const Sidebar = () => {
               <Container fluid>
                 <div id="two-column-menu"></div>
                 <ul className="navbar-nav" id="navbar-nav">
-                  <VerticalLayouts />
+                  <VerticalLayout />
                 </ul>
               </Container>
             </SimpleBar>

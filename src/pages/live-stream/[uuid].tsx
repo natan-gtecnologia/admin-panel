@@ -1,10 +1,7 @@
-import BreadCrumb from "@growth/growforce-admin-ui/components/Common/BreadCrumb";
-import { Card } from "@growth/growforce-admin-ui/components/Common/Card";
 import { useEffect, useState } from "react";
 import { NextPageWithLayout } from "../../@types/next";
 import Layout from "../../containers/Layout";
 
-import { Col, Row } from "@growth/growforce-admin-ui/index";
 import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
 import qs from "qs";
@@ -12,11 +9,13 @@ import io from "socket.io-client";
 import { withSSRAuth } from "../../utils/withSSRAuth";
 
 import {
+  Col,
   ListGroup,
   ListGroupItem,
   Nav,
   NavItem,
   NavLink,
+  Row,
   TabContent,
   TabPane,
 } from "reactstrap";
@@ -25,7 +24,9 @@ import classnames from "classnames";
 import SimpleBar from "simplebar-react";
 import { setupAPIClient } from "../../services/api";
 
-import { convert_livestream_strapi } from "apps/growforce/admin-panel/utils/convertions/convert_live_stream";
+import BreadCrumb from "@/components/Common/BreadCrumb";
+import { Card } from "@/components/Common/Card";
+import { convert_livestream_strapi } from "@/utils/convertions/convert_live_stream";
 import { z } from "zod";
 import { IChat } from "../../@types/chat";
 import { ILiveStream } from "../../@types/livestream";
@@ -113,7 +114,14 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
 
   const [message, setMessage] = useState("");
   const [messagesFromSocket, setMessagesFromSocket] = useState<IMessage[]>([]);
-  const [usersFromSocket, setUsersFromSocket] = useState([]);
+  const [usersFromSocket, setUsersFromSocket] = useState<
+    {
+      id: string;
+      firstName: string;
+      lastName: string;
+      image: string;
+    }[]
+  >([]);
 
   const messages = [...chat.messages, ...messagesFromSocket];
 
@@ -129,6 +137,8 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   }
 
   const handleSendMessage = async () => {
+    if (!config) return;
+
     const socketConnection = io(config.socket_url);
 
     if (!message) return;

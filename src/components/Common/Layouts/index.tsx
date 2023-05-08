@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 
 //import Components
-import RightSidebar from "@/components/Common/RightSidebar";
+import RightSidebar from "../RightSidebar";
 import Footer from "./Footer";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
@@ -10,6 +10,7 @@ import Sidebar from "./Sidebar";
 
 export type LayoutProps = {
   children: ReactNode;
+  header?: any;
   logo: any;
 };
 
@@ -32,9 +33,13 @@ const Layout = (props: LayoutProps) => {
 
   return (
     <React.Fragment>
-      <div id="layout-wrapper" className="overflow-hidden">
-        <Header headerClass={headerClass} logo={props.logo} />
-        <Sidebar />
+      <div id="layout-wrapper">
+        {props.header ? (
+          <props.header headerClass={headerClass} />
+        ) : (
+          <Header headerClass={headerClass} />
+        )}
+        <Sidebar logo={props.logo} />
         <div className="main-content">
           {props.children}
           <Footer />

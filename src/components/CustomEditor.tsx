@@ -1,5 +1,5 @@
-import Editor, { EditorProps, OnValidate } from '@monaco-editor/react';
-import { memo, useCallback, useState } from 'react';
+import Editor, { EditorProps, OnValidate } from "@monaco-editor/react";
+import { memo, useCallback, useState } from "react";
 
 const options = {
   minimap: {
@@ -7,22 +7,22 @@ const options = {
   },
   scrollBeyondLastLine: false,
   acceptSuggestionOnCommitCharacter: true,
-  acceptSuggestionOnEnter: 'on',
-  accessibilitySupport: 'auto',
-  autoIndent: 'advanced',
+  acceptSuggestionOnEnter: "on",
+  accessibilitySupport: "auto",
+  autoIndent: "advanced",
   automaticLayout: true,
   codeLens: true,
   colorDecorators: true,
   contextmenu: true,
-  cursorBlinking: 'blink',
-  cursorSmoothCaretAnimation: 'off',
-  cursorStyle: 'line',
+  cursorBlinking: "blink",
+  cursorSmoothCaretAnimation: "off",
+  cursorStyle: "line",
   disableLayerHinting: false,
   disableMonospaceOptimizations: false,
   dragAndDrop: false,
   fixedOverflowWidgets: false,
   folding: true,
-  foldingStrategy: 'auto',
+  foldingStrategy: "auto",
   fontLigatures: false,
   formatOnPaste: false,
   formatOnType: false,
@@ -31,17 +31,17 @@ const options = {
   links: true,
   mouseWheelZoom: false,
   multiCursorMergeOverlapping: true,
-  multiCursorModifier: 'alt',
+  multiCursorModifier: "alt",
   overviewRulerBorder: true,
   overviewRulerLanes: 2,
   quickSuggestions: true,
   quickSuggestionsDelay: 100,
   readOnly: false,
   renderControlCharacters: false,
-  renderFinalNewline: 'off',
+  renderFinalNewline: "off",
   renderIndentGuides: true,
-  renderLineHighlight: 'all',
-  renderWhitespace: 'none',
+  renderLineHighlight: "all",
+  renderWhitespace: "none",
   revealHorizontalRightPadding: 30,
   roundedSelection: true,
   rulers: [80, 120],
@@ -49,22 +49,22 @@ const options = {
   selectOnLineNumbers: false,
   selectionClipboard: false,
   selectionHighlight: true,
-  showFoldingControls: 'mouseover',
+  showFoldingControls: "mouseover",
   smoothScrolling: false,
   suggestOnTriggerCharacters: true,
   wordBasedSuggestions: true,
-  wordSeparators: '~!@#$%^&*()-=+[{]}|;:\'",.<>/?',
-  wordWrap: 'off',
-  wordWrapBreakAfterCharacters: '\t})]?|&,;',
-  wordWrapBreakBeforeCharacters: '{([+',
-  wordWrapBreakObtrusiveCharacters: '.',
+  wordSeparators: "~!@#$%^&*()-=+[{]}|;:'\",.<>/?",
+  wordWrap: "off",
+  wordWrapBreakAfterCharacters: "\t})]?|&,;",
+  wordWrapBreakBeforeCharacters: "{([+",
+  wordWrapBreakObtrusiveCharacters: ".",
   wordWrapColumn: 80,
   wordWrapMinified: true,
-  wrappingIndent: 'none',
-} as EditorProps['options'];
+  wrappingIndent: "none",
+} as EditorProps["options"];
 
 type CustomEditorProps = {
-  language: 'json';
+  language: "json";
   onChange: (value: string) => void;
   value: string;
   onValidate?: OnValidate;
@@ -87,7 +87,7 @@ const CustomEditor = ({
         console.error(error);
       }
     },
-    [onChange],
+    [onChange]
   );
 
   return (
@@ -95,7 +95,7 @@ const CustomEditor = ({
       className="rounded"
       style={{
         height: 105,
-        background: '#F3F6F9',
+        background: "#F3F6F9",
       }}
     >
       <Editor
@@ -104,7 +104,7 @@ const CustomEditor = ({
         language={language}
         value={initialValue}
         path={language}
-        onChange={_onChange}
+        onChange={(e) => _onChange(e ?? "")}
         options={options}
         onValidate={onValidate}
       />

@@ -1,7 +1,7 @@
-import { Card } from '@growth/growforce-admin-ui/components/Common/Card';
-import Link from 'next/link';
-import { cloneElement, useState } from 'react';
-import { Button, Modal } from 'reactstrap';
+import Link from "next/link";
+import { cloneElement, useState } from "react";
+import { Button, Modal } from "reactstrap";
+import { Card } from "./Common/Card";
 
 type GoBackModalProps = {
   children: React.ReactNode;

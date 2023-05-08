@@ -1,6 +1,6 @@
-import { Card } from '@growth/growforce-admin-ui/components/Common/Card';
-import { ReactNode, cloneElement, useState } from 'react';
-import { Button, Modal } from 'reactstrap';
+import { cloneElement, useState, type ReactNode } from "react";
+import { Button, Modal } from "reactstrap";
+import { Card } from "./Common/Card";
 
 type ChildrenModalProps = {
   toggle: (data?: string | number | null | undefined) => void;
@@ -17,8 +17,8 @@ export function ConfirmationModal({
   children,
   changeStatus,
 
-  title = 'Tem certeza?',
-  message = 'Você está alterando o status. Ao clicar em confirmar, o produto será alterado para o status selecionado.',
+  title = "Tem certeza?",
+  message = "Você está alterando o status. Ao clicar em confirmar, o produto será alterado para o status selecionado.",
 }: GoBackModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [dataChildren, setDataChildren] = useState<
@@ -37,7 +37,7 @@ export function ConfirmationModal({
 
   return (
     <>
-      {typeof children !== 'function'
+      {typeof children !== "function"
         ? cloneElement(children as React.ReactElement, { onClick: toggle })
         : children({
             toggle,
