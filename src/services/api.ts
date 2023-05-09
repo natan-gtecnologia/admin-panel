@@ -9,7 +9,7 @@ export function setupAPIClient(ctx: any = undefined) {
   const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_REST,
     headers: {
-      ...(cookies["@Admin:token"] && {
+      ...(cookies["@liveforce:token"] && {
         Authorization: `Bearer ${cookies["@liveforce:token"]}`,
       }),
     },

@@ -5,7 +5,6 @@ import {
 } from "next";
 import { destroyCookie, parseCookies } from "nookies";
 import { AuthTokenError } from "./AuthTokenError";
-import { setDomainCookie } from "./setDomainCookie";
 
 export function withSSRAuth<T extends Record<string, any>>(
   fn: GetServerSideProps<T>
@@ -13,10 +12,9 @@ export function withSSRAuth<T extends Record<string, any>>(
   return async (
     ctx: GetServerSidePropsContext
   ): Promise<GetServerSidePropsResult<T>> => {
-    await setDomainCookie(ctx);
     const cookies = parseCookies(ctx);
 
-    if (!cookies["@Admin:token"]) {
+    if (!cookies["@liveforce:token"]) {
       return {
         redirect: {
           destination: "/login",
@@ -29,7 +27,7 @@ export function withSSRAuth<T extends Record<string, any>>(
       return await fn(ctx);
     } catch (err) {
       if (err instanceof AuthTokenError) {
-        destroyCookie(ctx, "@Admin:token");
+        destroyCookie(ctx, "@liveforce:token");
         return {
           redirect: {
             destination: "/login",

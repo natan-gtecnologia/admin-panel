@@ -46,9 +46,9 @@ let authChannel: BroadcastChannel;
 export function signOut() {
   authChannel.postMessage("signOut");
 
-  destroyCookie(undefined, "@Admin:token");
-  destroyCookie(undefined, "@Admin:user");
-  destroyCookie(undefined, "@Admin:configPanel");
+  destroyCookie(undefined, "@liveforce:token");
+  destroyCookie(undefined, "@liveforce:user");
+  destroyCookie(undefined, "@liveforce:configPanel");
 
   api.defaults.headers["Authorization"] = ``;
 
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function loadMe(token?: string, maxAge: number = 0) {
     try {
-      const cacheToken = parseCookies(undefined)["@Admin:token"];
+      const cacheToken = parseCookies(undefined)["@liveforce:token"];
       if (cacheToken || token) {
         const response = await api.get("/users/me", {
           params: {
@@ -91,7 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           });
         }
 
-        setCookie(undefined, "@Admin:user", JSON.stringify(response.data), {
+        setCookie(undefined, "@liveforce:user", JSON.stringify(response.data), {
           maxAge: maxAge, // 30 days or 1 day
           path: "/",
         });
@@ -114,7 +114,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
     const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24; // 30 days or 1 day
 
-    setCookie(undefined, "@Admin:token", data.jwt, {
+    setCookie(undefined, "@liveforce:token", data.jwt, {
       maxAge: maxAge, // 30 days or 1 day
       path: "/",
     });

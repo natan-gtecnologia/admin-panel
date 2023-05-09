@@ -2,7 +2,7 @@
 import { useRouter } from "next/router";
 import { Fragment, Key, useCallback, useEffect, useState } from "react";
 import { Collapse, Container } from "reactstrap";
-import logoSm from "../../assets/images/logo-sm.png";
+//import logoSm from "../../assets/images/logo-sm.png";
 
 //i18n
 import { withTranslation } from "react-i18next";
@@ -181,7 +181,7 @@ const TwoColumnLayout = (props: TwoColumnLayoutProps) => {
             <div id="two-column-menu">
               <SimpleBar className="twocolumn-iconview">
                 <Link href="#" className="logo">
-                  <img src={logoSm.src} alt="" height="22" />
+                  {/*<img src={logoSm.src} alt="" height="22" />*/}
                 </Link>
                 {(navData || []).map((item: any, key: Key) => (
                   <Fragment key={key}>

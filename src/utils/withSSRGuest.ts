@@ -2,9 +2,8 @@ import {
   GetServerSideProps,
   GetServerSidePropsContext,
   GetServerSidePropsResult,
-} from 'next';
-import { parseCookies } from 'nookies';
-import { setDomainCookie } from './setDomainCookie';
+} from "next";
+import { parseCookies } from "nookies";
 
 export function withSSRGuest<T extends Record<string, any>>(
   fn: GetServerSideProps<T>
@@ -12,14 +11,12 @@ export function withSSRGuest<T extends Record<string, any>>(
   return async (
     ctx: GetServerSidePropsContext
   ): Promise<GetServerSidePropsResult<T>> => {
-    await setDomainCookie(ctx);
-
     const cookies = parseCookies(ctx);
 
-    if (cookies['@Admin:token']) {
+    if (cookies["@liveforce:token"]) {
       return {
         redirect: {
-          destination: '/',
+          destination: "/",
           permanent: false,
         },
       };

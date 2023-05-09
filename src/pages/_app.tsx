@@ -13,9 +13,9 @@ import "@/assets/scss/themes.scss";
 
 import { AppPropsWithLayout } from "../@types/next";
 
+import logo from "../../public/svg/logo.png";
 import { MenuWrapper } from "../containers/MenuWrapper";
 import { AuthProvider } from "../contexts/AuthContext";
-import logo from "../public/svg/logo.png";
 import { queryClient } from "../services/react-query";
 
 function CustomApp({ Component, pageProps }: AppPropsWithLayout) {

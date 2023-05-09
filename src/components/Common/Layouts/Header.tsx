@@ -7,9 +7,9 @@ import FullScreenDropdown from "../FullScreenDropdown";
 import LightDark from "../LightDark";
 import Link from "../Link";
 import SearchOption from "../SearchOption";
-import logoDark from "../assets/images/logo-dark.png";
-import logoLight from "../assets/images/logo-light.png";
-import logoSm from "../assets/images/logo-sm.png";
+//import logoDark from "../assets/images/logo-dark.png";
+//import logoLight from "../assets/images/logo-light.png";
+//import logoSm from "../assets/images/logo-sm.png";
 
 //import Components
 
@@ -72,19 +72,19 @@ const Header = ({ headerClass }: HeaderProps) => {
             <div className="navbar-brand-box horizontal-logo">
               <Link href="/" className="logo logo-dark">
                 <span className="logo-sm">
-                  <img src={logoSm.src} alt="" height="22" />
+                  {/*<img src={logoSm.src} alt="" height="22" />*/}
                 </span>
                 <span className="logo-lg">
-                  <img src={logoDark.src} alt="" height="17" />
+                  {/*<img src={logoDark.src} alt="" height="17" />*/}
                 </span>
               </Link>
 
               <Link href="/" className="logo logo-light">
                 <span className="logo-sm">
-                  <img src={logoSm.src} alt="" height="22" />
+                  {/*<img src={logoSm.src} alt="" height="22" />*/}
                 </span>
                 <span className="logo-lg">
-                  <img src={logoLight.src} alt="" height="17" />
+                  {/*<img src={logoLight.src} alt="" height="17" />*/}
                 </span>
               </Link>
             </div>
