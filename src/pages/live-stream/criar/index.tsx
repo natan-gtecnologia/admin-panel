@@ -1,5 +1,6 @@
 import { NextPageWithLayout } from "@/@types/next";
 import BreadCrumb from "@/components/Common/BreadCrumb";
+import { CreateOrUpdate } from "@/components/LiveStream/CreateOrUpdate";
 import Layout from "@/containers/Layout";
 import { withSSRAuth } from "@/utils/withSSRAuth";
 import Head from "next/head";
@@ -10,10 +11,12 @@ const Page: NextPageWithLayout<Props> = () => {
   return (
     <div className="page-content">
       <Head>
-        <title>Gerenciamento da Live - Dashboard</title>
+        <title>Criar Live - Dashboard</title>
       </Head>
 
-      <BreadCrumb title="Nova Live" pageTitle="Ecommerce" />
+      <BreadCrumb title="Nova Live" pageTitle="Lives" />
+
+      <CreateOrUpdate />
     </div>
   );
 };
