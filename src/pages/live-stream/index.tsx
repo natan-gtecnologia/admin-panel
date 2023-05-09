@@ -1,13 +1,9 @@
-import qs from "qs";
 import { NextPageWithLayout } from "../../@types/next";
 import { setupAPIClient } from "../../services/api";
 import { convert_livestream_strapi } from "../../utils/convertions/convert_live_stream";
 import { withSSRAuth } from "../../utils/withSSRAuth";
 import { ILiveStream } from "../../@types/livestream";
-import { IChat } from "../../@types/chat";
 import Layout from "../../containers/Layout";
-import { convert_chat_strapi } from "../../utils/convertions/convert_chat";
-import { z } from "zod";
 import { NextPageContext } from "next";
 import { useCallback, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +11,7 @@ import TableContainer from "@/components/Common/TableContainer";
 import { Card } from "@/components/Common/Card";
 import Head from "next/head";
 import BreadCrumb from "@/components/Common/BreadCrumb";
-import { Badge, Button, Col, Row } from "reactstrap";
+import { Badge, Col, Row } from "reactstrap";
 import Link from "@/components/Common/Link";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import format from 'date-fns/format';
@@ -36,7 +32,6 @@ const statusDescriptions = {
 
 type LiveStreamProps = {
     liveStream: ILiveStream;
-    // chat: IChat;
 
 };
 
@@ -57,10 +52,7 @@ async function getLiveStream(
         }
     });
 
-    console.log("liveStream", liveStreams.data.data.map(convert_livestream_strapi))
-
     return {
-        // liveStream: []
         liveStream: liveStreams.data.data.map(convert_livestream_strapi),
     };
 }
@@ -398,7 +390,6 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 </Col>
             </Row>
 
-            {/* {isDeleting && <Loader loading={null} />} */}
         </div>
     )
 }
