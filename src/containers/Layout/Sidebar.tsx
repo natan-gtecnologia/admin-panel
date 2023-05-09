@@ -1,22 +1,16 @@
 import React, { useEffect } from "react";
 import SimpleBar from "simplebar-react";
 //import logo
-import logoDark from "@growth/growforce-admin-ui/assets/images/logo-dark.png";
-import logoLight from "@growth/growforce-admin-ui/assets/images/logo-light.png";
 
 //Import Components
 import HorizontalLayout from "@/components/Common/Layouts/HorizontalLayout";
 import TwoColumnLayout from "@/components/Common/Layouts/TwoColumnLayout";
 import VerticalLayouts from "@/components/Common/Layouts/VerticalLayouts";
-import Link from "@/components/Common/Link";
 import { useLayout } from "@/hooks/useLayout";
-import Image from "next/legacy/image";
 import { Container } from "reactstrap";
-import { useSettings } from "../../contexts/SettingsContext";
 
 const Sidebar = () => {
   const { layoutType } = useLayout();
-  const { config } = useSettings();
 
   useEffect(() => {
     const verticalOverlay =
@@ -50,7 +44,7 @@ const Sidebar = () => {
     <React.Fragment>
       <div className="app-menu navbar-menu">
         <div className="navbar-brand-box">
-          <Link href="/" className="logo logo-dark">
+          {/*<Link href="/" className="logo logo-dark">
             <span className="logo-sm">
               <Image
                 src={
@@ -94,7 +88,8 @@ const Sidebar = () => {
                 height="30"
               />
             </span>
-          </Link>
+          </Link>*/}
+
           <button
             onClick={addEventListenerOnSmHoverMenu}
             type="button"

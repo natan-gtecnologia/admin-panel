@@ -5,7 +5,7 @@ import Layout from "../../containers/Layout";
 import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
 import qs from "qs";
-import io from "socket.io-client";
+import io, { type Socket } from "socket.io-client";
 import { withSSRAuth } from "../../utils/withSSRAuth";
 
 import {
@@ -30,7 +30,6 @@ import { convert_livestream_strapi } from "@/utils/convertions/convert_live_stre
 import { z } from "zod";
 import { IChat } from "../../@types/chat";
 import { ILiveStream } from "../../@types/livestream";
-import { useSettings } from "../../contexts/SettingsContext";
 import { convert_chat_strapi } from "../../utils/convertions/convert_chat";
 
 type LiveStreamProps = {
@@ -86,12 +85,11 @@ export async function getLivestream({
   return formattedLivestream;
 }
 
+let socketConnection: Socket;
 const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   liveStream: initialLiveStream,
   chat,
 }) => {
-  const { config } = useSettings();
-
   const [activeTab, setActiveTab] = useState(1);
   const [passedSteps, setPassedSteps] = useState([1]);
 
@@ -137,11 +135,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   }
 
   const handleSendMessage = async () => {
-    if (!config) return;
-
-    const socketConnection = io(config.socket_url);
-
-    if (!message) return;
+    if (!message || !socketConnection) return;
 
     socketConnection?.emit("message:send", {
       chat_id: chat.id,
@@ -155,8 +149,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   };
 
   useEffect(() => {
-    if (!config) return;
-    const socketConnection = io(config.socket_url);
+    socketConnection = io(process.env.NEXT_PUBLIC_BACKEND!);
 
     socketConnection.on("connect", () => {
       console.log("SOCKET ADMIN CONNECTED", socketConnection.id);
@@ -178,7 +171,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
     return () => {
       socketConnection.disconnect();
     };
-  }, [config?.socket_url]);
+  }, [chat.id]);
 
   return (
     <>

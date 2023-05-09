@@ -2,7 +2,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -20,7 +19,6 @@ import {
 } from "reactstrap";
 import { z } from "zod";
 import { useAuth } from "../../contexts/AuthContext";
-import { useSettings } from "../../contexts/SettingsContext";
 import { withSSRGuest } from "../../utils/withSSRGuest";
 import LogoGrowforce from "/public/svg/logo-growforce.svg";
 
@@ -126,7 +124,6 @@ const ParticlesAuth = ({
 const Login: NextPage = () => {
   const { signIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const { config } = useSettings();
   const [loaded, setLoaded] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
   const { handleSubmit, register, formState } = useForm<FormProps>({
@@ -176,7 +173,7 @@ const Login: NextPage = () => {
   return (
     <>
       {!loaded && <Loader />}
-      <ParticlesAuth backgroudColor={config?.color_scheme.primary}>
+      <ParticlesAuth>
         <Head>
           <title>Login - GrowForce</title>
         </Head>
@@ -187,16 +184,7 @@ const Login: NextPage = () => {
                 <div className="text-center mb-3 text-white-50">
                   <div>
                     <Link href="/" className="d-inline-block auth-logo">
-                      {config && config?.logo ? (
-                        <Image
-                          src={config?.logo}
-                          alt="logo sistema"
-                          width={200}
-                          height={50}
-                        />
-                      ) : (
-                        <LogoGrowforce />
-                      )}
+                      <LogoGrowforce />
                     </Link>
                   </div>
                 </div>
@@ -209,9 +197,7 @@ const Login: NextPage = () => {
                   <CardBody className="p-4">
                     <div className="text-center mt-2">
                       <h5 className="user-name-text">Bem-vindo de volta!</h5>
-                      <p className="text-muted">{`Faça login para continuar para ${
-                        config?.name_system || "Growforce"
-                      }`}</p>
+                      <p className="text-muted">{`Faça login para continuar para Growforce`}</p>
                     </div>
                     <div className="p-2 mt-4">
                       <form

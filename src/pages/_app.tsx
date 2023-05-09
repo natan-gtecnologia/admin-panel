@@ -15,7 +15,6 @@ import { AppPropsWithLayout } from "../@types/next";
 
 import { MenuWrapper } from "../containers/MenuWrapper";
 import { AuthProvider } from "../contexts/AuthContext";
-import { SettingsProvider } from "../contexts/SettingsContext";
 import logo from "../public/svg/logo.png";
 import { queryClient } from "../services/react-query";
 
@@ -36,16 +35,14 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
 
   return (
     <AuthProvider>
-      <SettingsProvider>
-        <DndProvider backend={HTML5Backend}>
-          <QueryClientProvider client={queryClient}>
-            <MenuWrapper>
-              {getLayout(<Component {...pageProps} />, logo)}
-            </MenuWrapper>
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
-        </DndProvider>
-      </SettingsProvider>
+      <DndProvider backend={HTML5Backend}>
+        <QueryClientProvider client={queryClient}>
+          <MenuWrapper>
+            {getLayout(<Component {...pageProps} />, logo)}
+          </MenuWrapper>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </DndProvider>
     </AuthProvider>
   );
 }
