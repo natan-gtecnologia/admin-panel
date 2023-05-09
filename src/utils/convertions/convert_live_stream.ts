@@ -10,9 +10,11 @@ export function convert_livestream_strapi(
   return {
     id: livestream.id,
     uuid: livestream.attributes.uuid,
-    state: livestream.attributes.state,
-    endedDate: livestream.attributes.endedDate,
-    streamProducts: livestream.attributes.streamProducts.map(
+    state: livestream.attributes?.state,
+    title: livestream.attributes?.title,
+    liveEventName: livestream.attributes?.liveEventName,
+    endedDate: livestream.attributes?.endedDate,
+    streamProducts: livestream.attributes?.streamProducts.map(
       ({ product, price, highlight }) => {
         return {
           highlight,

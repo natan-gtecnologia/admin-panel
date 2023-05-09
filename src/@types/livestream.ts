@@ -6,6 +6,8 @@ export interface ILiveStream {
     id: number;
     state: "enabled" | "disabled";
     uuid: string;
+    title: string;
+    liveEventName?: string;
     streamKey: string;
     transmissionUrl: string;
     endedDate: string | null;
