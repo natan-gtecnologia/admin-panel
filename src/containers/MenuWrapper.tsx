@@ -1,4 +1,4 @@
-import { LayoutDisclosureProvider } from "@growth/growforce-admin-ui/contexts/LayoutDisclosure";
+import { LayoutDisclosureProvider } from "@/contexts/LayoutDisclosure";
 import Head from "next/head";
 import { PropsWithChildren } from "react";
 import { ToastContainer } from "react-toastify";
@@ -12,7 +12,7 @@ export function MenuWrapper({ children }: PropsWithChildren) {
   const companyUser = user?.companies.map((company) => company.id);
   const matchingPermissions = user?.permissions?.filter((permission) => {
     const permissionCompanyIds = permission.attributes.companies.data.map(
-      (company) => company.id
+      (company: any) => company.id
     );
     return companyUser?.some((id) => permissionCompanyIds.includes(id));
   });
@@ -31,7 +31,7 @@ export function MenuWrapper({ children }: PropsWithChildren) {
     .map((item) => {
       return {
         ...item,
-        subItems: item.subItems.filter((sItem) => {
+        subItems: item.subItems?.filter((sItem) => {
           const permission = userPermissions.find((i) => i.modules === item.id);
 
           if (sItem.id === `create-${item.id}` && !permission.create) {

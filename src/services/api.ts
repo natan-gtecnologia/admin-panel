@@ -7,10 +7,10 @@ export function setupAPIClient(ctx: any = undefined) {
   const cookies = parseCookies(ctx);
 
   const api = axios.create({
-    baseURL: cookies["@Admin:configPanel"],
+    baseURL: process.env.NEXT_PUBLIC_API_REST,
     headers: {
       ...(cookies["@Admin:token"] && {
-        Authorization: `Bearer ${cookies["@Admin:token"]}`,
+        Authorization: `Bearer ${cookies["@liveforce:token"]}`,
       }),
     },
     withCredentials: true,

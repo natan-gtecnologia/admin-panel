@@ -58,6 +58,7 @@
     "swiper": "^8.0.6"
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.0.1",
     "@types/aos": "^3.0.4",
     "@types/ckeditor__ckeditor5-build-classic": "^29.0.1",
     "@types/cleave.js": "^1.4.7",
