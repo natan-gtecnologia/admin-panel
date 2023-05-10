@@ -11,8 +11,8 @@ import { Button, ButtonGroup, Col, FormFeedback, Label, Row } from "reactstrap";
 
 import { Tooltip } from "@/components/Common/Tooltip";
 import type { CreateOrUpdateSchemaType } from "../schema";
-import { EditCover } from "./EditCover";
-import { LivePreview } from "./LivePreview";
+import { EditCover } from "./EditCoverModal";
+import { LivePreview } from "./LivePreviewModal";
 import { aiOptions } from "./aiOptions";
 
 export function GeneralConfigs() {

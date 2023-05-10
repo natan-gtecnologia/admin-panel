@@ -14,6 +14,7 @@ import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { currentPrice, discountPercentage } from "@/utils/price";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
+import { InsertProductModal } from "../InsertProductModal";
 import { ChangeDiscountModal } from "./ChangeDiscountModal";
 
 type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
@@ -262,7 +263,7 @@ export function Products() {
         width: "8%",
       },
     ],
-    [handleRemoveProduct, selectedIds, toggleSelectedId]
+    [getValues, handleRemoveProduct, selectedIds, setValue, toggleSelectedId]
   );
 
   return (
@@ -270,14 +271,16 @@ export function Products() {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Produtos</h4>
 
-        <Button
-          color="primary"
-          className="d-flex align-items-center gap-2"
-          type="button"
-        >
-          <span className="bx bx-plus fs-5" />
-          Inserir produto
-        </Button>
+        <InsertProductModal>
+          <Button
+            color="primary"
+            className="d-flex align-items-center gap-2"
+            type="button"
+          >
+            <span className="bx bx-plus fs-5" />
+            Inserir produto
+          </Button>
+        </InsertProductModal>
       </Card.Header>
 
       <Card.Body>
