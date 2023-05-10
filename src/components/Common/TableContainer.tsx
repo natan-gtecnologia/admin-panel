@@ -25,6 +25,7 @@ export type TableContainerProps = {
   onChangePage?: (page: number) => void;
   onSortBy?: (sortBy: string, order: "desc" | "asc") => void;
   setCurrentPageSize?: (pageSize: number) => void;
+  hidePagination?: boolean;
   sortedBy?: any;
 };
 
@@ -42,6 +43,7 @@ const TableContainer = ({
   totalPages = 1,
   onChangePage = console.log,
   setCurrentPageSize = console.log,
+  hidePagination = false,
 
   onSortBy,
   sortedBy = [],
@@ -160,65 +162,67 @@ const TableContainer = ({
         </Table>
       </div>
 
-      <Row className="justify-content-md-end justify-content-center align-items-center p-2">
-        <Col className="col-md-auto">
-          <select
-            className={"form-select"}
-            aria-label="Tamanho da página"
-            id="pageSize"
-            onChange={(e) => {
-              setCurrentPageSize(Number(e.target.value));
-              onChangePage(1);
-            }}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-        </Col>
-
-        <Col className="col-md-auto">
-          <div className="d-flex gap-1">
-            <Button
-              color="primary"
-              onClick={() => onChangePage(currentPage - 1)}
-              disabled={!canPreviousPage}
+      {!hidePagination && (
+        <Row className="justify-content-md-end justify-content-center align-items-center p-2">
+          <Col className="col-md-auto">
+            <select
+              className={"form-select"}
+              aria-label="Tamanho da página"
+              id="pageSize"
+              onChange={(e) => {
+                setCurrentPageSize(Number(e.target.value));
+                onChangePage(1);
+              }}
             >
-              {"<"}
-            </Button>
-          </div>
-        </Col>
-        <Col className="col-md-auto d-none d-md-block">
-          Página{" "}
-          <strong>
-            {currentPage} de {totalPages}
-          </strong>
-        </Col>
-        <Col className="col-md-auto">
-          <Input
-            type="number"
-            min={1}
-            step={1}
-            max={totalPages}
-            style={{ width: 70 }}
-            value={currentPage}
-            onChange={onChangeInInput}
-          />
-        </Col>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </Col>
 
-        <Col className="col-md-auto">
-          <div className="d-flex gap-1">
-            <Button
-              color="primary"
-              onClick={() => onChangePage(currentPage + 1)}
-              disabled={!canNextPage}
-            >
-              {">"}
-            </Button>
-          </div>
-        </Col>
-      </Row>
+          <Col className="col-md-auto">
+            <div className="d-flex gap-1">
+              <Button
+                color="primary"
+                onClick={() => onChangePage(currentPage - 1)}
+                disabled={!canPreviousPage}
+              >
+                {"<"}
+              </Button>
+            </div>
+          </Col>
+          <Col className="col-md-auto d-none d-md-block">
+            Página{" "}
+            <strong>
+              {currentPage} de {totalPages}
+            </strong>
+          </Col>
+          <Col className="col-md-auto">
+            <Input
+              type="number"
+              min={1}
+              step={1}
+              max={totalPages}
+              style={{ width: 70 }}
+              value={currentPage}
+              onChange={onChangeInInput}
+            />
+          </Col>
+
+          <Col className="col-md-auto">
+            <div className="d-flex gap-1">
+              <Button
+                color="primary"
+                onClick={() => onChangePage(currentPage + 1)}
+                disabled={!canNextPage}
+              >
+                {">"}
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      )}
     </Fragment>
   );
 };
