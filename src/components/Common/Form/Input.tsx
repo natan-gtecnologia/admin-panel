@@ -7,16 +7,31 @@ import {
 
 export type InputProps = ReactstrapInputProps & {
   error?: string;
+  prefix?: string;
+  suffix?: string;
 };
 
 const InputBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
-  { invalid, error, ...props },
+  { invalid, error, prefix, suffix, ...props },
   ref
 ) => {
   return (
     <>
-      <ReactstrapInput invalid={invalid} innerRef={ref} {...props} />
-      {error ? <FormFeedback type="invalid">{error}</FormFeedback> : null}
+      {(prefix || suffix) && (
+        <div className="input-group">
+          {prefix && <span className="input-group-text">{prefix}</span>}
+          <ReactstrapInput invalid={invalid} innerRef={ref} {...props} />
+          {suffix && <span className="input-group-text">{suffix}</span>}
+        </div>
+      )}
+      {!prefix && !suffix && (
+        <ReactstrapInput invalid={invalid} innerRef={ref} {...props} />
+      )}
+      {error ? (
+        <FormFeedback type="invalid" className="d-block">
+          {error}
+        </FormFeedback>
+      ) : null}
     </>
   );
 };

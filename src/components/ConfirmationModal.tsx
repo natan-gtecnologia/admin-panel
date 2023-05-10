@@ -43,20 +43,28 @@ export function ConfirmationModal({
             toggle,
           })}
       <Modal isOpen={isOpen} centered toggle={() => toggle()}>
-        <Card className="m-0">
-          <Card.Header className="d-flex align-items-center gap-1 justify-content-between">
-            <h4 className="m-0 fs-5">{title}</h4>
+        <Card className="m-0 shadow-none">
+          <Card.Header className="d-flex align-items-center gap-1 justify-content-between border-0">
+            <h4 className="m-0 fs-5 fw-bold">{title}</h4>
             <Button onClick={() => toggle()} close />
           </Card.Header>
-          <Card.Body>
+          <Card.Body className="pt-0 pb-0">
             <p className="m-0">{message}</p>
           </Card.Body>
 
-          <Card.Footer className="d-flex align-items-center gap-2 justify-content-end">
-            <Button onClick={() => toggle()} color="light">
+          <Card.Footer className="d-flex align-items-center gap-2 justify-content-end border-0">
+            <Button
+              onClick={() => toggle()}
+              color="light"
+              className="shadow-none"
+            >
               Cancelar
             </Button>
-            <Button color="danger" onClick={handleConfirmation}>
+            <Button
+              color="danger"
+              className="shadow-none"
+              onClick={handleConfirmation}
+            >
               Confirmar
             </Button>
           </Card.Footer>

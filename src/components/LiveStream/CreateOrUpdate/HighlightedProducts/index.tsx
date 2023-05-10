@@ -1,63 +1,57 @@
 import { Card } from "@/components/Common/Card";
 import { useFormContext } from "react-hook-form";
-import { Button, Label } from "reactstrap";
+import { Button } from "reactstrap";
 
 import type { IProduct } from "@/@types/product";
-import { Input } from "@/components/Common/Form/Input";
 import TableContainer from "@/components/Common/TableContainer";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 import type { CreateOrUpdateSchemaType } from "../schema";
 
 import { Tooltip } from "@/components/Common/Tooltip";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { currentPrice, discountPercentage } from "@/utils/price";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 
 type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
 
 export function HighlightedProducts() {
-  const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
   const { register, formState, control, watch, setValue } =
     useFormContext<CreateOrUpdateSchemaType>();
 
-  const columns = useMemo(
+  const highlightedProducts = useMemo(
     () => [
       {
-        Header: (
-          <div className="form-check form-switch d-flex justify-content-center flex-1 align-items-center">
-            <Label className="form-check-label me-1" for="SwitchCheck1">
-              Ativar todos
-            </Label>
-
-            <Input
-              className="form-check-input"
-              type="checkbox"
-              role="switch"
-              id="SwitchCheck1"
-              checked={selectedIds === "all"}
-            />
-          </div>
-        ),
-        Cell: (cellProps: CellProps<IProduct>) => {
-          return (
-            <div className="form-check form-switch d-flex justify-content-center">
-              <Input
-                className="form-check-input"
-                type="checkbox"
-                role="switch"
-                id="SwitchCheck1"
-                checked={
-                  selectedIds === "all" ||
-                  selectedIds.includes(cellProps.row.original.id)
-                }
-              />
-            </div>
-          );
+        id: 1,
+        title: "Produto 1",
+        price: {
+          regularPrice: 100,
+          salePrice: 80,
         },
-        id: "#",
-        width: "8%",
+        livePrice: 80,
+        images: {
+          data: [
+            {
+              attributes: {
+                formats: {
+                  thumbnail: {
+                    url: "https://via.placeholder.com/150",
+                  },
+                },
+              },
+            },
+          ],
+        },
       },
+    ],
+    []
+  );
+
+  const handleRemoveProduct = useCallback((id: number) => {}, []);
+
+  const columns = useMemo(
+    () => [
       {
         Header: "Foto do produto",
         Cell: (cellProps: CellProps<IProduct>) => {
@@ -85,6 +79,7 @@ export function HighlightedProducts() {
           );
         },
         id: "#picture",
+        width: "10%",
       },
       {
         Header: "Nome do Produto",
@@ -105,6 +100,7 @@ export function HighlightedProducts() {
           return formatNumberToReal(price.price);
         },
         id: "#price",
+        width: "10%",
       },
       {
         Header: "Desconto",
@@ -124,6 +120,7 @@ export function HighlightedProducts() {
           );
         },
         id: "#discount",
+        width: "10%",
       },
       {
         Header: "Preço da live",
@@ -131,29 +128,29 @@ export function HighlightedProducts() {
           return formatNumberToReal(cellProps.row.original.livePrice);
         },
         id: "#livePrice",
+        width: "10%",
       },
       {
         Header: "Ações",
         Cell: (cellProps: CellProps<ProductProps>) => {
           return (
             <div className="d-flex align-items-center gap-1">
-              <Tooltip message="Alterar desconto">
-                <button
-                  type="button"
-                  color="primary"
-                  className="d-flex align-items-center gap-2 border-0 bg-transparent "
-                >
-                  <span className="bx bx-dollar fs-5" />
-                </button>
-              </Tooltip>
-              <Tooltip message="Remover produto">
+              <ConfirmationModal
+                changeStatus={() =>
+                  handleRemoveProduct(cellProps.row.original.id)
+                }
+                title="Remover produto"
+                message="Deseja realmente remover este produto? A ação não poderá ser desfeita e qualquer alteração será cancelada."
+              >
                 <button
                   type="button"
                   className="d-flex align-items-center gap-2 border-0 bg-transparent text-danger"
                 >
-                  <span className="bx bxs-x-circle fs-5" />
+                  <Tooltip message="Remover produto">
+                    <span className="bx bxs-x-circle fs-5" />
+                  </Tooltip>
                 </button>
-              </Tooltip>
+              </ConfirmationModal>
             </div>
           );
         },
@@ -161,7 +158,7 @@ export function HighlightedProducts() {
         width: "8%",
       },
     ],
-    [selectedIds]
+    [handleRemoveProduct]
   );
 
   return (
@@ -173,8 +170,9 @@ export function HighlightedProducts() {
 
         <Button
           color="primary"
-          disabled
           className="d-flex align-items-center gap-2"
+          disabled={highlightedProducts.length === 4}
+          type="button"
         >
           <span className="bx bx-plus fs-5" />
           Inserir produto destaque
@@ -184,30 +182,7 @@ export function HighlightedProducts() {
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={[
-            {
-              id: 1,
-              title: "Produto 1",
-              price: {
-                regularPrice: 100,
-                salePrice: 80,
-              },
-              livePrice: 80,
-              images: {
-                data: [
-                  {
-                    attributes: {
-                      formats: {
-                        thumbnail: {
-                          url: "https://via.placeholder.com/150",
-                        },
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          ]}
+          data={highlightedProducts}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"

@@ -3,11 +3,12 @@ import { useFormContext } from "react-hook-form";
 import { Button } from "reactstrap";
 
 import TableContainer from "@/components/Common/TableContainer";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { CellProps } from "react-table";
 import type { CreateOrUpdateSchemaType } from "../schema";
 
 import { Tooltip } from "@/components/Common/Tooltip";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 type BroadcasterProps = {
   id: number;
@@ -19,6 +20,17 @@ export function Broadcasters() {
   const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
   const { register, formState, control, watch, setValue } =
     useFormContext<CreateOrUpdateSchemaType>();
+  const broadcasters = watch("broadcasters");
+
+  const handleRemovedBroadcaster = useCallback(
+    (id: number) => {
+      setValue(
+        "broadcasters",
+        broadcasters.filter((broadcaster) => broadcaster !== id)
+      );
+    },
+    [broadcasters, setValue]
+  );
 
   const columns = useMemo(
     () => [
@@ -50,6 +62,7 @@ export function Broadcasters() {
                   <span className="bx bxs-pencil fs-5" />
                 </button>
               </Tooltip>
+
               <Tooltip message="Enviar e-mail">
                 <button
                   type="button"
@@ -59,14 +72,23 @@ export function Broadcasters() {
                   <span className="bx bxs-envelope fs-5" />
                 </button>
               </Tooltip>
-              <Tooltip message="Remover cupom">
+
+              <ConfirmationModal
+                changeStatus={() =>
+                  handleRemovedBroadcaster(cellProps.row.original.id)
+                }
+                title="Remover apresentadora"
+                message="Deseja realmente remover esta apresentadora? Essa ação não poderá ser desfeita."
+              >
                 <button
                   type="button"
                   className="d-flex align-items-center gap-2 border-0 bg-transparent text-danger"
                 >
-                  <span className="bx bxs-x-circle fs-5" />
+                  <Tooltip message="Remover cupom">
+                    <span className="bx bxs-x-circle fs-5" />
+                  </Tooltip>
                 </button>
-              </Tooltip>
+              </ConfirmationModal>
             </div>
           );
         },
@@ -74,7 +96,7 @@ export function Broadcasters() {
         width: "8%",
       },
     ],
-    []
+    [handleRemovedBroadcaster]
   );
 
   return (
@@ -82,7 +104,11 @@ export function Broadcasters() {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Lista de apresentadoras</h4>
 
-        <Button color="primary" className="d-flex align-items-center gap-2">
+        <Button
+          color="primary"
+          className="d-flex align-items-center gap-2"
+          type="button"
+        >
           <span className="bx bx-plus fs-5" />
           Inserir apresentadora
         </Button>
