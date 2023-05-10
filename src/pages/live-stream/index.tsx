@@ -239,6 +239,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
           );
         },
         id: "#",
+        width: "4%",
       },
       {
         Header: "Código da live",
@@ -259,7 +260,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
 
           return (
             <>
-              <Badge color={color}>{description}</Badge>
+              <Badge className="px-3" color={color}>{description}</Badge>
             </>
           );
         },
@@ -448,7 +449,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 </div>
               </Card.Header>
 
-              <Card.Body className="card-body px-0">
+              <Card.Body className="card-body">
                 <Row className="mb-4">
                   <Col>
                     <div>
