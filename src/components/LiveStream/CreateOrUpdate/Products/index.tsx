@@ -6,20 +6,71 @@ import type { IProduct } from "@/@types/product";
 import { Input } from "@/components/Common/Form/Input";
 import TableContainer from "@/components/Common/TableContainer";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { CellProps } from "react-table";
 import type { CreateOrUpdateSchemaType } from "../schema";
 
 import { Tooltip } from "@/components/Common/Tooltip";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { currentPrice, discountPercentage } from "@/utils/price";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
+import { ChangeDiscountModal } from "./ChangeDiscountModal";
 
 type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
 
 export function Products() {
   const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
-  const { register, formState, control, watch, setValue } =
+  const { register, formState, control, watch, setValue, getValues } =
     useFormContext<CreateOrUpdateSchemaType>();
+  const products = useMemo(
+    () => [
+      {
+        id: 1,
+        title: "Produto 1",
+        price: {
+          regularPrice: 100,
+          salePrice: 80,
+        },
+        livePrice: 70,
+        images: {
+          data: [
+            {
+              attributes: {
+                formats: {
+                  thumbnail: {
+                    url: "https://via.placeholder.com/150",
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ],
+    []
+  );
+
+  const toggleSelectedId = useCallback(
+    (id: number) => {
+      if (selectedIds === "all") {
+        setSelectedIds(
+          products
+            .filter((coupon) => coupon.id !== id)
+            .map((coupon) => coupon.id)
+        );
+      } else if (selectedIds.includes(id)) {
+        setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+      } else {
+        const newSelectedIds = [...selectedIds, id];
+        setSelectedIds(
+          newSelectedIds.length === products.length ? "all" : newSelectedIds
+        );
+      }
+    },
+    [products, selectedIds]
+  );
+
+  const handleRemoveProduct = useCallback((id: number) => {}, []);
 
   const columns = useMemo(
     () => [
@@ -36,6 +87,13 @@ export function Products() {
               role="switch"
               id="SwitchCheck1"
               checked={selectedIds === "all"}
+              onChange={() => {
+                if (selectedIds === "all") {
+                  setSelectedIds([]);
+                } else {
+                  setSelectedIds("all");
+                }
+              }}
             />
           </div>
         ),
@@ -51,6 +109,9 @@ export function Products() {
                   selectedIds === "all" ||
                   selectedIds.includes(cellProps.row.original.id)
                 }
+                onChange={() => {
+                  toggleSelectedId(cellProps.row.original.id);
+                }}
               />
             </div>
           );
@@ -85,6 +146,7 @@ export function Products() {
           );
         },
         id: "#picture",
+        width: "10%",
       },
       {
         Header: "Nome do Produto",
@@ -105,6 +167,7 @@ export function Products() {
           return formatNumberToReal(price.price);
         },
         id: "#price",
+        width: "10%",
       },
       {
         Header: "Desconto",
@@ -124,6 +187,7 @@ export function Products() {
           );
         },
         id: "#discount",
+        width: "10%",
       },
       {
         Header: "Preço da live",
@@ -131,29 +195,66 @@ export function Products() {
           return formatNumberToReal(cellProps.row.original.livePrice);
         },
         id: "#livePrice",
+        width: "10%",
       },
       {
         Header: "Ações",
         Cell: (cellProps: CellProps<ProductProps>) => {
+          const price = currentPrice({
+            regular_price: cellProps.row.original.price.regularPrice,
+            price:
+              cellProps.row.original.price?.salePrice ??
+              cellProps.row.original.price.regularPrice,
+          });
+
           return (
             <div className="d-flex align-items-center gap-1">
-              <Tooltip message="Alterar desconto">
+              <ChangeDiscountModal
+                regularPrice={price.price}
+                price={cellProps.row.original.livePrice}
+                onChange={(newValue) => {
+                  const products = getValues("products");
+
+                  const newProducts = products.map((product) => {
+                    if (product.id === cellProps.row.original.id) {
+                      return {
+                        ...product,
+                        livePrice: newValue,
+                      };
+                    }
+
+                    return product;
+                  });
+
+                  setValue("products", newProducts);
+                }}
+              >
                 <button
                   type="button"
                   color="primary"
                   className="d-flex align-items-center gap-2 border-0 bg-transparent "
                 >
-                  <span className="bx bx-dollar fs-5" />
+                  <Tooltip message="Alterar desconto">
+                    <span className="bx bx-dollar fs-5" />
+                  </Tooltip>
                 </button>
-              </Tooltip>
-              <Tooltip message="Remover produto">
+              </ChangeDiscountModal>
+              <ConfirmationModal
+                changeStatus={() =>
+                  handleRemoveProduct(cellProps.row.original.id)
+                }
+                title="Remover produto"
+                message="Deseja realmente remover este produto? A ação não poderá ser desfeita e qualquer alteração será cancelada."
+              >
                 <button
                   type="button"
                   className="d-flex align-items-center gap-2 border-0 bg-transparent text-danger"
                 >
-                  <span className="bx bxs-x-circle fs-5" />
+                  <Tooltip message="Remover produto">
+                    <span className="bx bxs-x-circle fs-5" />
+                  </Tooltip>
                 </button>
-              </Tooltip>
+              </ConfirmationModal>
             </div>
           );
         },
@@ -161,7 +262,7 @@ export function Products() {
         width: "8%",
       },
     ],
-    [selectedIds]
+    [handleRemoveProduct, selectedIds, toggleSelectedId]
   );
 
   return (
@@ -169,7 +270,11 @@ export function Products() {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Produtos</h4>
 
-        <Button color="primary" className="d-flex align-items-center gap-2">
+        <Button
+          color="primary"
+          className="d-flex align-items-center gap-2"
+          type="button"
+        >
           <span className="bx bx-plus fs-5" />
           Inserir produto
         </Button>
@@ -178,30 +283,7 @@ export function Products() {
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={[
-            {
-              id: 1,
-              title: "Produto 1",
-              price: {
-                regularPrice: 100,
-                salePrice: 80,
-              },
-              livePrice: 80,
-              images: {
-                data: [
-                  {
-                    attributes: {
-                      formats: {
-                        thumbnail: {
-                          url: "https://via.placeholder.com/150",
-                        },
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          ]}
+          data={products}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"

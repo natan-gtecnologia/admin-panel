@@ -11,6 +11,9 @@ import { Button, ButtonGroup, Col, FormFeedback, Label, Row } from "reactstrap";
 
 import { Tooltip } from "@/components/Common/Tooltip";
 import type { CreateOrUpdateSchemaType } from "../schema";
+import { EditCover } from "./EditCover";
+import { LivePreview } from "./LivePreview";
+import { aiOptions } from "./aiOptions";
 
 export function GeneralConfigs() {
   const { register, formState, control, watch, setValue } =
@@ -22,10 +25,16 @@ export function GeneralConfigs() {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Configurações gerais</h4>
 
-        <Button color="primary" className="d-flex align-items-center gap-2">
-          <span className="bx bx-play fs-5" />
-          Ver preview da Live
-        </Button>
+        <LivePreview>
+          <Button
+            color="primary"
+            className="d-flex align-items-center gap-2"
+            type="button"
+          >
+            <span className="bx bx-play fs-5" />
+            Ver preview da Live
+          </Button>
+        </LivePreview>
       </Card.Header>
 
       <Card.Body>
@@ -38,6 +47,7 @@ export function GeneralConfigs() {
                 className="form-control"
                 id="title"
                 {...register("title")}
+                placeholder="Insira o título da sua livestream"
                 invalid={!!formState.errors.title}
               />
               {formState.errors.title?.message && (
@@ -60,6 +70,7 @@ export function GeneralConfigs() {
                 type="text"
                 className="form-control"
                 id="afterLiveTime"
+                placeholder="0 minutos"
                 {...register("afterLiveTime")}
                 invalid={!!formState.errors.afterLiveTime}
               />
@@ -153,13 +164,15 @@ export function GeneralConfigs() {
             }}
             className="d-flex align-items-end"
           >
-            <Button
-              type="button"
-              color="primary"
-              className="d-flex align-items-center gap-2"
-            >
-              <span className="bx bxs-pencil fs-4" /> Editar capa da live
-            </Button>
+            <EditCover>
+              <Button
+                type="button"
+                color="primary"
+                className="d-flex align-items-center gap-2"
+              >
+                <span className="bx bxs-pencil fs-4" /> Editar capa da live
+              </Button>
+            </EditCover>
           </Col>
         </Row>
 
@@ -173,6 +186,7 @@ export function GeneralConfigs() {
                 type="text"
                 className="form-control"
                 id="shortDescription"
+                placeholder="Insira a descrição que aparecerá na capa"
                 {...register("shortDescription")}
                 invalid={!!formState.errors.shortDescription}
               />
@@ -190,6 +204,7 @@ export function GeneralConfigs() {
               <Input
                 type="text"
                 className="form-control"
+                placeholder="Nossa live começa em"
                 id="initialLiveText"
                 {...register("initialLiveText")}
                 invalid={!!formState.errors.initialLiveText}
@@ -219,26 +234,38 @@ export function GeneralConfigs() {
                       "is-invalid": !!formState.errors.aiTags,
                     })}
                     classNamePrefix="select"
-                    placeholder="Selecione a categoria"
-                    options={[
-                      {
-                        label: "Tradução simultânea",
-                        value: "traducao-simultanea",
-                      },
-                    ]}
-                    value={[
-                      {
-                        label: "Tradução simultânea",
-                        value: "traducao-simultanea",
-                      },
-                    ].filter((v) => value.includes(v.value))}
-                    onChange={(val: any) => {
-                      if (value.includes(val?.value)) {
-                        onChange(value.filter((v) => v !== val?.value));
+                    placeholder="Selecione uma opção"
+                    options={aiOptions}
+                    value={aiOptions.filter((v) => value.includes(v.value))}
+                    onChange={(option: any) => {
+                      if (
+                        !option ||
+                        (Array.isArray(option) && !option.length)
+                      ) {
+                        onChange([]);
                         return;
                       }
 
-                      onChange(value.push(val?.value));
+                      if (Array.isArray(option)) {
+                        option.forEach((o) => {
+                          if (!value.includes(o?.value)) {
+                            console.log("got here");
+                            onChange([...value, o?.value]);
+                            return;
+                          }
+
+                          onChange(value.filter((v) => v !== o?.value));
+                        });
+
+                        return;
+                      }
+
+                      if (value.includes(option?.value)) {
+                        onChange(value.filter((v) => v !== option?.value));
+                        return;
+                      }
+
+                      onChange([option?.value]);
                     }}
                     noOptionsMessage={() => "Nenhum resultado encontrado"}
                     loadingMessage={() => "Carregando..."}

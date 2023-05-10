@@ -8,6 +8,7 @@ export const createOrUpdateSchema = z.object({
   initialLiveText: z.string().min(3, "Mínimo de 3 caracteres"),
   chatReleased: z.boolean(),
   aiTags: z.array(z.string()),
+  liveColor: z.string().default("#DB7D72"),
   liveCover: z.any(),
   products: z
     .array(

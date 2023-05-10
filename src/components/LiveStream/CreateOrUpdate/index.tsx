@@ -23,6 +23,7 @@ const DEFAULT: CreateOrUpdateSchemaType = {
   initialLiveText: "",
   products: [],
   liveCover: null,
+  liveColor: "#DB7D72",
   scheduledStartTime: new Date(),
   shortDescription: "",
 };
