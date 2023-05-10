@@ -53,11 +53,18 @@ export function EditCover({ children }: Props) {
         : children({
             toggle,
           })}
-      <Modal isOpen={isOpen} centered toggle={() => toggle()}>
+      <Modal isOpen={isOpen} centered>
         <Card className="m-0 shadow-none">
           <Card.Header className="d-flex align-items-center gap-1 justify-content-between border-0">
             <h4 className="m-0 fs-5 fw-bold">Fundo de capa da live</h4>
-            <Button onClick={() => toggle()} close />
+            <Button
+              onClick={() => {
+                setValue("liveCover", null);
+                setValue("liveColor", "#DB7D72");
+                toggle();
+              }}
+              close
+            />
           </Card.Header>
           <Card.Body className="pt-0 pb-0">
             <p className="mb-4">
@@ -159,7 +166,7 @@ export function EditCover({ children }: Props) {
                 toggle();
               }}
             >
-              Atualizar
+              Salvar
             </Button>
           </Card.Footer>
         </Card>
