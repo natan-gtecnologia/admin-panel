@@ -11,7 +11,7 @@ const Page: NextPageWithLayout<Props> = () => {
   return (
     <div className="page-content">
       <Head>
-        <title>Criar Live - Dashboard</title>
+        <title>Criar Live - Dashboard Liveforce</title>
       </Head>
 
       <BreadCrumb title="Nova Live" pageTitle="Lives" />

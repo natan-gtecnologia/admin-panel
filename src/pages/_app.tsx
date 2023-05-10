@@ -13,6 +13,7 @@ import "@/assets/scss/themes.scss";
 
 import { AppPropsWithLayout } from "../@types/next";
 
+import Head from "next/head";
 import logo from "../../public/svg/logo.png";
 import { MenuWrapper } from "../containers/MenuWrapper";
 import { AuthProvider } from "../contexts/AuthContext";
@@ -35,6 +36,9 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
 
   return (
     <AuthProvider>
+      <Head>
+        <title>Dashboard - Liveforce</title>
+      </Head>
       <DndProvider backend={HTML5Backend}>
         <QueryClientProvider client={queryClient}>
           <MenuWrapper>

@@ -18,12 +18,12 @@ export const initialMenuItems: MenuItem[] = [
         link: "/live-stream",
         parentId: "live-stream",
       },
-      // {
-      //     id: 'create-live-stream',
-      //     label: 'Criar',
-      //     link: '/price-lists/create',
-      //     parentId: 'price-list',
-      // },
+      {
+        id: "create-live-stream",
+        label: "Nova Live",
+        link: "/live-stream/criar",
+        parentId: "live-stream",
+      },
     ],
   },
 ];

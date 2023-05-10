@@ -10,6 +10,8 @@ import SearchOption from "../SearchOption";
 //import logoDark from "../assets/images/logo-dark.png";
 //import logoLight from "../assets/images/logo-light.png";
 //import logoSm from "../assets/images/logo-sm.png";
+import LogoDark from "@/assets/svgs/liveforce-logo-dark.svg";
+import LogoLight from "@/assets/svgs/liveforce-logo-light.svg";
 
 //import Components
 
@@ -72,19 +74,19 @@ const Header = ({ headerClass }: HeaderProps) => {
             <div className="navbar-brand-box horizontal-logo">
               <Link href="/" className="logo logo-dark">
                 <span className="logo-sm">
-                  {/*<img src={logoSm.src} alt="" height="22" />*/}
+                  <LogoDark />
                 </span>
                 <span className="logo-lg">
-                  {/*<img src={logoDark.src} alt="" height="17" />*/}
+                  <LogoDark />
                 </span>
               </Link>
 
               <Link href="/" className="logo logo-light">
                 <span className="logo-sm">
-                  {/*<img src={logoSm.src} alt="" height="22" />*/}
+                  <LogoLight />
                 </span>
                 <span className="logo-lg">
-                  {/*<img src={logoLight.src} alt="" height="17" />*/}
+                  <LogoLight />
                 </span>
               </Link>
             </div>

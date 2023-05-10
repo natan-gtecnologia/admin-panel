@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import LogoDark from "@/assets/svgs/liveforce-logo-dark.svg";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -20,7 +21,6 @@ import {
 import { z } from "zod";
 import { useAuth } from "../../contexts/AuthContext";
 import { withSSRGuest } from "../../utils/withSSRGuest";
-import LogoGrowforce from "/public/svg/logo-growforce.svg";
 
 const emailSchema = z.string().email("Este e-mail é inválido");
 const usernameSchema = z
@@ -108,7 +108,7 @@ const ParticlesAuth = ({
             <div className="col-lg-12">
               <div className="text-center">
                 <p className="mb-0 text-muted">
-                  &copy; {new Date().getFullYear()} Growforce. Criado com{" "}
+                  &copy; {new Date().getFullYear()} Liveforce. Criado com{" "}
                   <i className="mdi mdi-heart text-danger"></i> por time de
                   produto
                 </p>
@@ -175,7 +175,7 @@ const Login: NextPage = () => {
       {!loaded && <Loader />}
       <ParticlesAuth>
         <Head>
-          <title>Login - GrowForce</title>
+          <title>Login - Liveforce</title>
         </Head>
         <div className="auth-page-content">
           <Container>
@@ -184,7 +184,7 @@ const Login: NextPage = () => {
                 <div className="text-center mb-3 text-white-50">
                   <div>
                     <Link href="/" className="d-inline-block auth-logo">
-                      <LogoGrowforce />
+                      <LogoDark />
                     </Link>
                   </div>
                 </div>
@@ -197,7 +197,7 @@ const Login: NextPage = () => {
                   <CardBody className="p-4">
                     <div className="text-center mt-2">
                       <h5 className="user-name-text">Bem-vindo de volta!</h5>
-                      <p className="text-muted">{`Faça login para continuar para Growforce`}</p>
+                      <p className="text-muted">{`Faça login para continuar para Liveforce`}</p>
                     </div>
                     <div className="p-2 mt-4">
                       <form

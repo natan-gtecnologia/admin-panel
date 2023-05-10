@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import SimpleBar from "simplebar-react";
 //import logo
-import logoDark from "../assets/images/logo-dark.png";
-import logoLight from "../assets/images/logo-light.png";
+import LogoDark from "@/assets/svgs/liveforce-logo-dark.svg";
+import LogoLight from "@/assets/svgs/liveforce-logo-light.svg";
 
 //Import Components
 import { useLayout } from "@/hooks/useLayout";
@@ -49,19 +49,19 @@ const Sidebar = ({ logo }: any) => {
         <div className="navbar-brand-box">
           <Link href="/" className="logo logo-dark">
             <span className="logo-sm">
-              <img src={logo ? logo.src : logoDark.src} alt="" height="22" />
+              <LogoDark />
             </span>
             <span className="logo-lg">
-              <img src={logo ? logo.src : logoLight.src} alt="" height="17" />
+              <LogoDark />
             </span>
           </Link>
 
           <Link href="/" className="logo logo-light">
             <span className="logo-sm">
-              <img src={logo ? logo.src : logoLight.src} alt="" height="22" />
+              <LogoLight />
             </span>
             <span className="logo-lg">
-              <img src={logo ? logo.src : logoLight.src} alt="" height="17" />
+              <LogoLight />
             </span>
           </Link>
           <button

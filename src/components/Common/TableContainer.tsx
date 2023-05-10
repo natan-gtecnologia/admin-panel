@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { ChangeEvent, Fragment } from 'react';
+import { ChangeEvent, Fragment } from "react";
 import {
   useExpanded,
   useFilters,
@@ -8,9 +6,9 @@ import {
   useRowSelect,
   useSortBy,
   useTable,
-} from 'react-table';
-import { Button, Col, Input, Row, Table } from 'reactstrap';
-import { DefaultColumnFilter } from './filters';
+} from "react-table";
+import { Button, Col, Input, Row, Table } from "reactstrap";
+import { DefaultColumnFilter } from "./filters";
 
 export type TableContainerProps = {
   columns: any;
@@ -25,7 +23,7 @@ export type TableContainerProps = {
   currentPage?: number;
   totalPages?: number;
   onChangePage?: (page: number) => void;
-  onSortBy?: (sortBy: string, order: 'desc' | 'asc') => void;
+  onSortBy?: (sortBy: string, order: "desc" | "asc") => void;
   setCurrentPageSize?: (pageSize: number) => void;
   sortedBy?: any;
 };
@@ -90,7 +88,7 @@ const TableContainer = ({
 
   const handleChangeSortBy = (column: any) => {
     if (column.canSort) {
-      if (onSortBy) onSortBy(column.id, !column.isSortedDesc ? 'desc' : 'asc');
+      if (onSortBy) onSortBy(column.id, !column.isSortedDesc ? "desc" : "asc");
     }
   };
 
@@ -112,11 +110,16 @@ const TableContainer = ({
                     {...column.getHeaderProps(
                       column.getSortByToggleProps({
                         onClick: () => handleChangeSortBy(column),
+
+                        style: {
+                          minWidth: column.minWidth,
+                          width: column.width,
+                        },
                       })
                     )}
                   >
                     <span className="d-flex align-items-center">
-                      {column.render('Header')}
+                      {column.render("Header")}
                       {/* <Filter column={column} /> */}
                       {sortedBy.length > 0 && (
                         <span className="ms-1 d-block">
@@ -145,7 +148,7 @@ const TableContainer = ({
                     {row.cells.map((cell: any) => {
                       return (
                         <td key={cell.id} {...cell.getCellProps()}>
-                          {cell.render('Cell')}
+                          {cell.render("Cell")}
                         </td>
                       );
                     })}
@@ -160,12 +163,12 @@ const TableContainer = ({
       <Row className="justify-content-md-end justify-content-center align-items-center p-2">
         <Col className="col-md-auto">
           <select
-            className={'form-select'}
+            className={"form-select"}
             aria-label="Tamanho da página"
             id="pageSize"
             onChange={(e) => {
               setCurrentPageSize(Number(e.target.value));
-              onChangePage(1)
+              onChangePage(1);
             }}
           >
             <option value="10">10</option>
@@ -182,12 +185,12 @@ const TableContainer = ({
               onClick={() => onChangePage(currentPage - 1)}
               disabled={!canPreviousPage}
             >
-              {'<'}
+              {"<"}
             </Button>
           </div>
         </Col>
         <Col className="col-md-auto d-none d-md-block">
-          Página{' '}
+          Página{" "}
           <strong>
             {currentPage} de {totalPages}
           </strong>
@@ -211,7 +214,7 @@ const TableContainer = ({
               onClick={() => onChangePage(currentPage + 1)}
               disabled={!canNextPage}
             >
-              {'>'}
+              {">"}
             </Button>
           </div>
         </Col>

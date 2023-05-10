@@ -1,9 +1,9 @@
-import { forwardRef, ForwardRefRenderFunction } from 'react';
+import { forwardRef, type ForwardRefRenderFunction } from "react";
 import {
   FormFeedback,
   Input as ReactstrapInput,
   InputProps as ReactstrapInputProps,
-} from 'reactstrap';
+} from "reactstrap";
 
 export type InputProps = ReactstrapInputProps & {
   error?: string;
@@ -11,7 +11,7 @@ export type InputProps = ReactstrapInputProps & {
 
 const InputBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> = (
   { invalid, error, ...props },
-  ref,
+  ref
 ) => {
   return (
     <>

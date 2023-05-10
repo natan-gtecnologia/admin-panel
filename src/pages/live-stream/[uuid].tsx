@@ -177,7 +177,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
     <>
       <div className="page-content">
         <Head>
-          <title>Gerenciamento da Live - Dashboard</title>
+          <title>Gerenciamento da Live - Dashboard Liveforce</title>
         </Head>
 
         <BreadCrumb title="Nova Live" pageTitle="Ecommerce" />

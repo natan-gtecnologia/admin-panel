@@ -3,10 +3,13 @@ import SimpleBar from "simplebar-react";
 //import logo
 
 //Import Components
+import LogoDark from "@/assets/svgs/liveforce-logo-dark.svg";
+import LogoLight from "@/assets/svgs/liveforce-logo-light.svg";
 import HorizontalLayout from "@/components/Common/Layouts/HorizontalLayout";
 import TwoColumnLayout from "@/components/Common/Layouts/TwoColumnLayout";
 import VerticalLayouts from "@/components/Common/Layouts/VerticalLayouts";
 import { useLayout } from "@/hooks/useLayout";
+import Link from "next/link";
 import { Container } from "reactstrap";
 
 const Sidebar = () => {
@@ -44,51 +47,23 @@ const Sidebar = () => {
     <React.Fragment>
       <div className="app-menu navbar-menu">
         <div className="navbar-brand-box">
-          {/*<Link href="/" className="logo logo-dark">
+          <Link href="/" className="logo logo-dark">
             <span className="logo-sm">
-              <Image
-                src={
-                  config?.logoSidebar ? String(config?.logoSidebar) : logoDark
-                }
-                alt=""
-                width={50}
-                height="30"
-              />
+              <LogoDark />
             </span>
             <span className="logo-lg">
-              <Image
-                src={
-                  config?.logoSidebar ? String(config?.logoSidebar) : logoLight
-                }
-                alt=""
-                width={50}
-                height="30"
-              />
+              <LogoDark />
             </span>
           </Link>
 
           <Link href="/" className="logo logo-light">
             <span className="logo-sm">
-              <Image
-                src={
-                  config?.logoSidebar ? String(config?.logoSidebar) : logoLight
-                }
-                alt=""
-                width={50}
-                height="30"
-              />
+              <LogoLight />
             </span>
             <span className="logo-lg">
-              <Image
-                src={
-                  config?.logoSidebar ? String(config?.logoSidebar) : logoLight
-                }
-                alt=""
-                width={50}
-                height="30"
-              />
+              <LogoLight />
             </span>
-          </Link>*/}
+          </Link>
 
           <button
             onClick={addEventListenerOnSmHoverMenu}
