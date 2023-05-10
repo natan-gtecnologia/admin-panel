@@ -12,9 +12,10 @@ export function convert_livestream_strapi(
     uuid: livestream.attributes.uuid,
     state: livestream.attributes?.state,
     title: livestream.attributes?.title,
+    liveDescription: livestream.attributes?.liveDescription,
     liveEventName: livestream.attributes?.liveEventName,
     endedDate: livestream.attributes?.endedDate,
-    streamProducts: livestream.attributes?.streamProducts.map(
+    streamProducts: livestream.attributes?.streamProducts?.map(
       ({ product, price, highlight }) => {
         return {
           highlight,
@@ -22,17 +23,17 @@ export function convert_livestream_strapi(
           product: convert_product_strapi(product.data),
         };
       }
-    ),
+    ) ?? null,
     coupons:
       livestream.attributes.coupons?.data?.map(convert_coupon_strapi) ?? [],
-    schedule: livestream.attributes.schedule,
-    streamKey: livestream.attributes.streamKey,
-    transmissionUrl: livestream.attributes.transmissionUrl,
-    timeout: livestream.attributes.timeout,
-    startedDate: livestream.attributes.startedDate,
+    schedule: livestream.attributes?.schedule,
+    streamKey: livestream.attributes?.streamKey,
+    transmissionUrl: livestream.attributes?.transmissionUrl,
+    timeout: livestream.attributes?.timeout,
+    startedDate: livestream.attributes?.startedDate,
 
     broadcasters:
-      livestream.attributes?.broadcasters?.data.map((broadcaster) => ({
+      livestream.attributes?.broadcasters?.data?.map((broadcaster) => ({
         id: broadcaster.id,
         name: broadcaster.attributes.name,
         socialMedias: broadcaster.attributes.socialMedias,
@@ -41,9 +42,59 @@ export function convert_livestream_strapi(
 
     chat: {
       id: livestream.attributes?.chat?.data?.id,
-      released: livestream.attributes?.chat?.data?.attributes.released,
+      released: livestream.attributes?.chat?.data?.attributes?.released ?? null,
     },
 
-    metaData: livestream.attributes.metaData,
+    metaData: livestream.attributes?.metaData,
   };
 }
+
+// export function convert_livestream_strapi(
+//   livestream: IStrapiLiveStream
+// ): ILiveStream {
+//   const chat = livestream.attributes?.chat?.data;
+//   return {
+//     id: livestream.id,
+//     uuid: livestream.attributes.uuid,
+//     state: livestream.attributes?.state,
+//     title: livestream.attributes?.title,
+//     liveEventName: livestream.attributes?.liveEventName,
+//     endedDate: livestream.attributes?.endedDate,
+//     streamProducts: livestream.attributes?.streamProducts?.map(
+//       ({ product, price, highlight }) => {
+//         return {
+//           highlight,
+//           price,
+//           product: convert_product_strapi(product.data),
+//         };
+//       }
+//     ),
+//     coupons:
+//       livestream.attributes.coupons?.data?.map(convert_coupon_strapi) ?? [],
+//     schedule: livestream.attributes?.schedule,
+//     streamKey: livestream.attributes?.streamKey,
+//     transmissionUrl: livestream.attributes?.transmissionUrl,
+//     timeout: livestream.attributes?.timeout,
+//     startedDate: livestream.attributes?.startedDate,
+
+//     broadcasters:
+//       livestream.attributes?.broadcasters?.data?.map((broadcaster) => ({
+//         id: broadcaster.id,
+//         name: broadcaster.attributes.name,
+//         socialMedias: broadcaster.attributes.socialMedias,
+//         avatar: convert_image_strapi(broadcaster.attributes.avatar.data),
+//       })) ?? [],
+
+//     chat: chat
+//       ? {
+//         id: chat.id,
+//         released: chat.attributes?.released ?? null,
+//       }
+//       : null,
+
+//     metaData: livestream.attributes?.metaData,
+//   };
+// }
+
+
+

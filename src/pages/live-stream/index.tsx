@@ -16,6 +16,17 @@ import Layout from "../../containers/Layout";
 import { setupAPIClient } from "../../services/api";
 import { convert_livestream_strapi } from "../../utils/convertions/convert_live_stream";
 import { withSSRAuth } from "../../utils/withSSRAuth";
+import QueryString from "qs";
+import { useLayout } from "@/hooks/useLayout";
+import { api } from "@/services/apiClient";
+import { toast } from "react-toastify";
+import debounce from 'lodash/debounce';
+import Loader from "@/components/Common/Loader";
+
+const customStyle = {
+  "--vz-aspect-ratio": "100%",
+} as React.CSSProperties;
+
 
 const statusColors = {
   enabled: "primary",
@@ -31,6 +42,7 @@ const statusDescriptions = {
 
 type LiveStreamProps = {
   liveStream: ILiveStream;
+  totalPages: number
 };
 
 type CellProps = {
@@ -41,34 +53,56 @@ type CellProps = {
 
 async function getLiveStream(
   ctx: Pick<NextPageContext, "req"> | undefined,
-  params?: Record<string, any>
+  params: Record<string, any> = { pagination: { pageSize: 10 } }
 ) {
   const apiClient = setupAPIClient(ctx);
   const liveStreams = await apiClient.get("live-streams", {
     params: {
+      populate: '*',
+      pagination: {
+        ...params.pagination,
+      },
       ...params,
+    },
+    paramsSerializer: (params) => {
+      return QueryString.stringify(params);
     },
   });
 
   return {
     liveStream: liveStreams.data.data.map(convert_livestream_strapi),
+    totalPages: liveStreams.data.meta?.pagination?.pageCount ?? 1,
   };
 }
 
 const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
   liveStream: initialLiveStream,
+  totalPages: initialTotalPages,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(10);
   const [search, setSearch] = useState("");
   const [sortedBy, setSortedBy] = useState("");
+  const { handleChangeLoading } = useLayout();
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const {
-    data: { liveStream },
+    data: { liveStream, totalPages },
     refetch: handleRefetchLives,
   } = useQuery(
     ["liveStream", currentPage, sortedBy, currentPageSize],
     async () => {
+      // handleChangeLoading({
+      //   description: 'Carregando lives',
+      //   title: 'Aguarde',
+      // });
+
       const response = await getLiveStream(undefined, {
+        pagination: {
+          pageSize: currentPageSize,
+          page: currentPage,
+        },
         ...(sortedBy && {
           sort: sortedBy,
         }),
@@ -85,6 +119,11 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                   $containsi: search,
                 },
               },
+              {
+                status: {
+                  $containsi: search,
+                },
+              },
             ],
           }),
         },
@@ -92,20 +131,79 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
 
       return {
         liveStream: response.liveStream,
-        // totalPages: response.totalPages,
+        totalPages: response.totalPages,
       };
     },
     {
       initialData: {
         liveStream: initialLiveStream,
-        // totalPages: initialTotalPages,
+        totalPages: initialTotalPages,
       },
       refetchOnWindowFocus: false,
       keepPreviousData: true,
     }
   );
 
-  console.log("liveStream", liveStream);
+  const checkedAll = useCallback(() => {
+    setDeleteIds((oldValues) => {
+      if (oldValues.length === liveStream.length) {
+        return [];
+      } else {
+        return liveStream.map((live: ILiveStream) => live.id);
+      }
+    });
+  }, [liveStream]);
+
+  const handleChangePage = useCallback(async (page: number) => {
+    setCurrentPage(page);
+  }, []);
+
+  const handleDeleteLives = useCallback(async () => {
+    setIsDeleting(true);
+    try {
+      for (const id of deleteIds) {
+        await api.delete(`/live-streams/${id}`);
+      }
+
+      await handleRefetchLives();
+      setDeleteIds([]);
+    } catch (error) {
+      toast.error('Erro ao excluir a(s) live(s)');
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [deleteIds, handleRefetchLives]);
+
+  const handleSortBy = useCallback(
+    async (sortBy: string, order: "desc" | "asc") => {
+      setCurrentPage(1);
+      setSortedBy(`${sortBy}:${order}`);
+    },
+    []
+  );
+
+  const handleSearch = useCallback(
+    async (search: string) => {
+      setSearch(search);
+      setCurrentPage(1);
+
+      await handleRefetchLives();
+    },
+    [handleRefetchLives],
+  );
+
+  const orderBy = useMemo(() => {
+    const [id, desc] = sortedBy.split(":");
+
+    return [
+      {
+        id,
+        desc: desc === "desc",
+      },
+    ];
+  }, [sortedBy]);
+
+  const debouncedSearch = useCallback(debounce(handleSearch, 500), []);
 
   const columns = useMemo(
     () => [
@@ -115,8 +213,8 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
             type="checkbox"
             id="checkBoxAll"
             className="form-check-input"
-            // onChange={checkedAll}
-            // checked={deleteIds.length === tags.length && deleteIds.length > 0}
+            onChange={checkedAll}
+            checked={deleteIds.length === liveStream.length && deleteIds.length > 0}
           />
         ),
         Cell: (cellProps: CellProps) => {
@@ -125,18 +223,18 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
               type="checkbox"
               className="customerCheckBox form-check-input"
               value={cellProps.row.original.id}
-              //   checked={deleteIds.includes(cellProps.row.original.id)}
-              //   onChange={(e) => {
-              //     setDeleteIds((oldValues) => {
-              //       if (oldValues.includes(cellProps.row.original.id)) {
-              //         return oldValues.filter(
-              //           (value) => value !== cellProps.row.original.id,
-              //         );
-              //       }
+              checked={deleteIds.includes(cellProps.row.original.id)}
+              onChange={(e) => {
+                setDeleteIds((oldValues) => {
+                  if (oldValues.includes(cellProps.row.original.id)) {
+                    return oldValues.filter(
+                      (value) => value !== cellProps.row.original.id,
+                    );
+                  }
 
-              //       return [...oldValues, cellProps.row.original.id];
-              //     });
-              //   }}
+                  return [...oldValues, cellProps.row.original.id];
+                });
+              }}
             />
           );
         },
@@ -177,14 +275,23 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
         },
       },
       {
-        Header: "Tema da live ",
-        accessor: "theme",
+        Header: "Descrição ",
+        accessor: "description",
         filterable: false,
         Cell: (cellProps: CellProps) => {
           return (
-            <span className="d-block">
-              {cellProps.row.original.liveEventName}
-            </span>
+            <>
+              {cellProps.row.original?.liveDescription ? (
+                <span className="d-block">
+                  {cellProps.row.original.liveDescription}
+                </span>
+              ) : (
+                <>
+                  <span> - </span>
+                </>
+              )
+              }
+            </>
           );
         },
       },
@@ -270,96 +377,78 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 </Link>
               </div>
               <div className="clone">
-                <ConfirmationModal
+                {/* <ConfirmationModal
                   changeStatus={
-                    () => {}
+                    () => { }
                     // handleDeleteTag(cellProps.row.original.id)
                   }
                   title="Excluir tag"
                   message="Tem certeza que deseja excluir essa tag? Essa ação não pode ser desfeita."
                 >
-                  <button
-                    className="btn btn-link shadow-none p-0 text-danger fs-5 text-decoration-none cursor-pointer"
-                    aria-label="Deletar tag"
-                  >
-                    <i className="ri-file-copy-line"></i>
-                  </button>
-                </ConfirmationModal>
+                </ConfirmationModal> */}
+                <button
+                  className="btn btn-link shadow-none p-0 text-danger fs-5 text-decoration-none cursor-pointer"
+                  aria-label="Deletar tag"
+                >
+                  <i className="ri-file-copy-line"></i>
+                </button>
               </div>
             </div>
           );
         },
       },
     ],
-    [liveStream.length]
-    // [checkedAll, deleteIds, handleDeleteTag, tags.length],
+    [checkedAll, deleteIds, liveStream.length]
   );
 
-  const handleChangePage = useCallback(async (page: number) => {
-    setCurrentPage(page);
-  }, []);
+  const [displayValue, setDisplayValue] = useState<"block" | "none">("block");
 
-  const handleSortBy = useCallback(
-    async (sortBy: string, order: "desc" | "asc") => {
-      setCurrentPage(1);
-      setSortedBy(`${sortBy}:${order}`);
-    },
-    []
-  );
-
-  const orderBy = useMemo(() => {
-    const [id, desc] = sortedBy.split(":");
-
-    return [
-      {
-        id,
-        desc: desc === "desc",
-      },
-    ];
-  }, [sortedBy]);
+  const handleChatBox = (value: "block" | "none") => {
+    setDisplayValue(value);
+  };
 
   return (
-    <div className="page-content">
-      <Head>
-        <title>Live-stream - Dashboard Liveforce</title>
-      </Head>
+    <>
+      <div className="page-content">
+        <Head>
+          <title>Live-stream - Dashboard Liveforce</title>
+        </Head>
 
-      <BreadCrumb title="Tags" pageTitle="Ecommerce" />
+        <BreadCrumb title="Lives" pageTitle="Ecommerce" />
 
-      <Row>
-        <Col lg={12}>
-          <Card>
-            <Card.Header className="card-header">
-              <div className="d-flex align-items-center">
-                <h5 className="card-title mb-0 flex-grow-1">Lista de Lives</h5>
-                <div className="flex-shrink-0">
-                  <Link
-                    href={"/tags/create"}
-                    className="btn shadow-none btn-success"
-                  >
-                    <i className="ri-add-line align-bottom me-1"></i>
-                    Adicionar Live
-                  </Link>{" "}
-                  {/* {deleteIds.length > 0 && (
-                                        <ConfirmationModal
-                                            changeStatus={handleDeleteTags}
-                                            title="Excluir tags"
-                                            message="Tem certeza que deseja excluir essas tags? Essa ação não pode ser desfeita."
-                                        >
-                                            <button
-                                                type="button"
-                                                className="btn shadow-none btn-soft-danger bg"
-                                            >
-                                                <i className="ri-delete-bin-line align-bottom"></i>
-                                            </button>
-                                        </ConfirmationModal>
-                                    )} */}
+        <Row>
+          <Col lg={12}>
+            <Card>
+              <Card.Header className="card-header">
+                <div className="d-flex align-items-center">
+                  <h5 className="card-title mb-0 flex-grow-1">Lista de Lives</h5>
+                  <div className="flex-shrink-0">
+                    <Link
+                      href={"/live-stream/criar"}
+                      className="btn shadow-none btn-success"
+                    >
+                      <i className="ri-add-line align-bottom me-1"></i>
+                      Adicionar Live
+                    </Link>{" "}
+                    {deleteIds.length > 0 && (
+                      <ConfirmationModal
+                        changeStatus={handleDeleteLives}
+                        title="Excluir lives"
+                        message="Tem certeza que deseja excluir essas lives? Essa ação não pode ser desfeita."
+                      >
+                        <button
+                          type="button"
+                          className="btn shadow-none btn-soft-danger bg"
+                        >
+                          <i className="ri-delete-bin-line align-bottom"></i>
+                        </button>
+                      </ConfirmationModal>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Card.Header>
+              </Card.Header>
 
-            <Card.Body>
-              <div id="liveStreamList">
+              <Card.Body className="card-body px-0">
                 <Row className="mb-4">
                   <Col>
                     <div>
@@ -371,7 +460,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                           value={search}
                           onChange={(e) => {
                             setSearch(e.target.value);
-                            // debouncedSearch(e.target.value);
+                            debouncedSearch(e.target.value);
                           }}
                         />
                         <i className="ri-search-line search-icon"></i>
@@ -379,34 +468,63 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                     </div>
                   </Col>
                 </Row>
-              </div>
 
-              <div>
-                <TableContainer
-                  columns={columns}
-                  data={liveStream}
-                  customPageSize={10}
-                  divClass="table-responsive mb-1"
-                  tableClass="mb-0 align-middle table-borderless"
-                  theadClass="table-light text-muted"
-                  currentPage={currentPage}
-                  onChangePage={handleChangePage}
-                  totalPages={100}
-                  onSortBy={handleSortBy}
-                  sortedBy={orderBy}
-                  setCurrentPageSize={setCurrentPageSize}
-                />
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </div>
+                <div>
+                  <TableContainer
+                    columns={columns}
+                    data={liveStream}
+                    customPageSize={currentPageSize}
+                    divClass="table-responsive mb-1"
+                    tableClass="mb-0 align-middle table-borderless"
+                    theadClass="table-light text-muted"
+                    currentPage={currentPage}
+                    onChangePage={handleChangePage}
+                    totalPages={totalPages}
+                    onSortBy={handleSortBy}
+                    sortedBy={orderBy}
+                    setCurrentPageSize={setCurrentPageSize}
+                  />
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+
+          <Col md={1}>
+            <div className="email-chat-detail" id="emailchat-detailElem" style={{ display: displayValue }}>
+              <Card className="mb-0">
+                <Card.Header className="pb-0">
+                  <div className="align-items-end d-flex justify-content-end gap-4">
+                    <a className="fs-18 text-decoration-none cursor-pointer" id="btn" onClick={() => handleChatBox("none")}><i className="ri-arrow-down-s-line"></i></a>
+                    <a className="fs-18 text-decoration-none cursor-pointer" id="btn-close" onClick={() => handleChatBox("none")}><i className="ri-close-fill"></i></a>
+                  </div>
+                </Card.Header>
+
+                <Card.Body className="p-0">
+                  <div className="ratio ratio-1x1">
+                    <iframe
+                      src={`http://localhost:3000/${liveStream.uuid}?step=live-room`}
+                      title="YouTube video"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                  <div className="p-2">
+                    <h5>Live Naluzetes</h5>
+                    <span>01:00:00</span>
+                  </div>
+                </Card.Body>
+              </Card>
+            </div>
+          </Col>
+        </Row>
+      </div>
+
+      {isDeleting && <Loader loading={null} />}
+    </>
   );
 };
 
 export const getServerSideProps = withSSRAuth(async (ctx) => {
-  const liveStream = await getLiveStream(ctx);
+  const liveStream = await getLiveStream(ctx, {});
 
   return {
     props: liveStream,

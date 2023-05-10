@@ -11,6 +11,7 @@ export interface ILiveStream {
     streamKey: string;
     transmissionUrl: string;
     endedDate: string | null;
+    liveDescription: string;
     schedule: string;
     startedDate?: string;
     timeout?: number | null;
@@ -44,7 +45,7 @@ export interface ILiveStream {
     }[];
     chat: {
         id: number;
-        released: boolean;
+        released?: boolean;
     };
     metaData: MetaData[];
 

@@ -592,6 +592,7 @@ export interface IStrapiLiveStream {
     state: "enabled" | "disabled";
     uuid: string;
     title: string;
+    liveDescription: string;
     streamKey: string;
     liveEventName: string;
     transmissionUrl: string;
