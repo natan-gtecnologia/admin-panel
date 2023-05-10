@@ -5,7 +5,7 @@ import { Button } from "reactstrap";
 import { CreateOrUpdateSchemaType } from "../schema";
 
 export function Header() {
-  const { watch } = useFormContext<CreateOrUpdateSchemaType>();
+  const { watch, formState } = useFormContext<CreateOrUpdateSchemaType>();
   const title = watch("title");
 
   return (
@@ -19,7 +19,7 @@ export function Header() {
               color="danger"
               outline
               type="button"
-              className="d-flex align-items-center gap-2"
+              className="d-flex align-items-center gap-2 shadow-none"
             >
               <span className="bx bx-x fs-4" />
               Cancelar
@@ -28,10 +28,9 @@ export function Header() {
 
           <Button
             color="primary"
-            disabled
+            disabled={Object.keys(formState.errors).length > 0}
             outline
-            type="button"
-            className="d-flex align-items-center gap-2"
+            className="d-flex align-items-center gap-2 shadow-none"
           >
             <span className="bx bxs-save fs-4" />
             Salvar
@@ -40,7 +39,7 @@ export function Header() {
           <Button
             color="primary"
             type="button"
-            className="d-flex align-items-center gap-2"
+            className="d-flex align-items-center gap-2 shadow-none"
           >
             <span className="bx bx-play fs-4" />
             Live teste
@@ -49,7 +48,7 @@ export function Header() {
           <Button
             color="success"
             type="button"
-            className="d-flex align-items-center gap-2"
+            className="d-flex align-items-center gap-2 shadow-none"
           >
             <span className="bx bx-play fs-4" />
             Iniciar live

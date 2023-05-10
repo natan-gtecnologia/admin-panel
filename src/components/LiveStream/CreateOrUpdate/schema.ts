@@ -7,7 +7,7 @@ export const createOrUpdateSchema = z.object({
   shortDescription: z.string().min(3, "Mínimo de 3 caracteres"),
   initialLiveText: z.string().min(3, "Mínimo de 3 caracteres"),
   chatReleased: z.boolean(),
-  aiTags: z.array(z.string()).min(1, "Mínimo de 1 tag"),
+  aiTags: z.array(z.string()),
   liveCover: z.any(),
   products: z
     .array(
