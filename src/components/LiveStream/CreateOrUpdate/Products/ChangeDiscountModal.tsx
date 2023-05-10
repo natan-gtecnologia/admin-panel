@@ -176,6 +176,7 @@ export function ChangeDiscountModal({
               }}
               color="light"
               className="shadow-none"
+              type="button"
             >
               Cancelar
             </Button>
@@ -183,6 +184,7 @@ export function ChangeDiscountModal({
               color="primary"
               className="shadow-none"
               onClick={handleSubmit(handleUpdateOnSubmit)}
+              type="button"
             >
               Atualizar
             </Button>

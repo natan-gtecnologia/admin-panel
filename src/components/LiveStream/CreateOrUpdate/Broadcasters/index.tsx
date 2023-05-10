@@ -128,6 +128,7 @@ export function Broadcasters() {
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"
           theadClass="table-light text-muted"
+          hidePagination
         />
       </Card.Body>
     </Card>

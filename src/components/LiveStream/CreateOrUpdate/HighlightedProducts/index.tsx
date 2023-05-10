@@ -11,70 +11,101 @@ import type { CreateOrUpdateSchemaType } from "../schema";
 
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
 import { currentPrice, discountPercentage } from "@/utils/price";
+import { convert_product_strapi } from "@growthventure/utils/lib/formatting/convertions/convert_product";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
+import { useQuery } from "@tanstack/react-query";
+import QueryString from "qs";
+import { InsertProductModal } from "../InsertProductModal";
 
 type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
 
 export function HighlightedProducts() {
-  const { register, formState, control, watch, setValue } =
-    useFormContext<CreateOrUpdateSchemaType>();
-
-  const highlightedProducts = useMemo(
-    () => [
-      {
-        id: 1,
-        title: "Produto 1",
-        price: {
-          regularPrice: 100,
-          salePrice: 80,
-        },
-        livePrice: 80,
-        images: {
-          data: [
-            {
-              attributes: {
-                formats: {
-                  thumbnail: {
-                    url: "https://via.placeholder.com/150",
-                  },
-                },
+  const { watch, setValue } = useFormContext<CreateOrUpdateSchemaType>();
+  const productsFromForm = watch("products");
+  const { data: products } = useQuery({
+    queryKey: ["products", productsFromForm],
+    queryFn: async () => {
+      try {
+        const response = await api.get("/products", {
+          params: {
+            filters: {
+              id: {
+                $in: productsFromForm?.map((product) => product.id),
               },
             },
-          ],
-        },
-      },
-    ],
-    []
+            pagination: {
+              pageSize: 100,
+            },
+          },
+          paramsSerializer: {
+            serialize: (params) => QueryString.stringify(params),
+          },
+        });
+
+        const formattedProducts: IProduct[] = response.data.data?.map(
+          convert_product_strapi
+        );
+
+        return formattedProducts.map((product) => {
+          return {
+            ...product,
+            livePrice: productsFromForm.find(
+              (productFromForm) => productFromForm.id === product.id
+            )?.livePrice,
+            highlighted: productsFromForm.find(
+              (productFromForm) => productFromForm.id === product.id
+            )?.highlighted,
+          };
+        });
+      } catch (error) {
+        console.log(error);
+        return [] as ProductProps[];
+      }
+    },
+    enabled: productsFromForm?.length > 0,
+    initialData: [],
+    refetchOnWindowFocus: false,
+  });
+
+  const onlyHighlightedProducts = useMemo(
+    () => products?.filter((product) => product.highlighted),
+    [products]
   );
 
-  const handleRemoveProduct = useCallback((id: number) => {}, []);
+  const handleRemoveProduct = useCallback(
+    (id: number) => {
+      setValue(
+        "products",
+        productsFromForm.map((product) => ({
+          ...product,
+          highlighted: product.id !== id ? product.highlighted : false,
+        }))
+      );
+    },
+    [productsFromForm, setValue]
+  );
 
   const columns = useMemo(
     () => [
       {
         Header: "Foto do produto",
-        Cell: (cellProps: CellProps<IProduct>) => {
+        Cell: (cellProps: CellProps<ProductProps>) => {
           return (
             <div className="form-check form-switch">
-              {cellProps.row.original.images.data &&
-                cellProps.row.original.images.data.length > 0 && (
-                  <Image
-                    src={
-                      cellProps.row.original.images.data[0].attributes.formats
-                        .thumbnail.url
-                    }
-                    alt=""
-                    width={32}
-                    height={32}
-                    loading="lazy"
-                    style={{
-                      borderRadius: 4,
-                      objectFit: "cover",
-                      objectPosition: "center",
-                    }}
-                  />
-                )}
+              <Image
+                src={cellProps.row.original.product_image.src}
+                alt=""
+                width={32}
+                height={32}
+                loading="lazy"
+                style={{
+                  borderRadius: 4,
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+              />
             </div>
           );
         },
@@ -168,25 +199,28 @@ export function HighlightedProducts() {
           Produtos em destaque (Máx. 4)
         </h4>
 
-        <Button
-          color="primary"
-          className="d-flex align-items-center gap-2"
-          disabled={highlightedProducts.length === 4}
-          type="button"
-        >
-          <span className="bx bx-plus fs-5" />
-          Inserir produto destaque
-        </Button>
+        <InsertProductModal products={products}>
+          <Button
+            color="primary"
+            className="d-flex align-items-center gap-2"
+            disabled={onlyHighlightedProducts.length === 4}
+            type="button"
+          >
+            <span className="bx bx-plus fs-5" />
+            Inserir produto destaque
+          </Button>
+        </InsertProductModal>
       </Card.Header>
 
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={highlightedProducts}
+          data={onlyHighlightedProducts}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"
           theadClass="table-light text-muted"
+          hidePagination
         />
       </Card.Body>
     </Card>

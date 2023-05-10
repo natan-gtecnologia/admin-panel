@@ -1,11 +1,14 @@
-import type { IProduct } from "@/@types/product";
 import { Card } from "@/components/Common/Card";
 import TableContainer from "@/components/Common/TableContainer";
+import { api } from "@/services/apiClient";
 import { currentPrice } from "@/utils/price";
+import type { IProduct } from "@growthventure/utils";
+import { convert_product_strapi } from "@growthventure/utils/lib/formatting/convertions/convert_product";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import Image from "next/image";
+import QueryString from "qs";
 import {
   cloneElement,
   useCallback,
@@ -25,26 +28,80 @@ type ChildrenModalProps = {
 interface Props {
   children: ReactNode | ((props: ChildrenModalProps) => ReactNode);
   products?: IProduct[];
+  highlightedCount?: number;
 }
 
-export function InsertProductModal({ children, products }: Props) {
+export function InsertProductModal({
+  children,
+  products,
+  highlightedCount = 0,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const { register, setValue, formState, watch } =
-    useFormContext<CreateOrUpdateSchemaType>();
+  const { setValue, getValues } = useFormContext<CreateOrUpdateSchemaType>();
   const [search, setSearch] = useState("");
   const { data: productsData } = useQuery({
     queryKey: ["products", search],
     queryFn: async () => {
-      return [] as IProduct[];
-    },
-    enabled: !products,
-    initialData: [],
-  });
-  const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
+      try {
+        const response = await api.get("/products", {
+          params: {
+            filters: {
+              title: {
+                $contains: search,
+              },
+            },
+            pagination: {
+              pageSize: 100,
+            },
+          },
+          paramsSerializer: {
+            serialize: (params) => QueryString.stringify(params),
+          },
+        });
 
-  const productsMerged = useMemo(() => {
-    return [...productsData, ...(products ?? [])];
-  }, [products, productsData]);
+        return response.data.data?.map(convert_product_strapi) as IProduct[];
+      } catch (error) {
+        console.log(error);
+        return [] as IProduct[];
+      }
+    },
+    enabled: !products && isOpen,
+    initialData: [],
+    refetchOnWindowFocus: false,
+  });
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+
+  const productsMerged = products ?? productsData;
+
+  const handleAddToList = useCallback(() => {
+    const list = getValues("products");
+
+    if (!products) {
+      const newProducts = productsMerged
+        .filter((product) => {
+          return selectedIds.includes(product.id);
+        })
+        .map((product) => ({
+          id: product.id,
+          livePrice: product.price?.salePrice ?? product.price?.regularPrice,
+          highlighted: false,
+        }));
+
+      setValue("products", [...list, ...newProducts]);
+    } else {
+      setValue(
+        "products",
+        list.map((product) => {
+          return {
+            ...product,
+            highlighted: selectedIds.includes(product.id),
+          };
+        })
+      );
+    }
+
+    setIsOpen(false);
+  }, [getValues, products, productsMerged, selectedIds, setValue]);
 
   const productsFiltered = productsMerged.filter((product) => {
     return product.title.toLowerCase().includes(search.toLowerCase());
@@ -56,41 +113,35 @@ export function InsertProductModal({ children, products }: Props) {
 
   const toggleSelectedId = useCallback(
     (id: number) => {
-      if (selectedIds === "all") {
-        setSelectedIds(
-          productsMerged
-            .filter((coupon) => coupon.id !== id)
-            .map((coupon) => coupon.id)
-        );
-      } else if (selectedIds.includes(id)) {
+      if (selectedIds.includes(id)) {
         setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
       } else {
+        if (highlightedCount === 4) return;
+
         const newSelectedIds = [...selectedIds, id];
-        setSelectedIds(
-          newSelectedIds.length === productsMerged.length
-            ? "all"
-            : newSelectedIds
-        );
+        setSelectedIds(newSelectedIds);
       }
     },
-    [productsMerged, selectedIds]
+    [highlightedCount, selectedIds]
   );
 
   const columns = useMemo(
     () => [
       {
         Header: (
-          <div className="form-check form-switch d-flex justify-content-center flex-1 align-items-center">
+          <div className="form-check d-flex justify-content-center flex-1 align-items-center">
             <Input
               className="form-check-input"
               type="checkbox"
-              id="SwitchCheck1"
-              checked={selectedIds === "all"}
+              checked={selectedIds.length === productsFiltered.length}
               onChange={() => {
-                if (selectedIds === "all") {
+                if (
+                  !products &&
+                  selectedIds.length === productsFiltered.length
+                ) {
                   setSelectedIds([]);
-                } else {
-                  setSelectedIds("all");
+                } else if (!products) {
+                  setSelectedIds(productsFiltered.map((product) => product.id));
                 }
               }}
             />
@@ -98,16 +149,12 @@ export function InsertProductModal({ children, products }: Props) {
         ),
         Cell: (cellProps: CellProps<IProduct>) => {
           return (
-            <div className="form-check form-switch d-flex justify-content-center">
+            <div className="form-check d-flex justify-content-center">
               <Input
                 className="form-check-input"
                 type="checkbox"
-                role="switch"
-                id="SwitchCheck1"
-                checked={
-                  selectedIds === "all" ||
-                  selectedIds.includes(cellProps.row.original.id)
-                }
+                disabled={highlightedCount === 4}
+                checked={selectedIds.includes(cellProps.row.original.id)}
                 onChange={() => {
                   toggleSelectedId(cellProps.row.original.id);
                 }}
@@ -123,24 +170,18 @@ export function InsertProductModal({ children, products }: Props) {
         Cell: (cellProps: CellProps<IProduct>) => {
           return (
             <div className="form-check form-switch">
-              {cellProps.row.original.images.data &&
-                cellProps.row.original.images.data.length > 0 && (
-                  <Image
-                    src={
-                      cellProps.row.original.images.data[0].attributes.formats
-                        .thumbnail.url
-                    }
-                    alt=""
-                    width={32}
-                    height={32}
-                    loading="lazy"
-                    style={{
-                      borderRadius: 4,
-                      objectFit: "cover",
-                      objectPosition: "center",
-                    }}
-                  />
-                )}
+              <Image
+                src={cellProps.row.original.product_image.src}
+                alt=""
+                width={32}
+                height={32}
+                loading="lazy"
+                style={{
+                  borderRadius: 4,
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+              />
             </div>
           );
         },
@@ -169,7 +210,13 @@ export function InsertProductModal({ children, products }: Props) {
         width: "25%",
       },
     ],
-    [selectedIds, toggleSelectedId]
+    [
+      highlightedCount,
+      products,
+      productsFiltered,
+      selectedIds,
+      toggleSelectedId,
+    ]
   );
 
   return (
@@ -193,7 +240,7 @@ export function InsertProductModal({ children, products }: Props) {
             />
           </Card.Header>
           <Card.Body className="pt-0 pb-0">
-            <div className="form-icon position-relative">
+            <div className="form-icon position-relative mb-3">
               <Input
                 type="email"
                 className="form-control form-control-icon"
@@ -239,6 +286,7 @@ export function InsertProductModal({ children, products }: Props) {
               divClass="table-responsive mb-1"
               tableClass="mb-0 align-middle table-borderless"
               theadClass="table-light text-muted"
+              hidePagination
             />
           </Card.Body>
 
@@ -259,9 +307,8 @@ export function InsertProductModal({ children, products }: Props) {
               color="primary"
               className="shadow-none"
               type="button"
-              onClick={() => {
-                toggle();
-              }}
+              onClick={handleAddToList}
+              disabled={highlightedCount === 4}
             >
               Adicionar
             </Button>

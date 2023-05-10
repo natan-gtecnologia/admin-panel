@@ -1,148 +1,171 @@
 import { Card } from "@/components/Common/Card";
 import { useFormContext } from "react-hook-form";
-import { Button, Label } from "reactstrap";
+import { Button } from "reactstrap";
 
 import type { IProduct } from "@/@types/product";
-import { Input } from "@/components/Common/Form/Input";
 import TableContainer from "@/components/Common/TableContainer";
 import Image from "next/image";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 import type { CreateOrUpdateSchemaType } from "../schema";
 
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
 import { currentPrice, discountPercentage } from "@/utils/price";
+import { convert_product_strapi } from "@growthventure/utils/lib/formatting/convertions/convert_product";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
+import { useQuery } from "@tanstack/react-query";
+import QueryString from "qs";
 import { InsertProductModal } from "../InsertProductModal";
 import { ChangeDiscountModal } from "./ChangeDiscountModal";
 
 type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
 
 export function Products() {
-  const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
-  const { register, formState, control, watch, setValue, getValues } =
+  //const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
+  const { watch, setValue, getValues } =
     useFormContext<CreateOrUpdateSchemaType>();
-  const products = useMemo(
-    () => [
-      {
-        id: 1,
-        title: "Produto 1",
-        price: {
-          regularPrice: 100,
-          salePrice: 80,
-        },
-        livePrice: 70,
-        images: {
-          data: [
-            {
-              attributes: {
-                formats: {
-                  thumbnail: {
-                    url: "https://via.placeholder.com/150",
-                  },
-                },
+  const productsFromForm = watch("products");
+  const { data: products } = useQuery({
+    queryKey: ["products", productsFromForm],
+    queryFn: async () => {
+      try {
+        const response = await api.get("/products", {
+          params: {
+            filters: {
+              id: {
+                $in: productsFromForm?.map((product) => product.id),
               },
             },
-          ],
-        },
-      },
-    ],
-    []
-  );
+            pagination: {
+              pageSize: 100,
+            },
+          },
+          paramsSerializer: {
+            serialize: (params) => QueryString.stringify(params),
+          },
+        });
 
-  const toggleSelectedId = useCallback(
-    (id: number) => {
-      if (selectedIds === "all") {
-        setSelectedIds(
-          products
-            .filter((coupon) => coupon.id !== id)
-            .map((coupon) => coupon.id)
+        const formattedProducts: IProduct[] = response.data.data?.map(
+          convert_product_strapi
         );
-      } else if (selectedIds.includes(id)) {
-        setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
-      } else {
-        const newSelectedIds = [...selectedIds, id];
-        setSelectedIds(
-          newSelectedIds.length === products.length ? "all" : newSelectedIds
-        );
+
+        return formattedProducts.map((product) => {
+          return {
+            ...product,
+            livePrice: productsFromForm.find(
+              (productFromForm) => productFromForm.id === product.id
+            )?.livePrice,
+            highlighted: productsFromForm.find(
+              (productFromForm) => productFromForm.id === product.id
+            )?.highlighted,
+          };
+        });
+      } catch (error) {
+        console.log(error);
+        return [] as ProductProps[];
       }
     },
-    [products, selectedIds]
-  );
+    enabled: productsFromForm?.length > 0,
+    initialData: [],
+    refetchOnWindowFocus: false,
+  });
 
-  const handleRemoveProduct = useCallback((id: number) => {}, []);
+  //const toggleSelectedId = useCallback(
+  //  (id: number) => {
+  //    if (selectedIds === "all") {
+  //      setSelectedIds(
+  //        products
+  //          .filter((product: any) => product.id !== id)
+  //          .map((product: any) => product.id)
+  //      );
+  //    } else if (selectedIds.includes(id)) {
+  //      setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+  //    } else {
+  //      const newSelectedIds = [...selectedIds, id];
+  //      setSelectedIds(
+  //        newSelectedIds.length === products.length ? "all" : newSelectedIds
+  //      );
+  //    }
+  //  },
+  //  [products, selectedIds]
+  //);
+
+  const handleRemoveProduct = useCallback(
+    (id: number) => {
+      setValue(
+        "products",
+        productsFromForm.filter((product) => product.id !== id)
+      );
+    },
+    [productsFromForm, setValue]
+  );
 
   const columns = useMemo(
     () => [
-      {
-        Header: (
-          <div className="form-check form-switch d-flex justify-content-center flex-1 align-items-center">
-            <Label className="form-check-label me-1" for="SwitchCheck1">
-              Ativar todos
-            </Label>
+      //{
+      //  Header: (
+      //    <div className="form-check form-switch d-flex justify-content-center flex-1 align-items-center">
+      //      <Label className="form-check-label me-1" for="SwitchCheck1">
+      //        Ativar todos
+      //      </Label>
 
-            <Input
-              className="form-check-input"
-              type="checkbox"
-              role="switch"
-              id="SwitchCheck1"
-              checked={selectedIds === "all"}
-              onChange={() => {
-                if (selectedIds === "all") {
-                  setSelectedIds([]);
-                } else {
-                  setSelectedIds("all");
-                }
-              }}
-            />
-          </div>
-        ),
-        Cell: (cellProps: CellProps<IProduct>) => {
-          return (
-            <div className="form-check form-switch d-flex justify-content-center">
-              <Input
-                className="form-check-input"
-                type="checkbox"
-                role="switch"
-                id="SwitchCheck1"
-                checked={
-                  selectedIds === "all" ||
-                  selectedIds.includes(cellProps.row.original.id)
-                }
-                onChange={() => {
-                  toggleSelectedId(cellProps.row.original.id);
-                }}
-              />
-            </div>
-          );
-        },
-        id: "#",
-        width: "8%",
-      },
+      //      <Input
+      //        className="form-check-input"
+      //        type="checkbox"
+      //        role="switch"
+      //        id="SwitchCheck1"
+      //        checked={selectedIds === "all"}
+      //        onChange={() => {
+      //          if (selectedIds === "all") {
+      //            setSelectedIds([]);
+      //          } else {
+      //            setSelectedIds("all");
+      //          }
+      //        }}
+      //      />
+      //    </div>
+      //  ),
+      //  Cell: (cellProps: CellProps<ProductProps>) => {
+      //    return (
+      //      <div className="form-check form-switch d-flex justify-content-center">
+      //        <Input
+      //          className="form-check-input"
+      //          type="checkbox"
+      //          role="switch"
+      //          id="SwitchCheck1"
+      //          checked={
+      //            selectedIds === "all" ||
+      //            selectedIds.includes(cellProps.row.original.id)
+      //          }
+      //          onChange={() => {
+      //            toggleSelectedId(cellProps.row.original.id);
+      //          }}
+      //        />
+      //      </div>
+      //    );
+      //  },
+      //  id: "#",
+      //  width: "8%",
+      //},
       {
         Header: "Foto do produto",
-        Cell: (cellProps: CellProps<IProduct>) => {
+        Cell: (cellProps: CellProps<ProductProps>) => {
           return (
             <div className="form-check form-switch">
-              {cellProps.row.original.images.data &&
-                cellProps.row.original.images.data.length > 0 && (
-                  <Image
-                    src={
-                      cellProps.row.original.images.data[0].attributes.formats
-                        .thumbnail.url
-                    }
-                    alt=""
-                    width={32}
-                    height={32}
-                    loading="lazy"
-                    style={{
-                      borderRadius: 4,
-                      objectFit: "cover",
-                      objectPosition: "center",
-                    }}
-                  />
-                )}
+              <Image
+                src={cellProps.row.original.product_image.src}
+                alt=""
+                width={32}
+                height={32}
+                loading="lazy"
+                style={{
+                  borderRadius: 4,
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+              />
             </div>
           );
         },
@@ -263,7 +286,7 @@ export function Products() {
         width: "8%",
       },
     ],
-    [getValues, handleRemoveProduct, selectedIds, setValue, toggleSelectedId]
+    [getValues, handleRemoveProduct, setValue]
   );
 
   return (
@@ -291,6 +314,7 @@ export function Products() {
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"
           theadClass="table-light text-muted"
+          hidePagination
         />
       </Card.Body>
     </Card>

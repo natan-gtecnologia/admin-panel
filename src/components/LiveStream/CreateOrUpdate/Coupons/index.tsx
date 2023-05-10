@@ -13,6 +13,7 @@ import { ICoupon } from "@/@types/coupon";
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
+import { SelectCouponModal } from "./SelectCouponModal";
 
 type CuponProps = ICoupon & CreateOrUpdateSchemaType["coupons"][number];
 
@@ -170,14 +171,16 @@ export function Coupons() {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Cupons disponíveis</h4>
 
-        <Button
-          color="primary"
-          className="d-flex align-items-center gap-2"
-          type="button"
-        >
-          <span className="bx bx-plus fs-5" />
-          Inserir cupom
-        </Button>
+        <SelectCouponModal>
+          <Button
+            color="primary"
+            className="d-flex align-items-center gap-2"
+            type="button"
+          >
+            <span className="bx bx-plus fs-5" />
+            Inserir cupom
+          </Button>
+        </SelectCouponModal>
       </Card.Header>
 
       <Card.Body>
@@ -188,6 +191,7 @@ export function Coupons() {
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"
           theadClass="table-light text-muted"
+          hidePagination
         />
       </Card.Body>
     </Card>
