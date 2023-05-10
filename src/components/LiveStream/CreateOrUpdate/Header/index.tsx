@@ -1,12 +1,13 @@
 import { Card } from "@/components/Common/Card";
 import Link from "next/link";
 import { useFormContext } from "react-hook-form";
-import { Button } from "reactstrap";
+import { Button, Spinner } from "reactstrap";
 import { CreateOrUpdateSchemaType } from "../schema";
 
 export function Header() {
   const { watch, formState } = useFormContext<CreateOrUpdateSchemaType>();
   const title = watch("title");
+  const id = watch("id");
 
   return (
     <Card className="shadow-none rounded-sm">
@@ -32,14 +33,26 @@ export function Header() {
             outline
             className="d-flex align-items-center gap-2 shadow-none"
           >
-            <span className="bx bxs-save fs-4" />
-            Salvar
+            {formState.isSubmitting ? (
+              <span className="d-flex align-items-center">
+                <Spinner size="sm" className="flex-shrink-0" role="status">
+                  Salvando...
+                </Spinner>
+                <span className="flex-grow-1 ms-2">Salvando...</span>
+              </span>
+            ) : (
+              <>
+                <span className="bx bxs-save fs-4" />
+                Salvar
+              </>
+            )}
           </Button>
 
           <Button
             color="primary"
             type="button"
             className="d-flex align-items-center gap-2 shadow-none"
+            disabled={!id}
           >
             <span className="bx bx-play fs-4" />
             Live teste
@@ -49,6 +62,7 @@ export function Header() {
             color="success"
             type="button"
             className="d-flex align-items-center gap-2 shadow-none"
+            disabled={!id}
           >
             <span className="bx bx-play fs-4" />
             Iniciar live

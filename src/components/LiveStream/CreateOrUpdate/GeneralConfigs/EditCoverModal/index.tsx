@@ -81,7 +81,7 @@ export function EditCover({ children }: Props) {
                 type="color"
                 {...register("liveColor")}
                 invalid={!!formState.errors.liveColor}
-                error={formState.errors.afterLiveTime?.message}
+                error={formState.errors.liveColor?.message}
                 style={{
                   height: "40px",
                 }}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const createOrUpdateSchema = z.object({
+  id: z.number().optional().nullable(),
   title: z.string().min(3, "Mínimo de 3 caracteres"),
   afterLiveTime: z.number().min(1, "Mínimo de 1 minuto"),
   scheduledStartTime: z.date().min(new Date(), "Data inválida"),
@@ -10,15 +11,13 @@ export const createOrUpdateSchema = z.object({
   aiTags: z.array(z.string()),
   liveColor: z.string().default("#DB7D72"),
   liveCover: z.any(),
-  products: z
-    .array(
-      z.object({
-        id: z.number(),
-        livePrice: z.number().min(0.01, "Mínimo de 0.01"),
-        highlighted: z.boolean(),
-      })
-    )
-    .min(1, "Mínimo de 1 produto"),
+  products: z.array(
+    z.object({
+      id: z.number(),
+      livePrice: z.number().min(0.01, "Mínimo de 0.01"),
+      highlighted: z.boolean(),
+    })
+  ),
   coupons: z.array(z.number()),
   broadcasters: z.array(z.number()),
 });

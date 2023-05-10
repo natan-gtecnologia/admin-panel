@@ -100,6 +100,7 @@ export function InsertProductModal({
       );
     }
 
+    setSelectedIds([]);
     setIsOpen(false);
   }, [getValues, products, productsMerged, selectedIds, setValue]);
 
@@ -244,7 +245,6 @@ export function InsertProductModal({
               <Input
                 type="email"
                 className="form-control form-control-icon"
-                id="iconInput"
                 placeholder="Digite aqui para pesquisar o produto"
                 value={search}
                 onChange={(e) => {

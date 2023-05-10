@@ -1,132 +1,150 @@
 import { Card } from "@/components/Common/Card";
 import { useFormContext } from "react-hook-form";
-import { Button, Label } from "reactstrap";
+import { Button } from "reactstrap";
 
-import type { IProduct } from "@/@types/product";
-import { Input } from "@/components/Common/Form/Input";
 import TableContainer from "@/components/Common/TableContainer";
 import { useCallback, useMemo, useState } from "react";
 import type { CellProps } from "react-table";
 import type { CreateOrUpdateSchemaType } from "../schema";
 
-import { ICoupon } from "@/@types/coupon";
+import type { ICoupon } from "@/@types/coupon";
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
+import { convert_coupon_strapi } from "@/utils/convertions/convert_coupon";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
+import { useQuery } from "@tanstack/react-query";
 import { SelectCouponModal } from "./SelectCouponModal";
 
-type CuponProps = ICoupon & CreateOrUpdateSchemaType["coupons"][number];
+type CuponProps = ICoupon;
 
 export function Coupons() {
   const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
   const { register, formState, control, watch, setValue } =
     useFormContext<CreateOrUpdateSchemaType>();
-  const coupons = useMemo(
-    () => [
-      {
-        id: 1,
-        description: "Cupom de desconto",
-        code: "CUPOM10",
-        discount: 10,
-        discountType: "percentage",
-      },
-      {
-        id: 2,
-        description: "Cupom de desconto",
-        code: "CUPOM10",
-        discount: 10,
-        discountType: "percentage",
-      },
-    ],
-    []
-  );
+  const coupons = watch("coupons");
+  const { data: couponsFromApi } = useQuery({
+    queryKey: ["coupons", "in", coupons],
+    queryFn: async () => {
+      try {
+        if (!coupons.length) return [] as ICoupon[];
 
-  const handleRemoveCoupon = useCallback((id: number) => {}, []);
+        const response = await api.get("/coupons", {
+          params: {
+            filters: {
+              id: {
+                $in: coupons,
+              },
+            },
+            pagination: {
+              pageSize: 100,
+            },
+          },
+        });
 
-  const toggleSelectedId = useCallback(
-    (id: number) => {
-      if (selectedIds === "all") {
-        setSelectedIds(
-          coupons
-            .filter((coupon) => coupon.id !== id)
-            .map((coupon) => coupon.id)
-        );
-      } else if (selectedIds.includes(id)) {
-        setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
-      } else {
-        const newSelectedIds = [...selectedIds, id];
-        setSelectedIds(
-          newSelectedIds.length === coupons.length ? "all" : newSelectedIds
-        );
+        return (response.data?.data?.map(convert_coupon_strapi) ??
+          []) as ICoupon[];
+      } catch (error) {
+        return [] as ICoupon[];
       }
     },
-    [coupons, selectedIds]
+    initialData: [] as ICoupon[],
+  });
+
+  const handleRemoveCoupon = useCallback(
+    (id: number) => {
+      setValue(
+        "coupons",
+        coupons.filter((coupon) => coupon !== id)
+      );
+    },
+    [coupons, setValue]
   );
+
+  //const toggleSelectedId = useCallback(
+  //  (id: number) => {
+  //    //if (selectedIds === "all") {
+  //    //  setSelectedIds(
+  //    //    coupons
+  //    //      .filter((coupon) => coupon.id !== id)
+  //    //      .map((coupon) => coupon.id)
+  //    //  );
+  //    //} else if (selectedIds.includes(id)) {
+  //    //  setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+  //    //} else {
+  //    //  const newSelectedIds = [...selectedIds, id];
+  //    //  setSelectedIds(
+  //    //    newSelectedIds.length === coupons.length ? "all" : newSelectedIds
+  //    //  );
+  //    //}
+  //  },
+  //  [coupons, selectedIds]
+  //);
 
   const columns = useMemo(
     () => [
-      {
-        Header: (
-          <div className="form-check form-switch d-flex justify-content-center flex-1 align-items-center">
-            <Label className="form-check-label me-1" for="SwitchCheck1">
-              Ativar todos
-            </Label>
+      //{
+      //  Header: (
+      //    <div className="form-check form-switch d-flex justify-content-center flex-1 align-items-center">
+      //      <Label className="form-check-label me-1" for="SwitchCheck1">
+      //        Ativar todos
+      //      </Label>
 
-            <Input
-              className="form-check-input"
-              type="checkbox"
-              role="switch"
-              id="SwitchCheck1"
-              checked={selectedIds === "all"}
-              onChange={() => {
-                if (selectedIds === "all") {
-                  setSelectedIds([]);
-                } else {
-                  setSelectedIds("all");
-                }
-              }}
-            />
-          </div>
-        ),
-        Cell: (cellProps: CellProps<IProduct>) => {
-          return (
-            <div className="form-check form-switch d-flex justify-content-center">
-              <Input
-                className="form-check-input"
-                type="checkbox"
-                role="switch"
-                id="SwitchCheck1"
-                checked={
-                  selectedIds === "all" ||
-                  selectedIds.includes(cellProps.row.original.id)
-                }
-                onChange={() => {
-                  toggleSelectedId(cellProps.row.original.id);
-                }}
-              />
-            </div>
-          );
-        },
-        id: "#",
-        width: "8%",
-      },
+      //      <Input
+      //        className="form-check-input"
+      //        type="checkbox"
+      //        role="switch"
+      //        id="SwitchCheck1"
+      //        checked={selectedIds === "all"}
+      //        onChange={() => {
+      //          if (selectedIds === "all") {
+      //            setSelectedIds([]);
+      //          } else {
+      //            setSelectedIds("all");
+      //          }
+      //        }}
+      //      />
+      //    </div>
+      //  ),
+      //  Cell: (cellProps: CellProps<ICoupon>) => {
+      //    return (
+      //      <div className="form-check form-switch d-flex justify-content-center">
+      //        <Input
+      //          className="form-check-input"
+      //          type="checkbox"
+      //          role="switch"
+      //          id="SwitchCheck1"
+      //          checked={
+      //            selectedIds === "all" ||
+      //            selectedIds.includes(cellProps.row.original.id)
+      //          }
+      //          onChange={() => {
+      //            toggleSelectedId(cellProps.row.original.id);
+      //          }}
+      //        />
+      //      </div>
+      //    );
+      //  },
+      //  id: "#",
+      //  width: "8%",
+      //},
       {
         Header: "Nome do cupom",
-        Cell: (cellProps: CellProps<CuponProps>) => {
+        Cell: (cellProps: CellProps<ICoupon>) => {
           return cellProps.row.original.description;
         },
         id: "#name",
       },
       {
         Header: "Código do Cupom",
-        Cell: (cellProps: CellProps<CuponProps>) => {
+        Cell: (cellProps: CellProps<ICoupon>) => {
           return cellProps.row.original.code;
         },
         id: "#code",
       },
       {
         Header: "Desconto",
-        Cell: (cellProps: CellProps<CuponProps>) => {
+        Cell: (cellProps: CellProps<ICoupon>) => {
           return cellProps.row.original.discountType === "percentage" ? (
             <span>{cellProps.row.original.discount}%</span>
           ) : (
@@ -137,7 +155,7 @@ export function Coupons() {
       },
       {
         Header: "Ações",
-        Cell: (cellProps: CellProps<CuponProps>) => {
+        Cell: (cellProps: CellProps<ICoupon>) => {
           return (
             <div className="d-flex align-items-center gap-1">
               <ConfirmationModal
@@ -163,7 +181,7 @@ export function Coupons() {
         width: "8%",
       },
     ],
-    [handleRemoveCoupon, selectedIds, toggleSelectedId]
+    [handleRemoveCoupon]
   );
 
   return (
@@ -186,7 +204,7 @@ export function Coupons() {
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={coupons}
+          data={couponsFromApi}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"

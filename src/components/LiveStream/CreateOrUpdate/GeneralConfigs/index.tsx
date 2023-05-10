@@ -67,11 +67,15 @@ export function GeneralConfigs() {
                 </Tooltip>
               </Label>
               <Input
-                type="text"
+                type="number"
+                min={1}
+                step={1}
                 className="form-control"
                 id="afterLiveTime"
                 placeholder="0 minutos"
-                {...register("afterLiveTime")}
+                {...register("afterLiveTime", {
+                  valueAsNumber: true,
+                })}
                 invalid={!!formState.errors.afterLiveTime}
               />
               {formState.errors.afterLiveTime?.message && (
@@ -99,7 +103,7 @@ export function GeneralConfigs() {
                     id="initialDate"
                     options={flatPickrOptions}
                     value={field.value}
-                    onChange={(date) => field.onChange(date[0].toISOString())}
+                    onChange={(date) => field.onChange(date[0])}
                   />
                 )}
               />

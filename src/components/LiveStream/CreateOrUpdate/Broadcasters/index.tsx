@@ -3,12 +3,16 @@ import { useFormContext } from "react-hook-form";
 import { Button } from "reactstrap";
 
 import TableContainer from "@/components/Common/TableContainer";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 import type { CreateOrUpdateSchemaType } from "../schema";
 
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
+import { useQuery } from "@tanstack/react-query";
+import QueryString from "qs";
+import { CreateOrUpdateBroadcaster } from "./CreateOrUpdateBroadcaster";
 
 type BroadcasterProps = {
   id: number;
@@ -17,10 +21,49 @@ type BroadcasterProps = {
 };
 
 export function Broadcasters() {
-  const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
-  const { register, formState, control, watch, setValue } =
-    useFormContext<CreateOrUpdateSchemaType>();
+  const { watch, setValue } = useFormContext<CreateOrUpdateSchemaType>();
   const broadcasters = watch("broadcasters");
+  const { data: broadcastersData, refetch } = useQuery({
+    queryKey: ["broadcasters", broadcasters],
+    queryFn: async () => {
+      if (!broadcasters?.length) return [] as BroadcasterProps[];
+
+      try {
+        const response = await api.get("/broadcasters", {
+          params: {
+            filters: {
+              id: {
+                $in: broadcasters,
+              },
+            },
+          },
+          paramsSerializer: {
+            serialize: (params) => QueryString.stringify(params),
+          },
+        });
+
+        const formattedData =
+          response.data?.data?.map(
+            (broadcaster: {
+              id: number;
+              attributes: {
+                name: string;
+                email: string;
+              };
+            }) => ({
+              id: broadcaster.id,
+              name: broadcaster.attributes.name,
+              email: broadcaster.attributes.email,
+            })
+          ) ?? [];
+
+        return formattedData as BroadcasterProps[];
+      } catch (error) {
+        return [] as BroadcasterProps[];
+      }
+    },
+    initialData: [] as BroadcasterProps[],
+  });
 
   const handleRemovedBroadcaster = useCallback(
     (id: number) => {
@@ -53,15 +96,22 @@ export function Broadcasters() {
         Cell: (cellProps: CellProps<BroadcasterProps>) => {
           return (
             <div className="d-flex align-items-center gap-1">
-              <Tooltip message="Alterar desconto">
+              <CreateOrUpdateBroadcaster
+                broadcaster={cellProps.row.original}
+                onSuccess={async () => {
+                  await refetch();
+                }}
+              >
                 <button
                   type="button"
                   color="primary"
                   className="d-flex align-items-center gap-2 border-0 bg-transparent "
                 >
-                  <span className="bx bxs-pencil fs-5" />
+                  <Tooltip message="Alterar dados">
+                    <span className="bx bxs-pencil fs-5" />
+                  </Tooltip>
                 </button>
-              </Tooltip>
+              </CreateOrUpdateBroadcaster>
 
               <Tooltip message="Enviar e-mail">
                 <button
@@ -84,7 +134,7 @@ export function Broadcasters() {
                   type="button"
                   className="d-flex align-items-center gap-2 border-0 bg-transparent text-danger"
                 >
-                  <Tooltip message="Remover cupom">
+                  <Tooltip message="Remover apresentador(a)">
                     <span className="bx bxs-x-circle fs-5" />
                   </Tooltip>
                 </button>
@@ -96,7 +146,7 @@ export function Broadcasters() {
         width: "8%",
       },
     ],
-    [handleRemovedBroadcaster]
+    [handleRemovedBroadcaster, refetch]
   );
 
   return (
@@ -104,26 +154,22 @@ export function Broadcasters() {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Lista de apresentadoras</h4>
 
-        <Button
-          color="primary"
-          className="d-flex align-items-center gap-2"
-          type="button"
-        >
-          <span className="bx bx-plus fs-5" />
-          Inserir apresentadora
-        </Button>
+        <CreateOrUpdateBroadcaster>
+          <Button
+            color="primary"
+            className="d-flex align-items-center gap-2"
+            type="button"
+          >
+            <span className="bx bx-plus fs-5" />
+            Inserir apresentador(a)
+          </Button>
+        </CreateOrUpdateBroadcaster>
       </Card.Header>
 
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={[
-            {
-              id: 1,
-              name: "Maria",
-              email: "maria@gmail.com",
-            },
-          ]}
+          data={broadcastersData}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"
