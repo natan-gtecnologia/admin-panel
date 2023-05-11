@@ -1,5 +1,7 @@
 import { api } from "@/services/apiClient";
+import { convert_livestream_strapi } from "@/utils/convertions/convert_live_stream";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import Router from "next/router";
 import { useCallback } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -58,7 +60,20 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
     resolver: zodResolver(createOrUpdateSchema),
     defaultValues: data || DEFAULT,
   });
-  const { handleSubmit } = formProps;
+  const { handleSubmit, reset } = formProps;
+  const { data: liveStreamData } = useQuery({
+    queryKey: ["live-streams", data?.id],
+    queryFn: async () => {
+      if (!data?.id) return null;
+
+      const response = await api.get(`/live-streams/${data.id}`);
+
+      const livestream = convert_livestream_strapi(response.data.data);
+
+      return livestream;
+    },
+    enabled: !!data?.id,
+  });
 
   const onCreateOrUpdate = useCallback<SubmitHandler<CreateOrUpdateSchemaType>>(
     async (values) => {
@@ -105,8 +120,8 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
             broadcasters.length > 0
               ? getFormattedBroadcasters(values.broadcasters, broadcasters)
               : values.broadcasters.map((broadcaster) => ({
-                broadcaster: broadcaster,
-              })),
+                  broadcaster: broadcaster,
+                })),
         };
 
         if (data && data.id) {
@@ -126,6 +141,11 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
             isLoading: false,
             autoClose: 3000,
           });
+
+          reset(values, {
+            keepValues: true,
+          });
+
           return;
         }
 
@@ -150,13 +170,13 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
         });
       }
     },
-    [broadcasters, data]
+    [broadcasters, data, reset]
   );
 
   return (
     <FormProvider {...formProps}>
       <form onSubmit={handleSubmit(onCreateOrUpdate)}>
-        <Header />
+        <Header liveStream={liveStreamData} />
 
         <GeneralConfigs />
 
@@ -166,7 +186,7 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
 
         <Coupons />
 
-        <Broadcasters />
+        <Broadcasters liveStream={liveStreamData} />
       </form>
     </FormProvider>
   );

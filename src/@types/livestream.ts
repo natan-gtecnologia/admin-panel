@@ -4,7 +4,7 @@ import { MetaData } from "./strapi";
 
 export interface ILiveStream {
   id: number;
-  state: "enabled" | "disabled";
+  state: "enabled" | "disabled" | "testing" | "finished";
   uuid: string;
   title: string;
   liveEventName?: string;
@@ -18,9 +18,11 @@ export interface ILiveStream {
   startText: string;
   backgroundColorIfNotHaveBanner: string;
   broadcasters: {
+    code: string;
     broadcaster_id: number;
     id: number | null;
     name: string | null;
+    email: string | null;
     avatar: {
       id: number;
       src: string;

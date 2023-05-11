@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { Button } from "reactstrap";
 
 import TableContainer from "@/components/Common/TableContainer";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 import type { CreateOrUpdateSchemaType } from "../schema";
 
@@ -16,12 +16,8 @@ import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 import { useQuery } from "@tanstack/react-query";
 import { SelectCouponModal } from "./SelectCouponModal";
 
-type CuponProps = ICoupon;
-
 export function Coupons() {
-  const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
-  const { register, formState, control, watch, setValue } =
-    useFormContext<CreateOrUpdateSchemaType>();
+  const { watch, setValue } = useFormContext<CreateOrUpdateSchemaType>();
   const coupons = watch("coupons");
   const { data: couponsFromApi } = useQuery({
     queryKey: ["coupons", "in", coupons],

@@ -7,6 +7,7 @@ import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 import type { CreateOrUpdateSchemaType } from "../schema";
 
+import { ILiveStream } from "@/@types/livestream";
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { api } from "@/services/apiClient";
@@ -18,9 +19,14 @@ type BroadcasterProps = {
   id: number;
   name: string;
   email: string;
+  code: string;
 };
 
-export function Broadcasters() {
+type Props = {
+  liveStream?: ILiveStream | null | undefined;
+};
+
+export function Broadcasters({ liveStream }: Props) {
   const { watch, setValue } = useFormContext<CreateOrUpdateSchemaType>();
   const broadcasters = watch("broadcasters");
   const { data: broadcastersData, refetch } = useQuery({
@@ -50,11 +56,19 @@ export function Broadcasters() {
                 name: string;
                 email: string;
               };
-            }) => ({
-              id: broadcaster.id,
-              name: broadcaster.attributes.name,
-              email: broadcaster.attributes.email,
-            })
+            }) => {
+              const broadcasterData =
+                liveStream?.broadcasters.find(
+                  (broadcasterData) => broadcasterData.id === broadcaster.id
+                )?.code ?? "";
+
+              return {
+                id: broadcaster.id,
+                name: broadcaster.attributes.name,
+                email: broadcaster.attributes.email,
+                code: broadcasterData,
+              };
+            }
           ) ?? [];
 
         return formattedData as BroadcasterProps[];
@@ -90,6 +104,13 @@ export function Broadcasters() {
           return cellProps.row.original.email;
         },
         id: "#email",
+      },
+      {
+        Header: "Código",
+        Cell: (cellProps: CellProps<BroadcasterProps>) => {
+          return cellProps.row.original.code;
+        },
+        id: "#code",
       },
       {
         Header: "Ações",

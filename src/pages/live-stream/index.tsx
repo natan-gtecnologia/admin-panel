@@ -58,7 +58,7 @@ async function getLiveStream(
             broadcaster: {
               populate: {
                 avatar: {
-                  populate: "*"
+                  populate: "*",
                 },
               },
             },
@@ -69,10 +69,10 @@ async function getLiveStream(
           populate: "*",
         },
         streamProducts: {
-          populate: "*"
+          populate: "*",
         },
         metaData: {
-          populate: "*"
+          populate: "*",
         },
       },
       pagination: {
@@ -83,7 +83,7 @@ async function getLiveStream(
     paramsSerializer: {
       serialize: (params) => {
         return QueryString.stringify(params);
-      }
+      },
     },
   });
 
@@ -394,7 +394,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
             <div className="d-flex gap-3">
               <div className="edit d-flex align-items-center">
                 <Link
-                  href={`/live-stream/edit/${cellProps.row.original.id}`}
+                  href={`/live-stream/editar/${cellProps.row.original.id}`}
                   className="cursor-pointer"
                   aria-label="Editar live-stream"
                 >
@@ -574,7 +574,7 @@ export const getServerSideProps = withSSRAuth<LiveStreamProps>(async (ctx) => {
       props: liveStream,
     };
   } catch (err) {
-    console.log("err", err)
+    console.log("err", err);
     return {
       props: {
         liveStream: [],
