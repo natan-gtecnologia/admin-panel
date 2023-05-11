@@ -1,32 +1,32 @@
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { Card } from "@/components/Common/Card";
 import Link from "@/components/Common/Link";
+import Loader from "@/components/Common/Loader";
 import TableContainer from "@/components/Common/TableContainer";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { useLayout } from "@/hooks/useLayout";
+import { api } from "@/services/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import format from "date-fns/format";
 import ptBR from "date-fns/locale/pt-BR";
+import debounce from "lodash/debounce";
 import { NextPageContext } from "next";
 import Head from "next/head";
+import QueryString from "qs";
 import { useCallback, useMemo, useState } from "react";
+import type { CellProps } from "react-table";
+import { toast } from "react-toastify";
 import { Badge, Col, Row } from "reactstrap";
 import { ILiveStream } from "../../@types/livestream";
-import { NextPageWithLayout } from "../../@types/next";
+import type { NextPageWithLayout } from "../../@types/next";
 import Layout from "../../containers/Layout";
 import { setupAPIClient } from "../../services/api";
 import { convert_livestream_strapi } from "../../utils/convertions/convert_live_stream";
 import { withSSRAuth } from "../../utils/withSSRAuth";
-import QueryString from "qs";
-import { useLayout } from "@/hooks/useLayout";
-import { api } from "@/services/apiClient";
-import { toast } from "react-toastify";
-import debounce from 'lodash/debounce';
-import Loader from "@/components/Common/Loader";
 
 const customStyle = {
   "--vz-aspect-ratio": "100%",
 } as React.CSSProperties;
-
 
 const statusColors = {
   enabled: "primary",
@@ -42,13 +42,7 @@ const statusDescriptions = {
 
 type LiveStreamProps = {
   liveStream: ILiveStream;
-  totalPages: number
-};
-
-type CellProps = {
-  row: {
-    original: ILiveStream;
-  };
+  totalPages: number;
 };
 
 async function getLiveStream(
@@ -58,7 +52,7 @@ async function getLiveStream(
   const apiClient = setupAPIClient(ctx);
   const liveStreams = await apiClient.get("live-streams", {
     params: {
-      populate: '*',
+      populate: "*",
       pagination: {
         ...params.pagination,
       },
@@ -168,7 +162,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
       await handleRefetchLives();
       setDeleteIds([]);
     } catch (error) {
-      toast.error('Erro ao excluir a(s) live(s)');
+      toast.error("Erro ao excluir a(s) live(s)");
     } finally {
       setIsDeleting(false);
     }
@@ -189,7 +183,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
 
       await handleRefetchLives();
     },
-    [handleRefetchLives],
+    [handleRefetchLives]
   );
 
   const orderBy = useMemo(() => {
@@ -203,6 +197,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
     ];
   }, [sortedBy]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(debounce(handleSearch, 500), []);
 
   const columns = useMemo(
@@ -214,10 +209,12 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
             id="checkBoxAll"
             className="form-check-input"
             onChange={checkedAll}
-            checked={deleteIds.length === liveStream.length && deleteIds.length > 0}
+            checked={
+              deleteIds.length === liveStream.length && deleteIds.length > 0
+            }
           />
         ),
-        Cell: (cellProps: CellProps) => {
+        Cell: (cellProps: CellProps<ILiveStream>) => {
           return (
             <input
               type="checkbox"
@@ -228,7 +225,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 setDeleteIds((oldValues) => {
                   if (oldValues.includes(cellProps.row.original.id)) {
                     return oldValues.filter(
-                      (value) => value !== cellProps.row.original.id,
+                      (value) => value !== cellProps.row.original.id
                     );
                   }
 
@@ -245,7 +242,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
         Header: "Código da live",
         accessor: "id",
         filterable: false,
-        Cell: (cellProps: CellProps) => (
+        Cell: (cellProps: CellProps<ILiveStream>) => (
           <span>{cellProps.row.original.uuid}</span>
         ),
       },
@@ -253,14 +250,16 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
         Header: "Status",
         accessor: "status",
         filterable: false,
-        Cell: (cellProps: CellProps) => {
+        Cell: (cellProps: CellProps<ILiveStream>) => {
           const status = cellProps.row.original.state;
           const color = statusColors[status] || "secondary";
           const description = statusDescriptions[status] || status;
 
           return (
             <>
-              <Badge className="px-3" color={color}>{description}</Badge>
+              <Badge className="px-3" color={color}>
+                {description}
+              </Badge>
             </>
           );
         },
@@ -269,7 +268,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
         Header: "Título da live ",
         accessor: "title",
         filterable: false,
-        Cell: (cellProps: CellProps) => {
+        Cell: (cellProps: CellProps<ILiveStream>) => {
           return (
             <span className="d-block">{cellProps.row.original.title}</span>
           );
@@ -279,7 +278,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
         Header: "Descrição ",
         accessor: "description",
         filterable: false,
-        Cell: (cellProps: CellProps) => {
+        Cell: (cellProps: CellProps<ILiveStream>) => {
           return (
             <>
               {cellProps.row.original?.liveDescription ? (
@@ -290,8 +289,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 <>
                   <span> - </span>
                 </>
-              )
-              }
+              )}
             </>
           );
         },
@@ -300,7 +298,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
         Header: "Previsão de Inicio ",
         accessor: "startedDate",
         filterable: false,
-        Cell: (cellProps: CellProps) => {
+        Cell: (cellProps: CellProps<ILiveStream>) => {
           return (
             <span className="d-block">
               {cellProps.row.original?.startedDate ? (
@@ -322,7 +320,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
         Header: "Inicio Efetivo",
         accessor: "effectiveStart",
         filterable: false,
-        Cell: (cellProps: CellProps) => {
+        Cell: (cellProps: CellProps<ILiveStream>) => {
           return (
             <span className="d-block">
               {cellProps.row.original?.schedule ? (
@@ -344,7 +342,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
         Header: "Termino",
         accessor: "endedDate",
         filterable: false,
-        Cell: (cellProps: CellProps) => {
+        Cell: (cellProps: CellProps<ILiveStream>) => {
           return (
             <span className="d-block">
               {cellProps.row.original?.endedDate ? (
@@ -365,7 +363,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
       {
         Header: "Ações",
         canSort: false,
-        Cell: (cellProps: CellProps) => {
+        Cell: (cellProps: CellProps<ILiveStream>) => {
           return (
             <div className="d-flex gap-3">
               <div className="edit d-flex align-items-center">
@@ -422,7 +420,9 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
             <Card>
               <Card.Header className="card-header">
                 <div className="d-flex align-items-center">
-                  <h5 className="card-title mb-0 flex-grow-1">Lista de Lives</h5>
+                  <h5 className="card-title mb-0 flex-grow-1">
+                    Lista de Lives
+                  </h5>
                   <div className="flex-shrink-0">
                     <Link
                       href={"/live-stream/criar"}
@@ -491,12 +491,28 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
           </Col>
 
           <Col md={1}>
-            <div className="email-chat-detail" id="emailchat-detailElem" style={{ display: displayValue }}>
+            <div
+              className="email-chat-detail"
+              id="emailchat-detailElem"
+              style={{ display: displayValue }}
+            >
               <Card className="mb-0">
                 <Card.Header className="pb-0">
                   <div className="align-items-end d-flex justify-content-end gap-4">
-                    <a className="fs-18 text-decoration-none cursor-pointer" id="btn" onClick={() => handleChatBox("none")}><i className="ri-arrow-down-s-line"></i></a>
-                    <a className="fs-18 text-decoration-none cursor-pointer" id="btn-close" onClick={() => handleChatBox("none")}><i className="ri-close-fill"></i></a>
+                    <a
+                      className="fs-18 text-decoration-none cursor-pointer"
+                      id="btn"
+                      onClick={() => handleChatBox("none")}
+                    >
+                      <i className="ri-arrow-down-s-line"></i>
+                    </a>
+                    <a
+                      className="fs-18 text-decoration-none cursor-pointer"
+                      id="btn-close"
+                      onClick={() => handleChatBox("none")}
+                    >
+                      <i className="ri-close-fill"></i>
+                    </a>
                   </div>
                 </Card.Header>
 
@@ -524,12 +540,21 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
   );
 };
 
-export const getServerSideProps = withSSRAuth(async (ctx) => {
-  const liveStream = await getLiveStream(ctx, {});
+export const getServerSideProps = withSSRAuth<LiveStreamProps>(async (ctx) => {
+  try {
+    const liveStream = await getLiveStream(ctx, {});
 
-  return {
-    props: liveStream,
-  };
+    return {
+      props: liveStream,
+    };
+  } catch {
+    return {
+      props: {
+        liveStream: [],
+        totalPages: 1,
+      },
+    };
+  }
 });
 
 export default ListLiveStream;
