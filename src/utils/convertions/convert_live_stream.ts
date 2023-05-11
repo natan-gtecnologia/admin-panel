@@ -2,15 +2,15 @@ import { ILiveStream } from "../../@types/livestream";
 import { IStrapiLiveStream } from "../../@types/strapi";
 import { convert_coupon_strapi } from "./convert_coupon";
 import { convert_image_strapi } from "./convert_image";
-import { convert_product_strapi } from "./convert_product";
+import { convert_product_strapi } from "@growthventure/utils/lib/formatting/convertions/convert_product";
 
 export function convert_livestream_strapi(
   livestream: IStrapiLiveStream
 ): ILiveStream {
-  // console.log(
-  //   "🚀 ~ file: convert_live_stream.ts ~ line 70 ~ convert_livestream_strapi ~ livestream",
-  //   livestream
-  // );
+  console.log(
+    "🚀 ~ file: convert_live_stream.ts ~ line 70 ~ convert_livestream_strapi ~ livestream",
+    livestream
+  );
   return {
     id: livestream.id,
     uuid: livestream.attributes.uuid,
