@@ -199,15 +199,15 @@ export interface IStrapiCoupon {
     firstShop: boolean;
     discountType: "price" | "percentage";
     type:
-      | "all_store"
-      | "specific_products"
-      | "specific_categories"
-      | "specific_customers"
-      | "free_shipping_by_region"
-      | "free_shipping_by_products"
-      | "buy_and_earn_by_products"
-      | "buy_and_earn_by_categories"
-      | "buy_and_earn_by_cart_price";
+    | "all_store"
+    | "specific_products"
+    | "specific_categories"
+    | "specific_customers"
+    | "free_shipping_by_region"
+    | "free_shipping_by_products"
+    | "buy_and_earn_by_products"
+    | "buy_and_earn_by_categories"
+    | "buy_and_earn_by_cart_price";
     initialDate?: string;
     finalDate?: string;
     shippingType: "not_apply" | "to_shipping" | "free_shipping";
@@ -351,14 +351,14 @@ export interface IStrapiOrder {
     createdAt: string;
     updatedAt: string;
     status:
-      | "PENDING"
-      | "PAID"
-      | "SHIPPING"
-      | "SHIPPING_LAST_STEP"
-      | "COMPLETED"
-      | "FAILED"
-      | "CANCELED"
-      | "REFUNDED";
+    | "PENDING"
+    | "PAID"
+    | "SHIPPING"
+    | "SHIPPING_LAST_STEP"
+    | "COMPLETED"
+    | "FAILED"
+    | "CANCELED"
+    | "REFUNDED";
     uuid: string;
     orderId: string;
     billingAddress: {
@@ -460,15 +460,15 @@ export interface IStrapiOrder {
       description: string;
       discount: number;
       type:
-        | "all_store"
-        | "specific_products"
-        | "specific_categories"
-        | "specific_customers"
-        | "free_shipping_by_region"
-        | "free_shipping_by_products"
-        | "buy_and_earn_by_products"
-        | "buy_and_earn_by_categories"
-        | "buy_and_earn_by_cart_price";
+      | "all_store"
+      | "specific_products"
+      | "specific_categories"
+      | "specific_customers"
+      | "free_shipping_by_region"
+      | "free_shipping_by_products"
+      | "buy_and_earn_by_products"
+      | "buy_and_earn_by_categories"
+      | "buy_and_earn_by_cart_price";
       discountType: "price" | "percentage";
       shippingType: "not_apply" | "to_shipping" | "free_shipping";
       code: string;
@@ -643,7 +643,7 @@ export interface IStrapiLiveStream {
       data: {
         id: number;
         attributes: {
-          released: boolean;
+          active: boolean;
         };
       };
     };

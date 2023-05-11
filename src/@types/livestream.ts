@@ -48,7 +48,7 @@ export interface ILiveStream {
   }[];
   chat: {
     id: number;
-    released?: boolean;
+    active?: boolean;
   };
   metaData: MetaData[];
   bannerLive: {
@@ -57,5 +57,5 @@ export interface ILiveStream {
     thumbnail: {
       src: string;
     };
-  };
+  } | null;
 }

@@ -52,14 +52,38 @@ async function getLiveStream(
   const apiClient = setupAPIClient(ctx);
   const liveStreams = await apiClient.get("live-streams", {
     params: {
-      populate: "*",
+      populate: {
+        broadcasters: {
+          populate: {
+            broadcaster: {
+              populate: {
+                avatar: {
+                  populate: "*"
+                },
+              },
+            },
+          },
+        },
+        bannerLive: "*",
+        chat: {
+          populate: "*",
+        },
+        streamProducts: {
+          populate: "*"
+        },
+        metaData: {
+          populate: "*"
+        },
+      },
       pagination: {
         ...params.pagination,
       },
       ...params,
     },
-    paramsSerializer: (params) => {
-      return QueryString.stringify(params);
+    paramsSerializer: {
+      serialize: (params) => {
+        return QueryString.stringify(params);
+      }
     },
   });
 
@@ -547,7 +571,8 @@ export const getServerSideProps = withSSRAuth<LiveStreamProps>(async (ctx) => {
     return {
       props: liveStream,
     };
-  } catch {
+  } catch (err) {
+    console.log("err", err)
     return {
       props: {
         liveStream: [],
