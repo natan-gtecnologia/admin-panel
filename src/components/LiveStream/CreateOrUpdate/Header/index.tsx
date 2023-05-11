@@ -1,14 +1,59 @@
+import type { ILiveStream } from "@/@types/livestream";
 import { Card } from "@/components/Common/Card";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
+import { queryClient } from "@/services/react-query";
+import { useMutation } from "@tanstack/react-query";
 import Router from "next/router";
 import { useFormContext } from "react-hook-form";
+import { toast } from "react-toastify";
 import { Button, Spinner } from "reactstrap";
 import { CreateOrUpdateSchemaType } from "../schema";
 
-export function Header() {
+type Props = {
+  liveStream?: ILiveStream | null | undefined;
+};
+
+export function Header({ liveStream }: Props) {
   const { watch, formState } = useFormContext<CreateOrUpdateSchemaType>();
   const title = watch("title");
   const id = watch("id");
+  const {
+    mutateAsync: changeStatus,
+    isLoading: isChangingStatus,
+    variables,
+  } = useMutation<
+    void,
+    void,
+    { status: "enabled" | "disabled" | "testing" | "finished" }
+  >({
+    mutationFn: async (props) => {
+      if (!liveStream) {
+        return;
+      }
+
+      if (formState.isDirty) {
+        toast.warning(
+          "Você precisa salvar as alterações antes de mudar o status da live"
+        );
+
+        return;
+      }
+
+      await api.put(`/live-streams/${id}`, {
+        data: {
+          state: props.status,
+        },
+      });
+
+      await Router.push(`/live-stream/${liveStream?.uuid}`);
+
+      toast.success("Status da live alterado com sucesso");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["live-streams", id]);
+    },
+  });
 
   return (
     <Card className="shadow-none rounded-sm">
@@ -63,20 +108,42 @@ export function Header() {
             color="primary"
             type="button"
             className="d-flex align-items-center gap-2 shadow-none"
-            disabled={!id}
+            disabled={!id || liveStream?.state === "testing"}
+            onClick={() => changeStatus({ status: "testing" })}
           >
-            <span className="bx bx-play fs-4" />
-            Live teste
+            {isChangingStatus &&
+            variables?.status &&
+            variables.status === "testing" ? (
+              <Spinner size="sm" className="flex-shrink-0" role="status">
+                Mudando...
+              </Spinner>
+            ) : (
+              <>
+                <span className="bx bx-play fs-4" />
+                Live teste
+              </>
+            )}
           </Button>
 
           <Button
             color="success"
             type="button"
             className="d-flex align-items-center gap-2 shadow-none"
-            disabled={!id}
+            disabled={!id || liveStream?.state === "enabled"}
+            onClick={() => changeStatus({ status: "enabled" })}
           >
-            <span className="bx bx-play fs-4" />
-            Iniciar live
+            {isChangingStatus &&
+            variables?.status &&
+            variables.status === "testing" ? (
+              <Spinner size="sm" className="flex-shrink-0" role="status">
+                Mudando...
+              </Spinner>
+            ) : (
+              <>
+                <span className="bx bx-play fs-4" />
+                Iniciar live
+              </>
+            )}
           </Button>
         </div>
       </Card.Body>
