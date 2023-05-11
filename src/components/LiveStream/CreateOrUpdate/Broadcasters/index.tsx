@@ -152,7 +152,7 @@ export function Broadcasters() {
   return (
     <Card className="shadow-none">
       <Card.Header className="d-flex align-items-center justify-content-between">
-        <h4 className="card-title mb-0 fw-bold">Lista de apresentadoras</h4>
+        <h4 className="card-title mb-0 fw-bold">Lista de apresentadores</h4>
 
         <CreateOrUpdateBroadcaster>
           <Button

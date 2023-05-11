@@ -227,7 +227,7 @@ export function InsertProductModal({
         : children({
             toggle,
           })}
-      <Modal isOpen={isOpen} centered>
+      <Modal isOpen={isOpen} centered toggle={toggle}>
         <Card className="m-0 shadow-none">
           <Card.Header className="d-flex align-items-center gap-1 justify-content-between border-0">
             <h4 className="m-0 fs-5 fw-bold">Adicionar produto</h4>

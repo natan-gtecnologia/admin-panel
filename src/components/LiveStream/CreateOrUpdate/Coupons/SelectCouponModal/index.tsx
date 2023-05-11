@@ -57,6 +57,7 @@ export function SelectCouponModal({ children }: GoBackModalProps) {
       }
     },
     initialData: [] as ICoupon[],
+    refetchOnWindowFocus: false,
   });
 
   const filteredCoupons = useMemo(() => {

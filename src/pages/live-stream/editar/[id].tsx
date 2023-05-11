@@ -13,7 +13,7 @@ interface Props {
   livestream: ILiveStream;
 }
 
-const Page: NextPageWithLayout<Props> = () => {
+const Page: NextPageWithLayout<Props> = ({ livestream }) => {
   return (
     <div className="page-content">
       <Head>
@@ -22,7 +22,40 @@ const Page: NextPageWithLayout<Props> = () => {
 
       <BreadCrumb title="Nova Live" pageTitle="Lives" />
 
-      <CreateOrUpdate />
+      <CreateOrUpdate
+        data={{
+          id: livestream.id,
+          title: livestream.title,
+          aiTags: [],
+          products: livestream.streamProducts.map((product) => ({
+            id: product.product.id,
+            livePrice: product.price?.salePrice || product.price.regularPrice,
+            highlighted: product.highlight,
+          })),
+          coupons: livestream.coupons.map((coupon) => coupon.id),
+          broadcasters: livestream.broadcasters
+            .map((broadcaster) => broadcaster.id)
+            .filter((broadcaster) => broadcaster) as number[],
+          initialLiveText: livestream.startText,
+          afterLiveTime: Number(livestream?.timeout || 0),
+          chatReleased: livestream.chat.released ?? false,
+          liveColor: livestream.backgroundColorIfNotHaveBanner,
+          scheduledStartTime: new Date(livestream.schedule),
+          shortDescription: livestream.liveDescription,
+          bannerId: livestream.bannerLive?.id,
+        }}
+        broadcasters={
+          livestream.broadcasters
+            .map((broadcaster) => ({
+              broadcaster_id: broadcaster.broadcaster_id,
+              id: broadcaster.id,
+            }))
+            .filter((broadcaster) => broadcaster.id) as {
+            broadcaster_id: number;
+            id: number;
+          }[]
+        }
+      />
     </div>
   );
 };
@@ -43,12 +76,16 @@ export const getServerSideProps = withSSRAuth<Props>(async (ctx) => {
       },
     };
   } catch (error) {
+    console.log(error);
     return {
-      redirect: {
-        destination: "/live-stream",
-        permanent: false,
-      },
+      notFound: true,
     };
+    //return {
+    //  redirect: {
+    //    destination: "/live-stream",
+    //    permanent: false,
+    //  },
+    //};
   }
 });
 

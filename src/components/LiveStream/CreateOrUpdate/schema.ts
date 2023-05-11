@@ -4,7 +4,10 @@ export const createOrUpdateSchema = z.object({
   id: z.number().optional().nullable(),
   title: z.string().min(3, "Mínimo de 3 caracteres"),
   afterLiveTime: z.number().min(1, "Mínimo de 1 minuto"),
-  scheduledStartTime: z.date().min(new Date(), "Data inválida"),
+  scheduledStartTime: z.date({
+    invalid_type_error: "Data inválida",
+    required_error: "Campo obrigatório",
+  }),
   shortDescription: z.string().min(3, "Mínimo de 3 caracteres"),
   initialLiveText: z.string().min(3, "Mínimo de 3 caracteres"),
   chatReleased: z.boolean(),

@@ -49,6 +49,7 @@ export function Coupons() {
       }
     },
     initialData: [] as ICoupon[],
+    refetchOnWindowFocus: false,
   });
 
   const handleRemoveCoupon = useCallback(
