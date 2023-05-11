@@ -7,10 +7,10 @@ import { convert_product_strapi } from "./convert_product";
 export function convert_livestream_strapi(
   livestream: IStrapiLiveStream
 ): ILiveStream {
-  console.log(
-    "🚀 ~ file: convert_live_stream.ts ~ line 70 ~ convert_livestream_strapi ~ livestream",
-    livestream
-  );
+  //console.log(
+  //  "🚀 ~ file: convert_live_stream.ts ~ line 70 ~ convert_livestream_strapi ~ livestream",
+  //  livestream
+  //);
   return {
     id: livestream.id,
     uuid: livestream.attributes.uuid,

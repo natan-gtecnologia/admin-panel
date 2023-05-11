@@ -1,5 +1,6 @@
 import { Card } from "@/components/Common/Card";
-import Link from "next/link";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
+import Router from "next/router";
 import { useFormContext } from "react-hook-form";
 import { Button, Spinner } from "reactstrap";
 import { CreateOrUpdateSchemaType } from "../schema";
@@ -15,7 +16,17 @@ export function Header() {
         <h2 className="flex-1 fs-5 fw-bold m-0">{title || "Título da Live"}</h2>
 
         <div className="d-flex align-items-center gap-2">
-          <Link href="/live-stream">
+          <ConfirmationModal
+            changeStatus={() => {
+              Router.push("/live-stream");
+            }}
+            title="Cancelar"
+            message={
+              id
+                ? "Deseja realmente cancelar a edição esta live?"
+                : "Deseja realmente cancelar a criação desta live?"
+            }
+          >
             <Button
               color="danger"
               outline
@@ -25,7 +36,7 @@ export function Header() {
               <span className="bx bx-x fs-4" />
               Cancelar
             </Button>
-          </Link>
+          </ConfirmationModal>
 
           <Button
             color="primary"
