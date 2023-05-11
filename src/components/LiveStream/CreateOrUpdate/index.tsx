@@ -14,7 +14,7 @@ import { CreateOrUpdateSchemaType, createOrUpdateSchema } from "./schema";
 
 type Props = {
   data?: CreateOrUpdateSchemaType & {
-    bannerId: number;
+    bannerId: number | null;
   };
   broadcasters?: {
     broadcaster_id: number;
@@ -105,8 +105,8 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
             broadcasters.length > 0
               ? getFormattedBroadcasters(values.broadcasters, broadcasters)
               : values.broadcasters.map((broadcaster) => ({
-                  broadcaster: broadcaster,
-                })),
+                broadcaster: broadcaster,
+              })),
         };
 
         if (data && data.id) {

@@ -11,7 +11,7 @@ type FilterProps = {
 type DefaultColumnFilterProps = {
   column: {
     filterValue: any;
-    setFilter: (filterValue: any) => void;
+    setFilter: (filterValue: any | undefined) => void;
     preFilteredRows: any;
   };
 };
@@ -19,7 +19,7 @@ type DefaultColumnFilterProps = {
 type SelectColumnFilterProps = {
   column: {
     filterValue: string;
-    setFilter: (filterValue: string) => void;
+    setFilter: (filterValue: string | undefined) => void;
     preFilteredRows: {
       values: Record<string, string>;
     }[];
@@ -62,8 +62,17 @@ export const SelectColumnFilter = ({
       const option = row.values[id];
       options.add(option);
     });
-    return [...options.values()];
+    return Array.from(options); // converter o Set para um array usando o operador spread
   }, [id, preFilteredRows]);
+
+  // const options = React.useMemo(() => {
+  //   const options = new Set<string>();
+  //   preFilteredRows.forEach((row) => {
+  //     const option = row.values[id];
+  //     options.add(option);
+  //   });
+  //   return [...options.values()];
+  // }, [id, preFilteredRows]);
 
   return (
     <select

@@ -38,11 +38,11 @@ const Page: NextPageWithLayout<Props> = ({ livestream }) => {
             .filter((broadcaster) => broadcaster) as number[],
           initialLiveText: livestream.startText,
           afterLiveTime: Number(livestream?.timeout || 0),
-          chatReleased: livestream.chat.released ?? false,
+          chatReleased: livestream.chat.active ?? false,
           liveColor: livestream.backgroundColorIfNotHaveBanner,
           scheduledStartTime: new Date(livestream.schedule),
           shortDescription: livestream.liveDescription,
-          bannerId: livestream.bannerLive?.id,
+          bannerId: livestream.bannerLive?.id || null,
         }}
         broadcasters={
           livestream.broadcasters
@@ -51,9 +51,9 @@ const Page: NextPageWithLayout<Props> = ({ livestream }) => {
               id: broadcaster.id,
             }))
             .filter((broadcaster) => broadcaster.id) as {
-            broadcaster_id: number;
-            id: number;
-          }[]
+              broadcaster_id: number;
+              id: number;
+            }[]
         }
       />
     </div>
