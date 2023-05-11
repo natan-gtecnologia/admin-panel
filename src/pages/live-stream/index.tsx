@@ -224,6 +224,8 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(debounce(handleSearch, 500), []);
 
+  const url = liveStream.find((item: ILiveStream) => item.state === "enabled")
+
   const columns = useMemo(
     () => [
       {
@@ -543,7 +545,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 <Card.Body className="p-0">
                   <div className="ratio ratio-1x1">
                     <iframe
-                      src={`http://localhost:3000/${liveStream.uuid}?step=live-room`}
+                      src={`http://localhost:3001/${url.uuid}?step=live-room`}
                       title="YouTube video"
                       allowFullScreen
                     ></iframe>
