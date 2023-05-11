@@ -4,12 +4,14 @@ import Layout from "../../containers/Layout";
 
 import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
-import qs from "qs";
 import io, { type Socket } from "socket.io-client";
 import { withSSRAuth } from "../../utils/withSSRAuth";
 
 import {
+  ButtonGroup,
   Col,
+  FormFeedback,
+  Label,
   ListGroup,
   ListGroupItem,
   Nav,
@@ -31,6 +33,10 @@ import { z } from "zod";
 import { IChat } from "../../@types/chat";
 import { ILiveStream } from "../../@types/livestream";
 import { convert_chat_strapi } from "../../utils/convertions/convert_chat";
+import QueryString from "qs";
+import Link from "@/components/Common/Link";
+import { Input } from "@/components/Common/Form/Input";
+import { Tooltip } from "@/components/Common/Tooltip";
 
 type LiveStreamProps = {
   liveStream: ILiveStream;
@@ -70,13 +76,33 @@ export async function getLivestream({
   const response = await apiClient.get(`/live-streams/${prefix}${id}`, {
     params: {
       populate: {
+        broadcasters: {
+          populate: {
+            broadcaster: {
+              populate: {
+                avatar: {
+                  populate: "*"
+                },
+              },
+            },
+          },
+        },
+        bannerLive: "*",
         chat: {
           populate: "*",
         },
+        streamProducts: {
+          populate: "*"
+        },
+        metaData: {
+          populate: "*"
+        },
       },
     },
-    paramsSerializer: (params) => {
-      return qs.stringify(params);
+    paramsSerializer: {
+      serialize: (params) => {
+        return QueryString.stringify(params);
+      }
     },
   });
 
@@ -180,7 +206,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
           <title>Gerenciamento da Live - Dashboard Liveforce</title>
         </Head>
 
-        <BreadCrumb title="Nova Live" pageTitle="Ecommerce" />
+        <BreadCrumb title="Em Execução" pageTitle="LiveStream" />
 
         <Row>
           <Col lg={12}>
@@ -210,7 +236,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
                   <Col lg={4}>
                     <div className="ratio ratio-9x16" style={customStyle}>
                       <iframe
-                        src={`http://localhost:3000/${liveStream.uuid}?step=live-room`}
+                        src={`http://localhost:3001/${liveStream.uuid}?step=live-room`}
                         title="YouTube video"
                         allowFullScreen
                       ></iframe>
@@ -306,10 +332,12 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
                         >
                           <ListGroup className="list-group max-height-50">
                             {messages.map((message) => (
-                              <ListGroupItem key={message.id}>
-                                <h5>{message.firstName}</h5>
-                                <span>{message.message}</span>
-                              </ListGroupItem>
+                              <div className="d-flex align-items-center w-100 border-bottom py-3" key={message.id}>
+                                <div>
+                                  <h5>{message.firstName}</h5>
+                                  <span>{message.message}</span>
+                                </div>
+                              </div>
                             ))}
                           </ListGroup>
                         </SimpleBar>
@@ -333,9 +361,34 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
                       <TabPane tabId={2} id="pills-bill-info">
                         <ListGroup className="list-group max-height-100">
                           {usersFromSocket.map((user) => (
-                            <ListGroupItem key={user?.firstName}>
-                              <h5>{user?.firstName}</h5>
-                            </ListGroupItem>
+                            <>
+                              <div className="d-flex align-items-center w-100 justify-content-between border-bottom py-3" key={user.firstName}>
+                                <div>
+                                  <h5>{user.firstName}</h5>
+                                </div>
+                                <div>
+                                  <Link
+                                    href={'#'}
+                                    className="cursor-pointer"
+                                    aria-label="Bloquear usuário"
+                                  >
+                                    <i className="bx bx-block"></i>
+                                  </Link>
+                                </div>
+                              </div>
+                              {/* <ListGroupItem key={user?.firstName}>
+                                <h5>{user?.firstName}</h5>
+
+                                <Link
+                                  href={'#'}
+                                  className="cursor-pointer"
+                                  aria-label="Bloquear usuário"
+                                >
+                                  <i className="ri-pencil-fill"></i>
+                                </Link>
+                                <div className="clone"></div>
+                              </ListGroupItem> */}
+                            </>
                           ))}
                         </ListGroup>
                       </TabPane>
@@ -350,6 +403,96 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
                         Perguntas
                       </TabPane>
                     </TabContent>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col lg={12}>
+            <Card>
+              <Card.Header>
+                <h6 className="card-title mb-0 flex-grow-1">
+                  Configurações Gerais
+                </h6>
+              </Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col
+                    md={4}
+                    style={{
+                      maxWidth: "fit-content",
+                    }}
+                  >
+                    <div className="form-group">
+                      <Label className="d-block">Ativar chat</Label>
+                      <ButtonGroup>
+                        <Input
+                          type="radio"
+                          className="btn-check btn-primary"
+                          id="option1"
+                          value="true"
+                        // checked={chatReleased === true}
+                        // onChange={() => setValue("chatReleased", true)}
+                        />
+                        <Label
+                          className="btn btn-secondary shadow-none mb-0"
+                          htmlFor="option1"
+                        >
+                          Sim
+                        </Label>
+
+                        <Input
+                          type="radio"
+                          className="btn-check btn-primary"
+                          id="option2"
+                          value="false"
+                        // checked={chatReleased === false}
+                        // onChange={() => setValue("chatReleased", false)}
+                        //{...register(`chatReleased`)}
+                        />
+                        <Label
+                          className="btn btn-secondary shadow-none mb-0"
+                          htmlFor="option2"
+                        >
+                          Não
+                        </Label>
+                      </ButtonGroup>
+                      {/* {formState.errors?.chatReleased && (
+                        <FormFeedback type="invalid">
+                          {formState.errors?.chatReleased.message}
+                        </FormFeedback>
+                      )} */}
+                    </div>
+                  </Col>
+                  <Col md={10}>
+                    <div className="form-group">
+                      <Label htmlFor="afterLiveTime">
+                        Tempo de compra após término da live{" "}
+                        <Tooltip message="Mínimo de 1 minuto">
+                          <span className="bx bx-info-circle fs-6" />
+                        </Tooltip>
+                      </Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        step={1}
+                        className="form-control"
+                        id="afterLiveTime"
+                        placeholder="0 minutos"
+                      // {...register("afterLiveTime", {
+                      //   valueAsNumber: true,
+                      // })}
+                      // invalid={!!formState.errors.afterLiveTime}
+                      />
+                      {/* {formState.errors.afterLiveTime?.message && (
+                        <FormFeedback type="invalid">
+                          {formState.errors.afterLiveTime?.message}
+                        </FormFeedback>
+                      )} */}
+                    </div>
                   </Col>
                 </Row>
               </Card.Body>
@@ -398,8 +541,10 @@ export const getServerSideProps = withSSRAuth<LiveStreamProps>(async (ctx) => {
           },
         },
       },
-      paramsSerializer: (params) => {
-        return qs.stringify(params);
+      paramsSerializer: {
+        serialize: (params) => {
+          return QueryString.stringify(params);
+        }
       },
     });
 

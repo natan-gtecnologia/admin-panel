@@ -31,12 +31,14 @@ const customStyle = {
 const statusColors = {
   enabled: "primary",
   disabled: "danger",
+  testing: 'warning',
   finished: "success",
 };
 
 const statusDescriptions = {
   enabled: "Em Andamento",
   disabled: "Agendada",
+  testing: 'Em Teste',
   finished: "Realizada",
 };
 
