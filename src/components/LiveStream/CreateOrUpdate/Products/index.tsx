@@ -289,12 +289,29 @@ export function Products() {
     [getValues, handleRemoveProduct, setValue]
   );
 
+  const handleInsertNewProducts = useCallback((ids: number[], products?: IProduct[]) => {
+    if (!products) return;
+    const list = getValues("products");
+
+    const newProducts = products
+      .filter((product) => {
+        return ids.includes(product.id);
+      })
+      .map((product) => ({
+        id: product.id,
+        livePrice: product.price?.salePrice ?? product.price?.regularPrice,
+        highlighted: false,
+      }));
+
+    setValue("products", [...list, ...newProducts]);
+  }, [])
+
   return (
     <Card className="shadow-none">
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Produtos</h4>
 
-        <InsertProductModal>
+        <InsertProductModal onSelect={handleInsertNewProducts}>
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"

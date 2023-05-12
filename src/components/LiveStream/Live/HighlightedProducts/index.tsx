@@ -7,7 +7,7 @@ import TableContainer from "@/components/Common/TableContainer";
 import Image from "next/image";
 import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
-import type { CreateOrUpdateSchemaType } from "../schema";
+import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
 
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
@@ -17,74 +17,26 @@ import { convert_product_strapi } from "@growthventure/utils/lib/formatting/conv
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 import { useQuery } from "@tanstack/react-query";
 import QueryString from "qs";
-import { InsertProductModal } from "../InsertProductModal";
+import { InsertProductModal } from "../../CreateOrUpdate/InsertProductModal";
 
 type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
 
-export function HighlightedProducts() {
-  const { watch, setValue, getValues } = useFormContext<CreateOrUpdateSchemaType>();
-  const productsFromForm = watch("products");
-  const { data: products } = useQuery({
-    queryKey: ["products", productsFromForm],
-    queryFn: async () => {
-      try {
-        const response = await api.get("/products", {
-          params: {
-            filters: {
-              id: {
-                $in: productsFromForm?.map((product) => product.id),
-              },
-            },
-            pagination: {
-              pageSize: 100,
-            },
-          },
-          paramsSerializer: {
-            serialize: (params) => QueryString.stringify(params),
-          },
-        });
+interface Props {
+  products: ProductProps[]
+}
 
-        const formattedProducts: IProduct[] = response.data.data?.map(
-          convert_product_strapi
-        );
-
-        return formattedProducts.map((product) => {
-          return {
-            ...product,
-            livePrice: productsFromForm.find(
-              (productFromForm) => productFromForm.id === product.id
-            )?.livePrice,
-            highlighted: productsFromForm.find(
-              (productFromForm) => productFromForm.id === product.id
-            )?.highlighted,
-          };
-        });
-      } catch (error) {
-        console.log(error);
-        return [] as ProductProps[];
-      }
-    },
-    enabled: productsFromForm?.length > 0,
-    initialData: [],
-    refetchOnWindowFocus: false,
-  });
-
-  const onlyHighlightedProducts = useMemo(
-    () => products?.filter((product) => product.highlighted),
-    [products]
-  );
-
+export function HighlightedProducts({ products }: Props) {
   const handleRemoveProduct = useCallback(
     (id: number) => {
-      setValue(
-        "products",
-        productsFromForm.map((product) => ({
-          ...product,
-          highlighted: product.id !== id ? product.highlighted : false,
-        }))
-      );
+      //setValue(
+      //  "products",
+      //  productsFromForm.map((product) => ({
+      //    ...product,
+      //    highlighted: product.id !== id ? product.highlighted : false,
+      //  }))
+      //);
     },
-    [productsFromForm, setValue]
+    []
   );
 
   const columns = useMemo(
@@ -193,17 +145,7 @@ export function HighlightedProducts() {
   );
 
   const handleInsertNewProducts = useCallback((ids: number[]) => {
-    const list = getValues("products");
-
-    setValue(
-      "products",
-      list.map((product) => {
-        return {
-          ...product,
-          highlighted: ids.includes(product.id),
-        };
-      })
-    );
+    console.log(ids);
   }, [])
 
   return (
@@ -217,7 +159,7 @@ export function HighlightedProducts() {
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"
-            disabled={onlyHighlightedProducts.length === 4}
+            disabled={products.length === 4}
             type="button"
           >
             <span className="bx bx-plus fs-5" />
@@ -229,7 +171,7 @@ export function HighlightedProducts() {
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={onlyHighlightedProducts}
+          data={products}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"

@@ -90,7 +90,7 @@ async function getLiveStream(
   });
 
   return {
-    liveStream: liveStreams.data.data.map(convert_livestream_strapi),
+    liveStream: liveStreams.data.data.map(convert_livestream_strapi) ?? [],
     totalPages: liveStreams.data.meta?.pagination?.pageCount ?? 1,
   };
 }
@@ -403,6 +403,15 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                   <i className="ri-pencil-fill"></i>
                 </Link>
               </div>
+              <div className="edit d-flex align-items-center">
+                <Link
+                  href={`/live-stream/${cellProps.row.original.uuid}`}
+                  className="cursor-pointer"
+                  aria-label="Gerenciar live-stream"
+                >
+                  <i className="ri-eye-line"></i>
+                </Link>
+              </div>
               <div className="clone">
                 {/* <ConfirmationModal
                   changeStatus={
@@ -547,7 +556,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 <Card.Body className="p-0">
                   <div className="ratio ratio-1x1">
                     <iframe
-                      src={`http://localhost:3001/${url.uuid}?step=live-room`}
+                      src={`http://localhost:3001/${url?.uuid}?step=live-room`}
                       title="YouTube video"
                       allowFullScreen
                     ></iframe>

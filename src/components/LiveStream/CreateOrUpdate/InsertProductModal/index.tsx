@@ -16,10 +16,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useFormContext } from "react-hook-form";
 import type { CellProps } from "react-table";
 import { Button, Input, Modal } from "reactstrap";
-import type { CreateOrUpdateSchemaType } from "../schema";
 
 type ChildrenModalProps = {
   toggle: () => void;
@@ -29,15 +27,18 @@ interface Props {
   children: ReactNode | ((props: ChildrenModalProps) => ReactNode);
   products?: IProduct[];
   highlightedCount?: number;
+
+  onSelect: (ids: number[], products?: IProduct[]) => void;
 }
 
 export function InsertProductModal({
   children,
   products,
   highlightedCount = 0,
+
+  onSelect
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const { setValue, getValues } = useFormContext<CreateOrUpdateSchemaType>();
   const [search, setSearch] = useState("");
   const { data: productsData } = useQuery({
     queryKey: ["products", search],
@@ -74,35 +75,11 @@ export function InsertProductModal({
   const productsMerged = products ?? productsData;
 
   const handleAddToList = useCallback(() => {
-    const list = getValues("products");
-
-    if (!products) {
-      const newProducts = productsMerged
-        .filter((product) => {
-          return selectedIds.includes(product.id);
-        })
-        .map((product) => ({
-          id: product.id,
-          livePrice: product.price?.salePrice ?? product.price?.regularPrice,
-          highlighted: false,
-        }));
-
-      setValue("products", [...list, ...newProducts]);
-    } else {
-      setValue(
-        "products",
-        list.map((product) => {
-          return {
-            ...product,
-            highlighted: selectedIds.includes(product.id),
-          };
-        })
-      );
-    }
+    onSelect(selectedIds, productsMerged);
 
     setSelectedIds([]);
     setIsOpen(false);
-  }, [getValues, products, productsMerged, selectedIds, setValue]);
+  }, [productsMerged, selectedIds, onSelect]);
 
   const productsFiltered = productsMerged.filter((product) => {
     return product.title.toLowerCase().includes(search.toLowerCase());
@@ -221,20 +198,21 @@ export function InsertProductModal({
   );
 
   return (
+
     <>
-      {typeof children !== "function"
-        ? cloneElement(children as React.ReactElement, { onClick: toggle })
-        : children({
+      {
+        typeof children !== "function"
+          ? cloneElement(children as React.ReactElement, { onClick: toggle })
+          : children({
             toggle,
-          })}
+          })
+      }
       <Modal isOpen={isOpen} centered toggle={toggle}>
         <Card className="m-0 shadow-none">
           <Card.Header className="d-flex align-items-center gap-1 justify-content-between border-0">
             <h4 className="m-0 fs-5 fw-bold">Adicionar produto</h4>
             <Button
               onClick={() => {
-                setValue("liveCover", null);
-                setValue("liveColor", "#DB7D72");
                 toggle();
               }}
               close
@@ -293,8 +271,6 @@ export function InsertProductModal({
           <Card.Footer className="d-flex align-items-center gap-2 justify-content-end border-0">
             <Button
               onClick={() => {
-                setValue("liveCover", null);
-                setValue("liveColor", "#DB7D72");
                 toggle();
               }}
               color="light"

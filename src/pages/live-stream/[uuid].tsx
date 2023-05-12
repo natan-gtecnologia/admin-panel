@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NextPageWithLayout } from "../../@types/next";
 import Layout from "../../containers/Layout";
 
@@ -10,33 +10,29 @@ import { withSSRAuth } from "../../utils/withSSRAuth";
 import {
   ButtonGroup,
   Col,
-  FormFeedback,
   Label,
-  ListGroup,
-  ListGroupItem,
-  Nav,
-  NavItem,
-  NavLink,
-  Row,
-  TabContent,
-  TabPane,
+  Row
 } from "reactstrap";
 
-import classnames from "classnames";
-import SimpleBar from "simplebar-react";
 import { setupAPIClient } from "../../services/api";
 
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { Card } from "@/components/Common/Card";
+import { Input } from "@/components/Common/Form/Input";
+import { Tooltip } from "@/components/Common/Tooltip";
+import { LiveTabs } from "@/components/LiveStream/Live";
+import { LiveBroadcasters } from "@/components/LiveStream/Live/Broadcasters";
+import { LiveCoupons } from "@/components/LiveStream/Live/Coupons";
+import { HighlightedProducts } from "@/components/LiveStream/Live/HighlightedProducts";
+import { SaleProducts } from "@/components/LiveStream/Live/SaleProducts";
+import { useLayout } from "@/hooks/useLayout";
 import { convert_livestream_strapi } from "@/utils/convertions/convert_live_stream";
+import QueryString from "qs";
+import { toast } from "react-toastify";
 import { z } from "zod";
 import { IChat } from "../../@types/chat";
 import { ILiveStream } from "../../@types/livestream";
 import { convert_chat_strapi } from "../../utils/convertions/convert_chat";
-import QueryString from "qs";
-import Link from "@/components/Common/Link";
-import { Input } from "@/components/Common/Form/Input";
-import { Tooltip } from "@/components/Common/Tooltip";
 
 type LiveStreamProps = {
   liveStream: ILiveStream;
@@ -116,8 +112,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   liveStream: initialLiveStream,
   chat,
 }) => {
-  const [activeTab, setActiveTab] = useState(1);
-  const [passedSteps, setPassedSteps] = useState([1]);
+
 
   const { data: liveStream, refetch: handleRefetchLiveStream } = useQuery(
     ["liveStream"],
@@ -137,6 +132,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   );
 
   const [message, setMessage] = useState("");
+  const { handleChangeLoading } = useLayout();
   const [messagesFromSocket, setMessagesFromSocket] = useState<IMessage[]>([]);
   const [usersFromSocket, setUsersFromSocket] = useState<
     {
@@ -149,16 +145,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
 
   const messages = [...chat.messages, ...messagesFromSocket];
 
-  async function toggleTab(tab: number): Promise<void> {
-    if (activeTab !== tab) {
-      const modifiedSteps = [...passedSteps, tab];
-
-      if (tab >= 1 && tab <= 5) {
-        setActiveTab(tab);
-        setPassedSteps(modifiedSteps);
-      }
-    }
-  }
+  console.log(liveStream.streamProducts);
 
   const handleSendMessage = async () => {
     if (!message || !socketConnection) return;
@@ -198,6 +185,30 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
       socketConnection.disconnect();
     };
   }, [chat.id]);
+
+
+  const handleBlockUser = useCallback(async (user: any) => {
+    handleChangeLoading({
+      description: 'Carregando lives',
+      title: 'Aguarde',
+    });
+    console.log("user", user)
+
+    try {
+      // await api.post(`/black-lists`, {
+      //   data: {
+
+      //   }
+      // });
+
+      // await handleRefetchLiveStream();
+    } catch (error) {
+      toast.error("Erro ao excluir bloquar usuário");
+    } finally {
+      toast.error("Usuário bloqueado com sucesso");
+      handleChangeLoading(null)
+    }
+  }, [handleRefetchLiveStream]);
 
   return (
     <>
@@ -243,167 +254,15 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
                     </div>
                   </Col>
 
-                  <Col lg={8} style={{ height: "60%" }}>
-                    <Nav
-                      tabs
-                      className="nav nav-tabs nav-tabs-custom nav-success nav-justified mb-3"
-                    >
-                      <NavItem role="chat">
-                        <NavLink
-                          href="#"
-                          className={classnames(
-                            {
-                              active: activeTab === 1,
-                              done: activeTab <= 4 && activeTab >= 0,
-                            },
-                            "fs-15 p-3"
-                          )}
-                          onClick={() => {
-                            toggleTab(1);
-                          }}
-                        >
-                          <i className="ri-message-2-fill fs-16 p-1 align-middle me-1"></i>
-                          Chat
-                        </NavLink>
-                      </NavItem>
-                      <NavItem role="users">
-                        <NavLink
-                          href="#"
-                          className={classnames(
-                            {
-                              active: activeTab === 2,
-                              done: activeTab <= 4 && activeTab >= 1,
-                            },
-                            "fs-15 p-3"
-                          )}
-                          onClick={() => {
-                            toggleTab(2);
-                          }}
-                        >
-                          <i className="ri-user-2-line fs-16 p-1 align-middle me-1"></i>
-                          Usuários
-                        </NavLink>
-                      </NavItem>
-                      <NavItem role="usersBlock">
-                        <NavLink
-                          href="#"
-                          className={classnames(
-                            {
-                              active: activeTab === 3,
-                              done: activeTab <= 4 && activeTab > 2,
-                            },
-                            "fs-15 p-3"
-                          )}
-                          onClick={() => {
-                            toggleTab(3);
-                          }}
-                        >
-                          <i className="ri-close-circle-line fs-16 p-1 align-middle me-1"></i>
-                          Bloqueados
-                        </NavLink>
-                      </NavItem>
-                      <NavItem role="presentation">
-                        <NavLink
-                          href="#"
-                          className={classnames(
-                            {
-                              active: activeTab === 4,
-                              done: activeTab <= 4 && activeTab > 3,
-                            },
-                            "fs-15 p-3"
-                          )}
-                          onClick={() => {
-                            toggleTab(4);
-                          }}
-                        >
-                          <i className="ri-question-line fs-16 p-1 align-middle me-1"></i>
-                          Perguntas
-                        </NavLink>
-                      </NavItem>
-                    </Nav>
-                    {/* </div> */}
+                  <LiveTabs
+                    messages={messages}
+                    message={message}
+                    setMessage={setMessage}
+                    handleSendMessage={handleSendMessage}
+                    usersFromSocket={usersFromSocket}
+                    handleBlockUser={handleBlockUser}
+                  />
 
-                    <TabContent activeTab={activeTab}>
-                      <TabPane tabId={1} id="pills-bill-info">
-                        <SimpleBar
-                          autoHide={false}
-                          className="simplebar-track-primary"
-                          style={{ maxHeight: "560px", overflow: "auto" }}
-                        >
-                          <ListGroup className="list-group max-height-50">
-                            {messages.map((message) => (
-                              <div className="d-flex align-items-center w-100 border-bottom py-3" key={message.id}>
-                                <div>
-                                  <h5>{message.firstName}</h5>
-                                  <span>{message.message}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </ListGroup>
-                        </SimpleBar>
-                        <input
-                          placeholder="Digite sua mensagem"
-                          value={message}
-                          className="form-control mt-3"
-                          onChange={(e) => setMessage(e.target.value)}
-                          id="message-input"
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleSendMessage();
-                            }
-                          }}
-                          autoComplete="off"
-                        />
-                      </TabPane>
-                    </TabContent>
-
-                    <TabContent activeTab={activeTab}>
-                      <TabPane tabId={2} id="pills-bill-info">
-                        <ListGroup className="list-group max-height-100">
-                          {usersFromSocket.map((user) => (
-                            <>
-                              <div className="d-flex align-items-center w-100 justify-content-between border-bottom py-3" key={user.firstName}>
-                                <div>
-                                  <h5>{user.firstName}</h5>
-                                </div>
-                                <div>
-                                  <Link
-                                    href={'#'}
-                                    className="cursor-pointer"
-                                    aria-label="Bloquear usuário"
-                                  >
-                                    <i className="bx bx-block"></i>
-                                  </Link>
-                                </div>
-                              </div>
-                              {/* <ListGroupItem key={user?.firstName}>
-                                <h5>{user?.firstName}</h5>
-
-                                <Link
-                                  href={'#'}
-                                  className="cursor-pointer"
-                                  aria-label="Bloquear usuário"
-                                >
-                                  <i className="ri-pencil-fill"></i>
-                                </Link>
-                                <div className="clone"></div>
-                              </ListGroupItem> */}
-                            </>
-                          ))}
-                        </ListGroup>
-                      </TabPane>
-                    </TabContent>
-                    <TabContent activeTab={activeTab}>
-                      <TabPane tabId={3} id="pills-bill-info">
-                        Bloqueados
-                      </TabPane>
-                    </TabContent>
-                    <TabContent activeTab={activeTab}>
-                      <TabPane tabId={4} id="pills-bill-info">
-                        Perguntas
-                      </TabPane>
-                    </TabContent>
-                  </Col>
                 </Row>
               </Card.Body>
             </Card>
@@ -497,6 +356,35 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 </Row>
               </Card.Body>
             </Card>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col lg={12}>
+            <SaleProducts products={liveStream.streamProducts.map(product => ({
+              ...product.product,
+              highlighted: product.highlight,
+              livePrice: product.price?.salePrice ?? product.price.regularPrice,
+            }))} />
+          </Col>
+        </Row>
+        <Row>
+          <Col lg={12}>
+            <HighlightedProducts products={liveStream.streamProducts.map(product => ({
+              ...product.product,
+              highlighted: product.highlight,
+              livePrice: product.price?.salePrice ?? product.price.regularPrice,
+            })).filter(product => product.highlighted)} />
+          </Col>
+        </Row>
+        <Row>
+          <Col lg={12}>
+            <LiveCoupons coupons={liveStream.coupons} />
+          </Col>
+        </Row>
+        <Row>
+          <Col lg={12}>
+            <LiveBroadcasters broadcasters={liveStream.broadcasters} />
           </Col>
         </Row>
       </div>
