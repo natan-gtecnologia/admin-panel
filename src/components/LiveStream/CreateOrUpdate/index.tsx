@@ -149,8 +149,17 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
           return;
         }
 
+        const chat_response = await api.post("/chats", {
+          data: {
+            active: false,
+          },
+        });
+
         const response = await api.post("/live-streams", {
-          data: formData,
+          data: {
+            ...formData,
+            chat: chat_response.data.data.id,
+          },
         });
 
         await Router.push(`/live-stream/editar/${response.data.data.id}`);

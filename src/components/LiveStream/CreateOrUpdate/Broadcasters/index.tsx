@@ -20,6 +20,7 @@ type BroadcasterProps = {
   name: string;
   email: string;
   code: string;
+  avatar_id: number | null;
 };
 
 type Props = {
@@ -42,6 +43,7 @@ export function Broadcasters({ liveStream }: Props) {
                 $in: broadcasters,
               },
             },
+            populate: "*",
           },
           paramsSerializer: {
             serialize: (params) => QueryString.stringify(params),
@@ -55,6 +57,11 @@ export function Broadcasters({ liveStream }: Props) {
               attributes: {
                 name: string;
                 email: string;
+                avatar: {
+                  data: {
+                    id: number;
+                  };
+                };
               };
             }) => {
               const broadcasterData =
@@ -67,6 +74,7 @@ export function Broadcasters({ liveStream }: Props) {
                 name: broadcaster.attributes.name,
                 email: broadcaster.attributes.email,
                 code: broadcasterData,
+                avatar_id: broadcaster.attributes?.avatar?.data?.id ?? null,
               };
             }
           ) ?? [];

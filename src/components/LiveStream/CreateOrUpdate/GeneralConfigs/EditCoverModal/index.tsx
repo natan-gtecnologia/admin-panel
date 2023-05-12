@@ -1,5 +1,6 @@
 import { Card } from "@/components/Common/Card";
 import { Input } from "@/components/Common/Form/Input";
+import { formatBytes } from "@/utils/formatBytes";
 import truncate from "lodash/truncate";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,16 +16,6 @@ type ChildrenModalProps = {
 
 interface Props {
   children: ReactNode | ((props: ChildrenModalProps) => ReactNode);
-}
-
-function formatBytes(bytes: number, decimals = 2) {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
 export function EditCover({ children }: Props) {
@@ -59,8 +50,6 @@ export function EditCover({ children }: Props) {
             <h4 className="m-0 fs-5 fw-bold">Fundo de capa da live</h4>
             <Button
               onClick={() => {
-                setValue("liveCover", null);
-                setValue("liveColor", "#DB7D72");
                 toggle();
               }}
               close
@@ -111,6 +100,7 @@ export function EditCover({ children }: Props) {
                   </div>
                 )}
               </Dropzone>
+
               <small className="d-block mt-2 text-muted fs-6">
                 Máx. de 2MB. Tamanho recomendado: 1080 x 1920. Formatos aceitos:{" "}
                 <br />
@@ -131,13 +121,22 @@ export function EditCover({ children }: Props) {
                           src={bgImage.preview}
                         />
                       </Col>
-                      <Col>
+                      <Col className="position-relative">
                         <Link href="#" className="text-muted font-weight-bold">
                           {bgImage.name}
                         </Link>
                         <p className="mb-0">
                           <strong>{bgImage.formattedSize}</strong>
                         </p>
+
+                        <Button
+                          close
+                          onClick={() => {
+                            setValue("liveCover", null);
+                            setValue("liveColor", "#DB7D72");
+                          }}
+                          className="position-absolute top-0 end-0 mt-2 me-3 text-danger"
+                        />
                       </Col>
                     </Row>
                   </div>
@@ -148,8 +147,6 @@ export function EditCover({ children }: Props) {
           <Card.Footer className="d-flex align-items-center gap-2 justify-content-end border-0">
             <Button
               onClick={() => {
-                setValue("liveCover", null);
-                setValue("liveColor", "#DB7D72");
                 toggle();
               }}
               color="light"

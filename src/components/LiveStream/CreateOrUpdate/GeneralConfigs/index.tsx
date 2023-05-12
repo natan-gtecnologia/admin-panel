@@ -132,7 +132,10 @@ export function GeneralConfigs() {
                   onChange={() => setValue("chatReleased", true)}
                 />
                 <Label
-                  className="btn btn-secondary shadow-none mb-0"
+                  className={clsx("btn shadow-none mb-0", {
+                    "btn-outline-primary": !chatReleased,
+                    "btn-primary": chatReleased,
+                  })}
                   htmlFor="option1"
                 >
                   Sim
@@ -148,7 +151,10 @@ export function GeneralConfigs() {
                   //{...register(`chatReleased`)}
                 />
                 <Label
-                  className="btn btn-secondary shadow-none mb-0"
+                  className={clsx("btn shadow-none mb-0", {
+                    "btn-outline-primary": chatReleased,
+                    "btn-primary": !chatReleased,
+                  })}
                   htmlFor="option2"
                 >
                   Não

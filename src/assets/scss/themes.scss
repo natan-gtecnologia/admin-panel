@@ -1,9 +1,9 @@
-@import '../scss/icons.scss';
-@import '../scss/config/material/bootstrap.scss';
-@import '../scss/config/material/app.scss';
-@import '../scss/config/material/custom.scss';
-@import './shepherd.css';
-@import './mermaid.min.css';
+@import "../scss/icons.scss";
+@import "../scss/config/material/bootstrap.scss";
+@import "../scss/config/material/app.scss";
+@import "../scss/config/material/custom.scss";
+@import "./shepherd.css";
+@import "./mermaid.min.css";
 
 // @import "./components/demos.scss";
 
@@ -35,10 +35,10 @@ body {
 .noUi-connect,
 .noUi-horizontal {
   height: 2px !important;
-  background: #4b38b3 !important;
+  background: rgba(64, 81, 137, 1) !important;
 }
 .noUi-handle {
-  background: #4b38b3 !important;
+  background: rgba(64, 81, 137, 1) !important;
   border: 2px solid var(--vz-card-bg) !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
@@ -201,7 +201,7 @@ body {
   --vz-card-color: #212529;
 }
 
-[data-layout-mode='dark'] .card-body {
+[data-layout-mode="dark"] .card-body {
   --vz-card-color: #fff;
 }
 
@@ -229,7 +229,7 @@ body {
 }
 
 .choices__button,
-.choices[data-type*='text'] .choices__button {
+.choices[data-type*="text"] .choices__button {
   position: relative;
   display: inline-block;
   margin-top: 0;
@@ -246,9 +246,9 @@ body {
   opacity: 0.75;
   border-radius: 0;
 }
-[type='button']:not(:disabled),
-[type='reset']:not(:disabled),
-[type='submit']:not(:disabled),
+[type="button"]:not(:disabled),
+[type="reset"]:not(:disabled),
+[type="submit"]:not(:disabled),
 button:not(:disabled) {
   cursor: pointer;
 }
@@ -280,7 +280,7 @@ button:not(:disabled) {
   right: 0;
 }
 
-[data-layout-mode='dark'] {
+[data-layout-mode="dark"] {
   .css-b62m3t-container .css-13cymwt-control,
   .css-b62m3t-container .css-13cymwt-control:hover,
   .css-b62m3t-container .css-t3ipsp-control {
