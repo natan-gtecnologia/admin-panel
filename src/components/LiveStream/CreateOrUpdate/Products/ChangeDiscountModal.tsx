@@ -73,6 +73,7 @@ export function ChangeDiscountModal({
             <h4 className="m-0 fs-5 fw-bold">Atualizar desconto</h4>
             <Button onClick={() => toggle()} close />
           </Card.Header>
+
           <Card.Body className="pt-0 pb-0">
             <p className="m-0">
               O desconto pode ser inserido de forma monetária ou percentual,
@@ -157,6 +158,9 @@ export function ChangeDiscountModal({
                   {...register("value", {
                     valueAsNumber: true,
                   })}
+                  max={type === "percentage" ? 100 : regularPrice}
+                  min={0}
+                  step={type === "percentage" ? 1 : 0.01}
                   error={formState.errors.value?.message}
                   onKeyUp={(e: any) => {
                     if (e.key === "Enter") {

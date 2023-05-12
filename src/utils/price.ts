@@ -18,7 +18,8 @@ export function currentPrice(product: {
 }
 
 export const discountPercentage = (regularPrice: number, price: number) => {
-  if (regularPrice === price || regularPrice === 0) return 0;
+  if (regularPrice === price || regularPrice === 0 || price > regularPrice)
+    return 0;
 
   const percentage = ((regularPrice - price) / regularPrice) * 100;
   return percentage.toFixed(2);
