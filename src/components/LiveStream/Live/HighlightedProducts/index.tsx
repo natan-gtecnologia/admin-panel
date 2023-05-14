@@ -1,5 +1,4 @@
 import { Card } from "@/components/Common/Card";
-import { useFormContext } from "react-hook-form";
 import { Button } from "reactstrap";
 
 import type { IProduct } from "@/@types/product";
@@ -11,15 +10,13 @@ import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
 
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
-import { api } from "@/services/apiClient";
 import { currentPrice, discountPercentage } from "@/utils/price";
-import { convert_product_strapi } from "@growthventure/utils/lib/formatting/convertions/convert_product";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
-import { useQuery } from "@tanstack/react-query";
-import QueryString from "qs";
 import { InsertProductModal } from "../../CreateOrUpdate/InsertProductModal";
 
-type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
+type ProductProps = CreateOrUpdateSchemaType["products"][number] & {
+  product: IProduct
+};
 
 interface Props {
   products: ProductProps[]
@@ -47,7 +44,7 @@ export function HighlightedProducts({ products }: Props) {
           return (
             <div className="form-check form-switch">
               <Image
-                src={cellProps.row.original.product_image.src}
+                src={cellProps.row.original.product.product_image.src}
                 alt=""
                 width={32}
                 height={32}
@@ -67,7 +64,7 @@ export function HighlightedProducts({ products }: Props) {
       {
         Header: "Nome do Produto",
         Cell: (cellProps: CellProps<ProductProps>) => {
-          return cellProps.row.original.title;
+          return cellProps.row.original.product.title;
         },
         id: "#name",
       },
@@ -75,10 +72,10 @@ export function HighlightedProducts({ products }: Props) {
         Header: "Preço Original",
         Cell: (cellProps: CellProps<ProductProps>) => {
           const price = currentPrice({
-            regular_price: cellProps.row.original.price.regularPrice,
+            regular_price: cellProps.row.original.product.price.regularPrice,
             price:
-              cellProps.row.original.price?.salePrice ??
-              cellProps.row.original.price.regularPrice,
+              cellProps.row.original.product.price?.salePrice ??
+              cellProps.row.original.product.price.regularPrice,
           });
           return formatNumberToReal(price.price);
         },
@@ -89,10 +86,10 @@ export function HighlightedProducts({ products }: Props) {
         Header: "Desconto",
         Cell: (cellProps: CellProps<ProductProps>) => {
           const price = currentPrice({
-            regular_price: cellProps.row.original.price.regularPrice,
+            regular_price: cellProps.row.original.product?.price.regularPrice,
             price:
-              cellProps.row.original.price?.salePrice ??
-              cellProps.row.original.price.regularPrice,
+              cellProps.row.original.product?.price?.salePrice ??
+              cellProps.row.original.product?.price?.regularPrice,
           });
 
           return (
@@ -155,7 +152,7 @@ export function HighlightedProducts({ products }: Props) {
           Produtos em destaque (Máx. 4)
         </h4>
 
-        <InsertProductModal onSelect={handleInsertNewProducts} products={products}>
+        <InsertProductModal onSelect={handleInsertNewProducts} products={products.map(product => product.product)}>
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"

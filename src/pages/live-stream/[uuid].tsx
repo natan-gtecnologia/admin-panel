@@ -362,26 +362,31 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
         <Row>
           <Col lg={12}>
             <SaleProducts products={liveStream.streamProducts.map(product => ({
-              ...product.product,
+              id: product.product.id,
+              product: product.product,
               highlighted: product.highlight,
               livePrice: product.price?.salePrice ?? product.price.regularPrice,
             }))} />
           </Col>
         </Row>
+
         <Row>
           <Col lg={12}>
             <HighlightedProducts products={liveStream.streamProducts.map(product => ({
-              ...product.product,
+              id: product.product.id,
+              product: product.product,
               highlighted: product.highlight,
               livePrice: product.price?.salePrice ?? product.price.regularPrice,
             })).filter(product => product.highlighted)} />
           </Col>
         </Row>
+
         <Row>
           <Col lg={12}>
             <LiveCoupons coupons={liveStream.coupons} />
           </Col>
         </Row>
+
         <Row>
           <Col lg={12}>
             <LiveBroadcasters broadcasters={liveStream.broadcasters} />

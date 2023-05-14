@@ -4,22 +4,43 @@ import { Button } from "reactstrap";
 import type { IProduct } from "@/@types/product";
 import TableContainer from "@/components/Common/TableContainer";
 import Image from "next/image";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { CellProps } from "react-table";
 // import type { CreateOrUpdateSchemaType } from "../schema";
 
+import { Tooltip } from "@/components/Common/Tooltip";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { currentPrice, discountPercentage } from "@/utils/price";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 import { InsertProductModal } from "../../CreateOrUpdate/InsertProductModal";
 import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
+import { ChangeDiscountModal } from "./ChangeDiscountModal";
 
-type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
-
+type ProductProps = CreateOrUpdateSchemaType["products"][number] & {
+  product: IProduct
+};
 interface SaleProductProps {
   products: ProductProps[]
 }
 
 export function SaleProducts({ products }: SaleProductProps) {
+  const [listProducts, setListProducts] = useState(products)
+
+  const handleInsertNewProducts = useCallback((ids: number[], products?: IProduct[]) => {
+    if (!products) return;
+
+    const newProducts = products
+      .filter((product) => {
+        return ids.includes(product.id);
+      })
+      .map((product) => ({
+        id: product.id,
+        livePrice: product.price?.salePrice ?? product.price?.regularPrice,
+        highlighted: false,
+      }));
+
+  }, [])
+
   const columns = useMemo(
     () => [
       //{
@@ -69,8 +90,7 @@ export function SaleProducts({ products }: SaleProductProps) {
       //},
       {
         Header: "Foto do produto",
-        Cell: (cellProps: CellProps<any>) => {
-          console.log("cellProps", cellProps.row.original)
+        Cell: (cellProps: CellProps<ProductProps>) => {
           return (
             <div className="form-check form-switch">
               <Image
@@ -93,20 +113,21 @@ export function SaleProducts({ products }: SaleProductProps) {
       },
       {
         Header: "Nome do Produto",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<ProductProps>) => {
           return cellProps.row.original.product?.title;
         },
         id: "#name",
       },
       {
         Header: "Preço Original",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<ProductProps>) => {
           const price = currentPrice({
-            regular_price: cellProps.row.original?.price?.regularPrice,
+            regular_price: cellProps.row.original?.product?.price?.regularPrice,
             price:
-              cellProps.row.original.price?.salePrice ??
-              cellProps.row.original.price?.regularPrice,
+              cellProps.row.original.product?.price.salePrice ??
+              cellProps.row.original.product?.price.regularPrice,
           });
+
           return formatNumberToReal(price.price);
         },
         id: "#price",
@@ -114,12 +135,12 @@ export function SaleProducts({ products }: SaleProductProps) {
       },
       {
         Header: "Desconto",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<ProductProps>) => {
           const price = currentPrice({
-            regular_price: cellProps.row.original.price?.regularPrice,
+            regular_price: cellProps.row.original?.product?.price?.regularPrice,
             price:
-              cellProps.row.original.price?.salePrice ??
-              cellProps.row.original.price?.regularPrice,
+              cellProps.row.original.product?.price.salePrice ??
+              cellProps.row.original.product?.price.regularPrice,
           });
 
           return (
@@ -134,7 +155,7 @@ export function SaleProducts({ products }: SaleProductProps) {
       },
       {
         Header: "Preço da live",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<ProductProps>) => {
           return formatNumberToReal(cellProps.row.original?.livePrice);
         },
         id: "#livePrice",
@@ -142,64 +163,64 @@ export function SaleProducts({ products }: SaleProductProps) {
       },
       {
         Header: "Ações",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<ProductProps>) => {
           const price = currentPrice({
-            regular_price: cellProps.row.original?.price?.regularPrice,
+            regular_price: cellProps.row.original?.product?.price?.regularPrice,
             price:
-              cellProps.row.original.price?.salePrice ??
-              cellProps.row.original.price?.regularPrice,
+              cellProps.row.original.product?.price?.salePrice ??
+              cellProps.row.original.product?.price?.regularPrice,
           });
 
           return (
-            <></>
-            // <div className="d-flex align-items-center gap-1">
-            //   <ChangeDiscountModal
-            //     regularPrice={price.price}
-            //     price={cellProps.row.original.livePrice}
-            //     onChange={(newValue) => {
-            //       // const products = getValues("products");
+            // <></>
+            <div className="d-flex align-items-center gap-1">
+              <ChangeDiscountModal
+                regularPrice={price.price}
+                price={cellProps.row.original.livePrice}
+                onChange={(newValue) => {
+                  // const products = getValues("products");
 
-            //       const newProducts = products.map((product) => {
-            //         if (product.id === cellProps.row.original.id) {
-            //           return {
-            //             ...product,
-            //             livePrice: newValue,
-            //           };
-            //         }
+                  // const newProducts = products.map((product) => {
+                  //   if (product.id === cellProps.row.original.id) {
+                  //     return {
+                  //       ...product,
+                  //       livePrice: newValue,
+                  //     };
+                  //   }
 
-            //         return product;
-            //       });
+                  //   return product;
+                  // });
 
-            //       setValue("products", newProducts);
-            //     }}
-            //   >
-            //     <button
-            //       type="button"
-            //       color="primary"
-            //       className="d-flex align-items-center gap-2 border-0 bg-transparent "
-            //     >
-            //       <Tooltip message="Alterar desconto">
-            //         <span className="bx bx-dollar fs-5" />
-            //       </Tooltip>
-            //     </button>
-            //   </ChangeDiscountModal>
-            //   <ConfirmationModal
-            //     changeStatus={() =>
-            //       handleRemoveProduct(cellProps.row.original.id)
-            //     }
-            //     title="Remover produto"
-            //     message="Deseja realmente remover este produto? A ação não poderá ser desfeita e qualquer alteração será cancelada."
-            //   >
-            //     <button
-            //       type="button"
-            //       className="d-flex align-items-center gap-2 border-0 bg-transparent text-danger"
-            //     >
-            //       <Tooltip message="Remover produto">
-            //         <span className="bx bxs-x-circle fs-5" />
-            //       </Tooltip>
-            //     </button>
-            //   </ConfirmationModal>
-            // </div>
+                  // setValue("products", newProducts);
+                }}
+              >
+                <button
+                  type="button"
+                  color="primary"
+                  className="d-flex align-items-center gap-2 border-0 bg-transparent "
+                >
+                  <Tooltip message="Alterar desconto">
+                    <span className="bx bx-dollar fs-5" />
+                  </Tooltip>
+                </button>
+              </ChangeDiscountModal>
+              <ConfirmationModal
+                changeStatus={() => { }
+                  // handleRemoveProduct(cellProps.row.original.id)
+                }
+                title="Remover produto"
+                message="Deseja realmente remover este produto? A ação não poderá ser desfeita e qualquer alteração será cancelada."
+              >
+                <button
+                  type="button"
+                  className="d-flex align-items-center gap-2 border-0 bg-transparent text-danger"
+                >
+                  <Tooltip message="Remover produto">
+                    <span className="bx bxs-x-circle fs-5" />
+                  </Tooltip>
+                </button>
+              </ConfirmationModal>
+            </div>
           );
         },
         id: "#actions",
@@ -214,7 +235,7 @@ export function SaleProducts({ products }: SaleProductProps) {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Produtos</h4>
 
-        <InsertProductModal onSelect={console.log}>
+        <InsertProductModal onSelect={handleInsertNewProducts}>
           <Button
             color="primary"
 
@@ -230,7 +251,7 @@ export function SaleProducts({ products }: SaleProductProps) {
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={products}
+          data={listProducts}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"
