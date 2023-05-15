@@ -14,7 +14,7 @@ export const initialMenuItems: MenuItem[] = [
     subItems: [
       {
         id: "read-live-stream",
-        label: "Lista de lives",
+        label: "Lista de Lives",
         link: "/live-stream",
         parentId: "live-stream",
       },
