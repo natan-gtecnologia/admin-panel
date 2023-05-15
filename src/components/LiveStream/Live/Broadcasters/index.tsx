@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 
 import { IBroadcaster } from "@/@types/broadcasters";
+import { ILiveStream } from "@/@types/livestream";
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { api } from "@/services/apiClient";
@@ -32,7 +33,7 @@ function getFormattedBroadcasters(
 ) {
   return broadcasters.map((broadcaster) => {
     const broadcasterData = broadcastersData.find(
-      (broadcasterData) => broadcasterData.id === broadcaster
+      (broadcasterData) => broadcasterData.broadcaster_id === broadcaster
     );
 
     return {
@@ -42,10 +43,7 @@ function getFormattedBroadcasters(
   });
 }
 
-
 export function LiveBroadcasters({ broadcasters, liveId }: Props) {
-
-  console.log('broadcasters', broadcasters)
 
   const handleInsertBroadcasters = useCallback(async (newBroadcasters: number[]) => {
     console.log("newBroadcasters", newBroadcasters)
@@ -54,8 +52,6 @@ export function LiveBroadcasters({ broadcasters, liveId }: Props) {
       newBroadcasters,
       broadcasters
     );
-
-    console.log("formattedBroadcasters", formattedBroadcasters)
 
     try {
       await api.put(`/live-streams/${liveId}`, {
@@ -67,6 +63,32 @@ export function LiveBroadcasters({ broadcasters, liveId }: Props) {
 
       await queryClient.invalidateQueries(
         ["liveStream", 'room', liveId]
+      )
+    } catch (error) {
+      console.log(error)
+    }
+  }, [broadcasters, liveId])
+
+  const handleRemoveBroadcaster = useCallback(async (broadcaster_id: number) => {
+    try {
+
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          broadcasters: broadcasters.filter(broadcaster => broadcaster.broadcaster_id !== broadcaster_id)
+            .map(broadcaster => ({ id: broadcaster.broadcaster_id }))
+        }
+      });
+
+      queryClient.setQueryData<ILiveStream | undefined>(
+        ["liveStream", 'room', liveId], (oldData) => {
+          if (!oldData)
+            return;
+
+          return {
+            ...oldData,
+            broadcasters: broadcasters.filter(broadcaster => broadcaster.id !== broadcaster_id)
+          };
+        }
       )
     } catch (error) {
       console.log(error)
@@ -101,24 +123,8 @@ export function LiveBroadcasters({ broadcasters, liveId }: Props) {
         Cell: (cellProps: CellProps<BroadcasterProps>) => {
           return (
             <div className="d-flex align-items-center gap-1">
-              {/* <CreateOrUpdateBroadcaster
-                broadcaster={cellProps.row.original}
-                onSuccess={async () => {
-                  // await refetch();
-                }}
-              >
-                <button
-                  type="button"
-                  color="primary"
-                  className="d-flex align-items-center gap-2 border-0 bg-transparent "
-                >
-                  <Tooltip message="Alterar dados">
-                    <span className="bx bxs-pencil fs-5" />
-                  </Tooltip>
-                </button>
-              </CreateOrUpdateBroadcaster> */}
 
-              <Tooltip message="Enviar e-mail">
+              {/* <Tooltip message="Enviar e-mail">
                 <button
                   type="button"
                   color="primary"
@@ -126,11 +132,11 @@ export function LiveBroadcasters({ broadcasters, liveId }: Props) {
                 >
                   <span className="bx bxs-envelope fs-5" />
                 </button>
-              </Tooltip>
+              </Tooltip> */}
 
               <ConfirmationModal
-                changeStatus={() => { }
-                  // handleRemovedBroadcaster(cellProps.row.original.id)
+                changeStatus={() =>
+                  handleRemoveBroadcaster(cellProps.row.original.id)
                 }
                 title="Remover apresentadora"
                 message="Deseja realmente remover esta apresentadora? Essa ação não poderá ser desfeita."

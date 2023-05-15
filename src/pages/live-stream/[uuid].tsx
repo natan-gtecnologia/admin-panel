@@ -204,6 +204,8 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
     }
   }, []);
 
+  console.log('liveStream.broadcasters', liveStream.broadcasters)
+
   return (
     <>
       <div className="page-content">
