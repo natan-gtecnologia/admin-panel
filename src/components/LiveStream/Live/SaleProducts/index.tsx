@@ -4,7 +4,7 @@ import { Button } from "reactstrap";
 import type { IProduct } from "@/@types/product";
 import TableContainer from "@/components/Common/TableContainer";
 import Image from "next/image";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { CellProps } from "react-table";
 // import type { CreateOrUpdateSchemaType } from "../schema";
 
@@ -25,21 +25,6 @@ interface SaleProductProps {
 
 export function SaleProducts({ products }: SaleProductProps) {
   const [listProducts, setListProducts] = useState(products)
-
-  const handleInsertNewProducts = useCallback((ids: number[], products?: IProduct[]) => {
-    if (!products) return;
-
-    const newProducts = products
-      .filter((product) => {
-        return ids.includes(product.id);
-      })
-      .map((product) => ({
-        id: product.id,
-        livePrice: product.price?.salePrice ?? product.price?.regularPrice,
-        highlighted: false,
-      }));
-
-  }, [])
 
   const columns = useMemo(
     () => [
@@ -172,7 +157,6 @@ export function SaleProducts({ products }: SaleProductProps) {
           });
 
           return (
-            // <></>
             <div className="d-flex align-items-center gap-1">
               <ChangeDiscountModal
                 regularPrice={price.price}
@@ -235,7 +219,7 @@ export function SaleProducts({ products }: SaleProductProps) {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Produtos</h4>
 
-        <InsertProductModal onSelect={handleInsertNewProducts}>
+        <InsertProductModal onSelect={console.log}>
           <Button
             color="primary"
 

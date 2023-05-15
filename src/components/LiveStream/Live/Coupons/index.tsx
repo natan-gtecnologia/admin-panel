@@ -1,26 +1,15 @@
 import { Card } from "@/components/Common/Card";
-import { useFormContext } from "react-hook-form";
-import { Button } from "reactstrap";
 
 import type { IProduct } from "@/@types/product";
 import TableContainer from "@/components/Common/TableContainer";
-import Image from "next/image";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { CellProps } from "react-table";
 // import type { CreateOrUpdateSchemaType } from "../schema";
 
-import { Tooltip } from "@/components/Common/Tooltip";
-import { ConfirmationModal } from "@/components/ConfirmationModal";
-import { api } from "@/services/apiClient";
-import { currentPrice, discountPercentage } from "@/utils/price";
-import { convert_product_strapi } from "@growthventure/utils/lib/formatting/convertions/convert_product";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
-import { useQuery } from "@tanstack/react-query";
-import QueryString from "qs";
 // import { InsertProductModal } from "../InsertProductModal";
-import { ChangeDiscountModal } from "./ChangeDiscountModal";
-import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
 import { ICoupon } from "@growthventure/utils";
+import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
 
 type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
 
@@ -29,86 +18,6 @@ interface SaleProductProps {
 }
 
 export function LiveCoupons({ coupons }: SaleProductProps) {
-  // console.log("products", products)
-  // const [selectedIds, setSelectedIds] = useState<number[] | "all">([]);
-  // const { watch, setValue, getValues } =
-  //   useFormContext<CreateOrUpdateSchemaType>();
-  // const productsFromForm = watch("products");
-
-  // const { data: products } = useQuery({
-  //   queryKey: ["products", productsFromForm],
-  //   queryFn: async () => {
-  //     try {
-  //       const response = await api.get("/products", {
-  //         params: {
-  //           filters: {
-  //             id: {
-  //               $in: productsFromForm?.map((product) => product.id),
-  //             },
-  //           },
-  //           pagination: {
-  //             pageSize: 100,
-  //           },
-  //         },
-  //         paramsSerializer: {
-  //           serialize: (params) => QueryString.stringify(params),
-  //         },
-  //       });
-
-  //       const formattedProducts: IProduct[] = response.data.data?.map(
-  //         convert_product_strapi
-  //       );
-
-  //       return formattedProducts.map((product) => {
-  //         return {
-  //           ...product,
-  //           livePrice: productsFromForm.find(
-  //             (productFromForm) => productFromForm.id === product.id
-  //           )?.livePrice,
-  //           highlighted: productsFromForm.find(
-  //             (productFromForm) => productFromForm.id === product.id
-  //           )?.highlighted,
-  //         };
-  //       });
-  //     } catch (error) {
-  //       console.log(error);
-  //       return [] as ProductProps[];
-  //     }
-  //   },
-  //   enabled: productsFromForm?.length > 0,
-  //   initialData: [],
-  //   refetchOnWindowFocus: false,
-  // });
-
-  // const toggleSelectedId = useCallback(
-  //   (id: number) => {
-  //     if (selectedIds === "all") {
-  //       setSelectedIds(
-  //         products
-  //           .filter((product: any) => product.id !== id)
-  //           .map((product: any) => product.id)
-  //       );
-  //     } else if (selectedIds.includes(id)) {
-  //       setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
-  //     } else {
-  //       const newSelectedIds = [...selectedIds, id];
-  //       setSelectedIds(
-  //         newSelectedIds.length === products.length ? "all" : newSelectedIds
-  //       );
-  //     }
-  //   },
-  //   [products, selectedIds]
-  // );
-
-  // const handleRemoveProduct = useCallback(
-  //   (id: number) => {
-  //     setValue(
-  //       "products",
-  //       productsFromForm.filter((product) => product.id !== id)
-  //     );
-  //   },
-  //   [productsFromForm, setValue]
-  // );
 
   const columns = useMemo(
     () => [

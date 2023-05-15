@@ -23,19 +23,6 @@ interface Props {
 }
 
 export function HighlightedProducts({ products }: Props) {
-  const handleRemoveProduct = useCallback(
-    (id: number) => {
-      //setValue(
-      //  "products",
-      //  productsFromForm.map((product) => ({
-      //    ...product,
-      //    highlighted: product.id !== id ? product.highlighted : false,
-      //  }))
-      //);
-    },
-    []
-  );
-
   const columns = useMemo(
     () => [
       {
@@ -116,8 +103,8 @@ export function HighlightedProducts({ products }: Props) {
           return (
             <div className="d-flex align-items-center gap-1">
               <ConfirmationModal
-                changeStatus={() =>
-                  handleRemoveProduct(cellProps.row.original.id)
+                changeStatus={() => { }
+                  // handleRemoveProduct(cellProps.row.original.id)
                 }
                 title="Remover produto"
                 message="Deseja realmente remover este produto? A ação não poderá ser desfeita e qualquer alteração será cancelada."
@@ -138,7 +125,7 @@ export function HighlightedProducts({ products }: Props) {
         width: "8%",
       },
     ],
-    [handleRemoveProduct]
+    []
   );
 
   const handleInsertNewProducts = useCallback((ids: number[]) => {
