@@ -4,12 +4,15 @@ import { Button } from "reactstrap";
 import type { IProduct } from "@/@types/product";
 import TableContainer from "@/components/Common/TableContainer";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 // import type { CreateOrUpdateSchemaType } from "../schema";
 
+import { ILiveStream } from "@/@types/livestream";
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
+import { queryClient } from "@/services/react-query";
 import { currentPrice, discountPercentage } from "@/utils/price";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 import { InsertProductModal } from "../../CreateOrUpdate/InsertProductModal";
@@ -18,13 +21,132 @@ import { ChangeDiscountModal } from "./ChangeDiscountModal";
 
 type ProductProps = CreateOrUpdateSchemaType["products"][number] & {
   product: IProduct
+  steam_product_id: number;
 };
 interface SaleProductProps {
   products: ProductProps[]
+  liveId: number;
 }
 
-export function SaleProducts({ products }: SaleProductProps) {
-  const [listProducts, setListProducts] = useState(products)
+export function SaleProducts({ products, liveId }: SaleProductProps) {
+  const handleAddToLiveProducts = useCallback(async (ids: number[], productsToSave?: IProduct[]) => {
+    try {
+      if (!productsToSave) return;
+
+      const currentProducts = products.map(product => ({
+        id: product.steam_product_id
+      }));
+
+      const newProducts = productsToSave
+        .filter((product) => {
+          return ids.includes(product.id);
+        })
+        .map((product) => ({
+          product: product.id,
+          price: {
+            regularPrice: product.price?.regularPrice,
+            salePrice: product.price?.salePrice ?? product.price?.regularPrice,
+          },
+          highlight: false,
+        }));
+
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          streamProducts: [...currentProducts, ...newProducts]
+        }
+      })
+
+      await queryClient.invalidateQueries(
+        ["liveStream", 'room', liveId]
+      )
+    } catch (error) {
+
+    }
+  }, [liveId, products]);
+
+  const handleUpdatedProductDiscount = useCallback(async (product_id: number, new_price: number) => {
+    try {
+      const findedProduct = products.findIndex(
+        product => product.id === product_id
+      )
+
+      if (findedProduct === -1) return;
+
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          streamProducts: products.map(product => ({
+            id: product.steam_product_id,
+            ...(
+              product.id === product_id && {
+                price: {
+                  regularPrice: product.product.price.regularPrice,
+                  salePrice: new_price
+                }
+              }
+            )
+          }))
+        }
+
+      })
+
+      queryClient.setQueryData<ILiveStream | undefined>(
+        ["liveStream", 'room', liveId], (oldData) => {
+          if (!oldData)
+            return;
+
+          return {
+            ...oldData,
+            streamProducts: oldData.streamProducts.map(streamProduct => ({
+              ...streamProduct,
+              ...(streamProduct.product.id === product_id && {
+                price: {
+                  regularPrice: streamProduct.price.regularPrice,
+                  salePrice: new_price
+                }
+              })
+            }))
+          };
+        }
+      )
+    } catch (error) {
+
+    }
+  }, [liveId, products])
+
+  const handleDeleteProductFromLive = useCallback(async (product_id: number) => {
+    try {
+      const findedProduct = products.findIndex(
+        product => product.id === product_id
+      )
+
+      if (findedProduct === -1) return;
+
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          streamProducts: products.filter(product => product.id !== product_id).map(product => ({
+            id: product.steam_product_id,
+          }))
+        }
+
+      })
+
+      queryClient.setQueryData<ILiveStream | undefined>(
+        ["liveStream", 'room', liveId], (oldData) => {
+          if (!oldData)
+            return;
+
+          return {
+            ...oldData,
+            streamProducts: oldData.streamProducts.filter(
+              streamProduct => streamProduct.product.id !== product_id
+            )
+          };
+        }
+      )
+    } catch (error) {
+
+    }
+  }, [liveId, products])
 
   const columns = useMemo(
     () => [
@@ -162,20 +284,10 @@ export function SaleProducts({ products }: SaleProductProps) {
                 regularPrice={price.price}
                 price={cellProps.row.original.livePrice}
                 onChange={(newValue) => {
-                  // const products = getValues("products");
-
-                  // const newProducts = products.map((product) => {
-                  //   if (product.id === cellProps.row.original.id) {
-                  //     return {
-                  //       ...product,
-                  //       livePrice: newValue,
-                  //     };
-                  //   }
-
-                  //   return product;
-                  // });
-
-                  // setValue("products", newProducts);
+                  handleUpdatedProductDiscount(
+                    cellProps.row.original.id,
+                    newValue
+                  )
                 }}
               >
                 <button
@@ -189,8 +301,7 @@ export function SaleProducts({ products }: SaleProductProps) {
                 </button>
               </ChangeDiscountModal>
               <ConfirmationModal
-                changeStatus={() => { }
-                  // handleRemoveProduct(cellProps.row.original.id)
+                changeStatus={async () => await handleDeleteProductFromLive(cellProps.row.original.id)
                 }
                 title="Remover produto"
                 message="Deseja realmente remover este produto? A ação não poderá ser desfeita e qualquer alteração será cancelada."
@@ -211,7 +322,7 @@ export function SaleProducts({ products }: SaleProductProps) {
         width: "8%",
       },
     ],
-    []
+    [handleDeleteProductFromLive, handleUpdatedProductDiscount]
   );
 
   return (
@@ -219,7 +330,9 @@ export function SaleProducts({ products }: SaleProductProps) {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Produtos</h4>
 
-        <InsertProductModal onSelect={console.log}>
+        <InsertProductModal onSelect={handleAddToLiveProducts} exclude={
+          products.map(product => product.id)
+        }>
           <Button
             color="primary"
 
@@ -235,7 +348,7 @@ export function SaleProducts({ products }: SaleProductProps) {
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={listProducts}
+          data={products}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"

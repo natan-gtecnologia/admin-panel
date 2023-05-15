@@ -1,5 +1,5 @@
 import { cloneElement, useState, type ReactNode } from "react";
-import { Button, Modal } from "reactstrap";
+import { Button, Modal, Spinner } from "reactstrap";
 import { Card } from "./Common/Card";
 
 type ChildrenModalProps = {
@@ -24,15 +24,23 @@ export function ConfirmationModal({
   const [dataChildren, setDataChildren] = useState<
     string | number | null | undefined
   >(null);
+  const [isChanging, setIsChanging] = useState(false)
 
   const toggle = (data?: string | number | null | undefined) => {
+    if (isChanging) return;
+
     setIsOpen(!isOpen);
     setDataChildren(data);
   };
 
   const handleConfirmation = async () => {
-    await changeStatus(dataChildren);
-    toggle();
+    try {
+      setIsChanging(true)
+      await changeStatus(dataChildren);
+      toggle();
+    } catch (error) { } finally {
+      setIsChanging(false)
+    }
   };
 
   return (
@@ -40,8 +48,8 @@ export function ConfirmationModal({
       {typeof children !== "function"
         ? cloneElement(children as React.ReactElement, { onClick: toggle })
         : children({
-            toggle,
-          })}
+          toggle,
+        })}
       <Modal isOpen={isOpen} centered toggle={() => toggle()}>
         <Card className="m-0 shadow-none">
           <Card.Header className="d-flex align-items-center gap-1 justify-content-between border-0">
@@ -65,7 +73,14 @@ export function ConfirmationModal({
               className="shadow-none"
               onClick={handleConfirmation}
             >
-              Confirmar
+              {isChanging ? (
+                <span className="d-flex align-items-center">
+                  <Spinner size="sm" className="flex-shrink-0" role="status">
+                    Alterando...
+                  </Spinner>
+                  <span className="flex-grow-1 ms-2">Alterando...</span>
+                </span>
+              ) : 'Confirmar'}
             </Button>
           </Card.Footer>
         </Card>

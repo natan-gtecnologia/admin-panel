@@ -1,23 +1,66 @@
 import { Card } from "@/components/Common/Card";
 
-import type { IProduct } from "@/@types/product";
 import TableContainer from "@/components/Common/TableContainer";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 // import type { CreateOrUpdateSchemaType } from "../schema";
 
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 // import { InsertProductModal } from "../InsertProductModal";
-import { ICoupon } from "@growthventure/utils";
-import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
-
-type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
+import type { ICoupon } from "@/@types/coupon";
+import { ILiveStream } from "@/@types/livestream";
+import { Tooltip } from "@/components/Common/Tooltip";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
+import { queryClient } from "@/services/react-query";
+import { Button } from "reactstrap";
+import { SelectCouponModal } from "../../CreateOrUpdate/Coupons/SelectCouponModal";
 
 interface SaleProductProps {
-  coupons: any
+  coupons: ICoupon[]
+  liveId: number;
 }
 
-export function LiveCoupons({ coupons }: SaleProductProps) {
+export function LiveCoupons({ coupons, liveId }: SaleProductProps) {
+  const handleInsertCoupon = useCallback(async (newCoupons: number[]) => {
+    try {
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          coupons: newCoupons
+        }
+      });
+
+      await queryClient.invalidateQueries(
+        ["liveStream", 'room', liveId]
+      )
+    } catch (error) {
+
+    }
+  }, [liveId])
+
+  const handleRemoveCoupon = useCallback(async (coupon_id: number) => {
+    try {
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          coupons: coupons.filter(coupon => coupon.id !== coupon_id).map(coupon => coupon.id),
+        }
+      });
+
+      queryClient.setQueryData<ILiveStream | undefined>(
+        ["liveStream", 'room', liveId], (oldData) => {
+          if (!oldData)
+            return;
+
+          return {
+            ...oldData,
+            coupons: coupons.filter(coupon => coupon.id !== coupon_id)
+          };
+        }
+      )
+    } catch (error) {
+
+    }
+  }, [coupons, liveId])
 
   const columns = useMemo(
     () => [
@@ -95,32 +138,30 @@ export function LiveCoupons({ coupons }: SaleProductProps) {
         Header: "Ações",
         Cell: (cellProps: CellProps<ICoupon>) => {
           return (
-            <></>
-            // <div className="d-flex align-items-center gap-1">
-            //   <ConfirmationModal
-            //     changeStatus={() =>
-            //       handleRemoveCoupon(cellProps.row.original.id)
-            //     }
-            //     title="Remover cupom"
-            //     message="Deseja realmente remover esta cupom? Essa ação não poderá ser desfeita."
-            //   >
-            //     <button
-            //       type="button"
-            //       className="d-flex align-items-center gap-2 border-0 bg-transparent text-danger"
-            //     >
-            //       <Tooltip message="Remover cupom">
-            //         <span className="bx bxs-x-circle fs-5" />
-            //       </Tooltip>
-            //     </button>
-            //   </ConfirmationModal>
-            // </div>
+            <div className="d-flex align-items-center gap-1">
+              <ConfirmationModal
+                changeStatus={async () => handleRemoveCoupon(cellProps.row.original.id)
+                }
+                title="Remover cupom"
+                message="Deseja realmente remover esta cupom? Essa ação não poderá ser desfeita."
+              >
+                <button
+                  type="button"
+                  className="d-flex align-items-center gap-2 border-0 bg-transparent text-danger"
+                >
+                  <Tooltip message="Remover cupom">
+                    <span className="bx bxs-x-circle fs-5" />
+                  </Tooltip>
+                </button>
+              </ConfirmationModal>
+            </div>
           );
         },
         id: "#actions",
         width: "8%",
       },
     ],
-    []
+    [handleRemoveCoupon]
   );
 
   return (
@@ -128,16 +169,16 @@ export function LiveCoupons({ coupons }: SaleProductProps) {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Cupons disponíveis</h4>
 
-        {/* <InsertProductModal>
+        <SelectCouponModal coupons={coupons.map(coupon => coupon.id)} onSelect={handleInsertCoupon}>
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"
             type="button"
           >
             <span className="bx bx-plus fs-5" />
-            Inserir produto
+            Inserir cupom
           </Button>
-        </InsertProductModal> */}
+        </SelectCouponModal>
       </Card.Header>
 
       <Card.Body>

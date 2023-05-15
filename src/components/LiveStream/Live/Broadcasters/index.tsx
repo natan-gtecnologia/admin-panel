@@ -1,55 +1,110 @@
 import { Card } from "@/components/Common/Card";
 
-import type { IProduct } from "@/@types/product";
 import TableContainer from "@/components/Common/TableContainer";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
-// import type { CreateOrUpdateSchemaType } from "../schema";
 
+import { IBroadcaster } from "@/@types/broadcasters";
 import { Tooltip } from "@/components/Common/Tooltip";
-// import { InsertProductModal } from "../InsertProductModal";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
+import { queryClient } from "@/services/react-query";
+import { Button } from "reactstrap";
 import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
+import { SelectBroadcasterModal } from "./SelectBroadcasterModal";
 
-type ProductProps = IProduct & CreateOrUpdateSchemaType["products"][number];
+type BroadcasterProps = {
+  id: number;
+  name: string;
+  email: string;
+  code: string;
+  avatar_id: number | null;
+};
 
-interface SaleProductProps {
-  broadcasters: any
+type Props = {
+  broadcasters: IBroadcaster[],
+  liveId: number;
+};
+
+function getFormattedBroadcasters(
+  broadcasters: CreateOrUpdateSchemaType["broadcasters"],
+  broadcastersData: NonNullable<Props["broadcasters"]>
+) {
+  return broadcasters.map((broadcaster) => {
+    const broadcasterData = broadcastersData.find(
+      (broadcasterData) => broadcasterData.id === broadcaster
+    );
+
+    return {
+      broadcaster: broadcaster,
+      ...(broadcasterData?.id && { id: broadcasterData?.id }),
+    };
+  });
 }
 
-export function LiveBroadcasters({ broadcasters }: SaleProductProps) {
+
+export function LiveBroadcasters({ broadcasters, liveId }: Props) {
+
+  console.log('broadcasters', broadcasters)
+
+  const handleInsertBroadcasters = useCallback(async (newBroadcasters: number[]) => {
+    console.log("newBroadcasters", newBroadcasters)
+
+    const formattedBroadcasters = getFormattedBroadcasters(
+      newBroadcasters,
+      broadcasters
+    );
+
+    console.log("formattedBroadcasters", formattedBroadcasters)
+
+    try {
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          broadcasters:
+            formattedBroadcasters.length > 0 ? formattedBroadcasters : newBroadcasters.map((broadcaster) => ({ broadcaster })),
+        }
+      });
+
+      await queryClient.invalidateQueries(
+        ["liveStream", 'room', liveId]
+      )
+    } catch (error) {
+      console.log(error)
+    }
+  }, [broadcasters, liveId])
 
   const columns = useMemo(
     () => [
       {
         Header: "Nome da apresentadora",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<BroadcasterProps>) => {
           return cellProps.row.original.name;
         },
         id: "#name",
       },
       {
         Header: "E-mail da apresentadora",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<BroadcasterProps>) => {
           return cellProps.row.original.email;
         },
         id: "#email",
       },
       {
         Header: "Código",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<BroadcasterProps>) => {
           return cellProps.row.original.code;
         },
         id: "#code",
       },
       {
         Header: "Ações",
-        Cell: (cellProps: CellProps<any>) => {
+        Cell: (cellProps: CellProps<BroadcasterProps>) => {
           return (
             <div className="d-flex align-items-center gap-1">
               {/* <CreateOrUpdateBroadcaster
                 broadcaster={cellProps.row.original}
                 onSuccess={async () => {
-                  await refetch();
+                  // await refetch();
                 }}
               >
                 <button
@@ -73,9 +128,9 @@ export function LiveBroadcasters({ broadcasters }: SaleProductProps) {
                 </button>
               </Tooltip>
 
-              {/* <ConfirmationModal
-                changeStatus={() =>
-                  handleRemovedBroadcaster(cellProps.row.original.id)
+              <ConfirmationModal
+                changeStatus={() => { }
+                  // handleRemovedBroadcaster(cellProps.row.original.id)
                 }
                 title="Remover apresentadora"
                 message="Deseja realmente remover esta apresentadora? Essa ação não poderá ser desfeita."
@@ -88,7 +143,7 @@ export function LiveBroadcasters({ broadcasters }: SaleProductProps) {
                     <span className="bx bxs-x-circle fs-5" />
                   </Tooltip>
                 </button>
-              </ConfirmationModal> */}
+              </ConfirmationModal>
             </div>
           );
         },
@@ -96,7 +151,7 @@ export function LiveBroadcasters({ broadcasters }: SaleProductProps) {
         width: "8%",
       },
     ],
-    [broadcasters]
+    []
   );
 
   return (
@@ -104,16 +159,16 @@ export function LiveBroadcasters({ broadcasters }: SaleProductProps) {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Lista de apresentadores</h4>
 
-        {/* <InsertProductModal>
+        <SelectBroadcasterModal broadcasters={broadcasters.map(broadcaster => broadcaster.id)} onSelect={handleInsertBroadcasters}>
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"
             type="button"
           >
             <span className="bx bx-plus fs-5" />
-            Inserir produto
+            Inserir nova aprensetadora
           </Button>
-        </InsertProductModal> */}
+        </SelectBroadcasterModal>
       </Card.Header>
 
       <Card.Body>

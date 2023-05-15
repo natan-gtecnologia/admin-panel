@@ -1,14 +1,10 @@
-import { Card } from "@/components/Common/Card";
+import { IBroadcaster } from "@/@types/broadcasters";
+import { Input } from "@/components/Common/Form/Input";
 import TableContainer from "@/components/Common/TableContainer";
 import { api } from "@/services/apiClient";
-import { currentPrice } from "@/utils/price";
-import type { IProduct } from "@growthventure/utils";
-import { convert_product_strapi } from "@growthventure/utils/lib/formatting/convertions/convert_product";
-import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
+import { convert_broadcasters_strapi } from "@/utils/convertions/convert_broadcasters";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import Image from "next/image";
-import QueryString from "qs";
 import {
   cloneElement,
   useCallback,
@@ -17,107 +13,88 @@ import {
   type ReactNode,
 } from "react";
 import type { CellProps } from "react-table";
-import { Button, Input, Modal, Spinner } from "reactstrap";
+import { Button, Modal, Spinner } from "reactstrap";
+import { Card } from "../../../../Common/Card";
 
 type ChildrenModalProps = {
   toggle: () => void;
 };
 
-interface Props {
+type GoBackModalProps = {
   children: ReactNode | ((props: ChildrenModalProps) => ReactNode);
-  products?: IProduct[];
-  highlightedCount?: number;
 
-  onSelect: (ids: number[], products?: IProduct[]) => void | Promise<void>;
+  onSelect: (ids: number[]) => void | Promise<void>;
+  broadcasters: number[];
+};
 
-  exclude?: number[];
-}
-
-export function InsertProductModal({
-  children,
-  products,
-  highlightedCount = 0,
-
-  onSelect,
-
-  exclude = []
-}: Props) {
+export function SelectBroadcasterModal({ children, broadcasters, onSelect }: GoBackModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const { data: productsData } = useQuery({
-    queryKey: ["products", search, exclude],
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [isAddingToList, setIsAddingToList] = useState(false);
+  const { data: broadcastersFromApi } = useQuery({
+    queryKey: ["broadcasters", "notIn", broadcasters],
     queryFn: async () => {
       try {
-        const response = await api.get("/products", {
+        const response = await api.get("/broadcasters", {
           params: {
+            populate: '*',
             filters: {
-              title: {
-                $contains: search,
-              },
               id: {
-                $notIn: exclude
-              }
+                $notIn: broadcasters,
+              },
             },
             pagination: {
               pageSize: 100,
             },
           },
-          paramsSerializer: {
-            serialize: (params) => QueryString.stringify(params),
-          },
         });
 
-        return response.data.data?.map(convert_product_strapi) as IProduct[];
+        return (response.data?.data?.map(convert_broadcasters_strapi) ??
+          []) as IBroadcaster[];
       } catch (error) {
-        console.log(error);
-        return [] as IProduct[];
+        return [] as IBroadcaster[];
       }
     },
-    enabled: !products && isOpen,
-    initialData: [],
+    initialData: [] as IBroadcaster[],
     refetchOnWindowFocus: false,
   });
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [isAddingToList, setIsAddingToList] = useState(false);
 
-  const productsMerged = products ?? productsData;
+  const filteredBroadcaster = useMemo(() => {
+    return broadcastersFromApi?.filter((broadcaster) =>
+      broadcaster?.name?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search, broadcastersFromApi]);
 
-  const handleAddToList = useCallback(async () => {
+  const handleInsert = useCallback(async () => {
     try {
       setIsAddingToList(true);
-
-      onSelect(selectedIds, productsMerged);
-
+      const selectedCoupons = selectedIds.filter(
+        (coupon) => !broadcasters.includes(coupon)
+      );
+      await onSelect([...broadcasters, ...selectedCoupons])
       setSelectedIds([]);
       setIsOpen(false);
-    } catch (error) {
-      // TODO
-    } finally {
+    } catch { } finally {
       setIsAddingToList(false);
     }
-  }, [productsMerged, selectedIds, onSelect]);
+  }, [broadcasters, onSelect, selectedIds]);
 
-  const productsFiltered = productsMerged.filter((product) => {
-    return product.title.toLowerCase().includes(search.toLowerCase());
-  });
-
-  const toggle = useCallback(() => {
+  const toggle = () => {
     if (isAddingToList) return;
     setIsOpen(!isOpen);
-  }, [isOpen, isAddingToList]);
+  };
 
   const toggleSelectedId = useCallback(
     (id: number) => {
       if (selectedIds.includes(id)) {
         setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
       } else {
-        if (highlightedCount === 4) return;
-
         const newSelectedIds = [...selectedIds, id];
         setSelectedIds(newSelectedIds);
       }
     },
-    [highlightedCount, selectedIds]
+    [selectedIds]
   );
 
   const columns = useMemo(
@@ -128,27 +105,23 @@ export function InsertProductModal({
             <Input
               className="form-check-input"
               type="checkbox"
-              checked={selectedIds.length === productsFiltered.length}
+              checked={selectedIds.length === filteredBroadcaster.length}
               onChange={() => {
-                if (
-                  !products &&
-                  selectedIds.length === productsFiltered.length
-                ) {
+                if (selectedIds.length === filteredBroadcaster.length) {
                   setSelectedIds([]);
-                } else if (!products) {
-                  setSelectedIds(productsFiltered.map((product) => product.id));
+                } else {
+                  setSelectedIds(filteredBroadcaster.map((product) => product.id));
                 }
               }}
             />
           </div>
         ),
-        Cell: (cellProps: CellProps<IProduct>) => {
+        Cell: (cellProps: CellProps<IBroadcaster>) => {
           return (
             <div className="form-check d-flex justify-content-center">
               <Input
                 className="form-check-input"
                 type="checkbox"
-                disabled={highlightedCount === 4}
                 checked={selectedIds.includes(cellProps.row.original.id)}
                 onChange={() => {
                   toggleSelectedId(cellProps.row.original.id);
@@ -161,88 +134,43 @@ export function InsertProductModal({
         width: "8%",
       },
       {
-        Header: "Foto",
-        Cell: (cellProps: CellProps<IProduct>) => {
-          return (
-            <div className="form-check form-switch">
-              <Image
-                src={cellProps.row.original.product_image.src}
-                alt=""
-                width={32}
-                height={32}
-                loading="lazy"
-                style={{
-                  borderRadius: 4,
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-              />
-            </div>
-          );
-        },
-        id: "#picture",
-        width: "25%",
-      },
-      {
-        Header: "Nome do Produto",
-        Cell: (cellProps: CellProps<IProduct>) => {
-          return cellProps.row.original.title;
+        Header: "Nome da apresentadora",
+        Cell: (cellProps: CellProps<IBroadcaster>) => {
+          return cellProps.row.original.name;
         },
         id: "#name",
       },
       {
-        Header: "Preço Original",
-        Cell: (cellProps: CellProps<IProduct>) => {
-          const price = currentPrice({
-            regular_price: cellProps.row.original.price.regularPrice,
-            price:
-              cellProps.row.original.price?.salePrice ??
-              cellProps.row.original.price.regularPrice,
-          });
-          return formatNumberToReal(price.price);
+        Header: "E-mail da apresentadora",
+        Cell: (cellProps: CellProps<IBroadcaster>) => {
+          return cellProps.row.original.email;
         },
-        id: "#price",
-        width: "25%",
+        id: "#email",
       },
     ],
-    [
-      highlightedCount,
-      products,
-      productsFiltered,
-      selectedIds,
-      toggleSelectedId,
-    ]
+    [filteredBroadcaster, selectedIds, toggleSelectedId]
   );
 
   return (
-
     <>
-      {
-        typeof children !== "function"
-          ? cloneElement(children as React.ReactElement, { onClick: toggle })
-          : children({
-            toggle,
-          })
-      }
+      {typeof children !== "function"
+        ? cloneElement(children as React.ReactElement, { onClick: toggle })
+        : children({
+          toggle,
+        })}
       <Modal isOpen={isOpen} centered toggle={toggle}>
         <Card className="m-0 shadow-none">
           <Card.Header className="d-flex align-items-center gap-1 justify-content-between border-0">
-            <h4 className="m-0 fs-5 fw-bold">Adicionar produto</h4>
-            <Button
-              onClick={() => {
-                toggle();
-              }}
-              close
-            />
+            <h4 className="m-0 fs-5 fw-bold">Adicionar apresentadora</h4>
+            <Button onClick={toggle} close />
           </Card.Header>
           <Card.Body className="pt-0 pb-0">
             <div className="form-icon position-relative mb-3">
               <Input
-                type="email"
                 className="form-control form-control-icon"
-                placeholder="Digite aqui para pesquisar o produto"
+                placeholder="Digite aqui para pesquisar"
                 value={search}
-                onChange={(e) => {
+                onChange={(e: any) => {
                   setSearch(e.target.value);
                 }}
                 style={{
@@ -276,7 +204,7 @@ export function InsertProductModal({
 
             <TableContainer
               columns={columns}
-              data={productsFiltered}
+              data={filteredBroadcaster}
               customPageSize={10}
               divClass="table-responsive mb-1"
               tableClass="mb-0 align-middle table-borderless"
@@ -287,9 +215,7 @@ export function InsertProductModal({
 
           <Card.Footer className="d-flex align-items-center gap-2 justify-content-end border-0">
             <Button
-              onClick={() => {
-                toggle();
-              }}
+              onClick={toggle}
               color="light"
               className="shadow-none"
               type="button"
@@ -297,11 +223,9 @@ export function InsertProductModal({
               Cancelar
             </Button>
             <Button
-              color="primary"
               className="shadow-none"
               type="button"
-              onClick={handleAddToList}
-              disabled={highlightedCount === 4}
+              onClick={handleInsert}
             >
               {isAddingToList ? (
                 <span className="d-flex align-items-center">

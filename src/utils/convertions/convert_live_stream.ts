@@ -22,8 +22,9 @@ export function convert_livestream_strapi(
     startText: livestream.attributes?.startText ?? "",
     streamProducts:
       livestream.attributes?.streamProducts?.map(
-        ({ product, price, highlight }) => {
+        ({ product, price, highlight, id }) => {
           return {
+            id,
             highlight,
             price,
             product: convert_product_strapi(product.data),
@@ -37,7 +38,7 @@ export function convert_livestream_strapi(
     schedule: livestream.attributes?.schedule,
     streamKey: livestream.attributes?.streamKey,
     transmissionUrl: livestream.attributes?.transmissionUrl,
-    timeout: livestream.attributes?.timeout,
+    timeout: livestream.attributes?.timeout || 0,
     startedDate: livestream.attributes?.startedDate ?? null,
 
     broadcasters:
@@ -50,14 +51,14 @@ export function convert_livestream_strapi(
           broadcaster?.broadcaster?.data?.attributes?.socialMedias ?? null,
         avatar: broadcaster?.broadcaster?.data?.attributes?.avatar?.data
           ? convert_image_strapi(
-              broadcaster?.broadcaster?.data.attributes.avatar.data
-            )
+            broadcaster?.broadcaster?.data.attributes.avatar.data
+          )
           : null,
         code: broadcaster.code,
       })) ?? [],
     chat: {
-      id: livestream.attributes?.chat?.data?.id ?? null,
-      active: livestream.attributes?.chat?.data?.attributes?.active ?? null,
+      id: livestream.attributes?.chat?.data?.id || 0,
+      active: livestream.attributes?.chat?.data?.attributes?.active || false,
     },
 
     metaData: livestream.attributes?.metaData,

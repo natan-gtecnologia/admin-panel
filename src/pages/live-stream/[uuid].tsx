@@ -8,9 +8,7 @@ import io, { type Socket } from "socket.io-client";
 import { withSSRAuth } from "../../utils/withSSRAuth";
 
 import {
-  ButtonGroup,
   Col,
-  Label,
   Row
 } from "reactstrap";
 
@@ -18,11 +16,10 @@ import { setupAPIClient } from "../../services/api";
 
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { Card } from "@/components/Common/Card";
-import { Input } from "@/components/Common/Form/Input";
-import { Tooltip } from "@/components/Common/Tooltip";
 import { LiveTabs } from "@/components/LiveStream/Live";
 import { LiveBroadcasters } from "@/components/LiveStream/Live/Broadcasters";
 import { LiveCoupons } from "@/components/LiveStream/Live/Coupons";
+import { GenerealConfigs } from "@/components/LiveStream/Live/GeneralConfigs";
 import { HighlightedProducts } from "@/components/LiveStream/Live/HighlightedProducts";
 import { SaleProducts } from "@/components/LiveStream/Live/SaleProducts";
 import { useLayout } from "@/hooks/useLayout";
@@ -113,9 +110,8 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   chat,
 }) => {
 
-
   const { data: liveStream, refetch: handleRefetchLiveStream } = useQuery(
-    ["liveStream"],
+    ["liveStream", 'room', initialLiveStream.id],
     async () => {
       const response = await getLivestream({
         id: initialLiveStream.uuid,
@@ -144,8 +140,6 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   >([]);
 
   const messages = [...chat.messages, ...messagesFromSocket];
-
-  console.log(liveStream.streamProducts);
 
   const handleSendMessage = async () => {
     if (!message || !socketConnection) return;
@@ -208,7 +202,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
       toast.error("Usuário bloqueado com sucesso");
       handleChangeLoading(null)
     }
-  }, [handleRefetchLiveStream]);
+  }, []);
 
   return (
     <>
@@ -271,125 +265,50 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
 
         <Row>
           <Col lg={12}>
-            <Card>
-              <Card.Header>
-                <h6 className="card-title mb-0 flex-grow-1">
-                  Configurações Gerais
-                </h6>
-              </Card.Header>
-              <Card.Body>
-                <Row>
-                  <Col
-                    md={4}
-                    style={{
-                      maxWidth: "fit-content",
-                    }}
-                  >
-                    <div className="form-group">
-                      <Label className="d-block">Ativar chat</Label>
-                      <ButtonGroup>
-                        <Input
-                          type="radio"
-                          className="btn-check btn-primary"
-                          id="option1"
-                          value="true"
-                        // checked={chatReleased === true}
-                        // onChange={() => setValue("chatReleased", true)}
-                        />
-                        <Label
-                          className="btn btn-secondary shadow-none mb-0"
-                          htmlFor="option1"
-                        >
-                          Sim
-                        </Label>
-
-                        <Input
-                          type="radio"
-                          className="btn-check btn-primary"
-                          id="option2"
-                          value="false"
-                        // checked={chatReleased === false}
-                        // onChange={() => setValue("chatReleased", false)}
-                        //{...register(`chatReleased`)}
-                        />
-                        <Label
-                          className="btn btn-secondary shadow-none mb-0"
-                          htmlFor="option2"
-                        >
-                          Não
-                        </Label>
-                      </ButtonGroup>
-                      {/* {formState.errors?.chatReleased && (
-                        <FormFeedback type="invalid">
-                          {formState.errors?.chatReleased.message}
-                        </FormFeedback>
-                      )} */}
-                    </div>
-                  </Col>
-                  <Col md={10}>
-                    <div className="form-group">
-                      <Label htmlFor="afterLiveTime">
-                        Tempo de compra após término da live{" "}
-                        <Tooltip message="Mínimo de 1 minuto">
-                          <span className="bx bx-info-circle fs-6" />
-                        </Tooltip>
-                      </Label>
-                      <Input
-                        type="number"
-                        min={1}
-                        step={1}
-                        className="form-control"
-                        id="afterLiveTime"
-                        placeholder="0 minutos"
-                      // {...register("afterLiveTime", {
-                      //   valueAsNumber: true,
-                      // })}
-                      // invalid={!!formState.errors.afterLiveTime}
-                      />
-                      {/* {formState.errors.afterLiveTime?.message && (
-                        <FormFeedback type="invalid">
-                          {formState.errors.afterLiveTime?.message}
-                        </FormFeedback>
-                      )} */}
-                    </div>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
+            <GenerealConfigs
+              liveId={liveStream.id}
+              chat={liveStream.chat}
+              timeout={liveStream.timeout}
+            />
           </Col>
         </Row>
 
         <Row>
           <Col lg={12}>
             <SaleProducts products={liveStream.streamProducts.map(product => ({
+              steam_product_id: product.id,
               id: product.product.id,
               product: product.product,
               highlighted: product.highlight,
               livePrice: product.price?.salePrice ?? product.price.regularPrice,
-            }))} />
+            }))}
+              liveId={liveStream.id}
+            />
           </Col>
         </Row>
 
         <Row>
           <Col lg={12}>
             <HighlightedProducts products={liveStream.streamProducts.map(product => ({
+              steam_product_id: product.id,
               id: product.product.id,
               product: product.product,
               highlighted: product.highlight,
               livePrice: product.price?.salePrice ?? product.price.regularPrice,
-            })).filter(product => product.highlighted)} />
+            }))}
+              liveId={liveStream.id} />
           </Col>
         </Row>
 
         <Row>
           <Col lg={12}>
-            <LiveCoupons coupons={liveStream.coupons} />
+            <LiveCoupons coupons={liveStream.coupons} liveId={liveStream.id} />
           </Col>
         </Row>
 
         <Row>
           <Col lg={12}>
-            <LiveBroadcasters broadcasters={liveStream.broadcasters} />
+            <LiveBroadcasters broadcasters={liveStream.broadcasters} liveId={liveStream.id} />
           </Col>
         </Row>
       </div>

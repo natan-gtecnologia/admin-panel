@@ -48,11 +48,11 @@ export function Coupons() {
     refetchOnWindowFocus: false,
   });
 
-  const handleRemoveCoupon = useCallback(
+  const handleRemoveBroadcaster = useCallback(
     (id: number) => {
       setValue(
         "coupons",
-        coupons.filter((coupon) => coupon !== id)
+        coupons.filter((broadcaster) => broadcaster !== id)
       );
     },
     [coupons, setValue]
@@ -157,7 +157,7 @@ export function Coupons() {
             <div className="d-flex align-items-center gap-1">
               <ConfirmationModal
                 changeStatus={() =>
-                  handleRemoveCoupon(cellProps.row.original.id)
+                  handleRemoveBroadcaster(cellProps.row.original.id)
                 }
                 title="Remover cupom"
                 message="Deseja realmente remover esta cupom? Essa ação não poderá ser desfeita."
@@ -178,7 +178,7 @@ export function Coupons() {
         width: "8%",
       },
     ],
-    [handleRemoveCoupon]
+    [handleRemoveBroadcaster]
   );
 
   return (
@@ -186,7 +186,7 @@ export function Coupons() {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Cupons disponíveis</h4>
 
-        <SelectCouponModal>
+        <SelectCouponModal coupons={coupons} onSelect={newcoupons => setValue('coupons', newcoupons)}>
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"

@@ -13,11 +13,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useFormContext } from "react-hook-form";
 import type { CellProps } from "react-table";
-import { Button, Modal } from "reactstrap";
+import { Button, Modal, Spinner } from "reactstrap";
 import { Card } from "../../../../Common/Card";
-import { CreateOrUpdateSchemaType } from "../../schema";
 
 type ChildrenModalProps = {
   toggle: () => void;
@@ -25,14 +23,16 @@ type ChildrenModalProps = {
 
 type GoBackModalProps = {
   children: ReactNode | ((props: ChildrenModalProps) => ReactNode);
+
+  onSelect: (ids: number[]) => void | Promise<void>;
+  coupons: number[];
 };
 
-export function SelectCouponModal({ children }: GoBackModalProps) {
+export function SelectCouponModal({ children, coupons, onSelect }: GoBackModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const { watch, setValue } = useFormContext<CreateOrUpdateSchemaType>();
-  const coupons = watch("coupons");
+  const [isAddingToList, setIsAddingToList] = useState(false);
   const { data: couponsFromApi } = useQuery({
     queryKey: ["coupons", "notIn", coupons],
     queryFn: async () => {
@@ -66,16 +66,22 @@ export function SelectCouponModal({ children }: GoBackModalProps) {
     );
   }, [search, couponsFromApi]);
 
-  const handleInsert = useCallback(() => {
-    const selectedCoupons = selectedIds.filter(
-      (coupon) => !coupons.includes(coupon)
-    );
-    setValue("coupons", [...coupons, ...selectedCoupons]);
-    setSelectedIds([]);
-    setIsOpen(false);
-  }, [coupons, selectedIds, setValue]);
+  const handleInsert = useCallback(async () => {
+    try {
+      setIsAddingToList(true);
+      const selectedCoupons = selectedIds.filter(
+        (coupon) => !coupons.includes(coupon)
+      );
+      await onSelect([...coupons, ...selectedCoupons])
+      setSelectedIds([]);
+      setIsOpen(false);
+    } catch { } finally {
+      setIsAddingToList(false);
+    }
+  }, [coupons, onSelect, selectedIds]);
 
   const toggle = () => {
+    if (isAddingToList) return;
     setIsOpen(!isOpen);
   };
 
@@ -162,8 +168,8 @@ export function SelectCouponModal({ children }: GoBackModalProps) {
       {typeof children !== "function"
         ? cloneElement(children as React.ReactElement, { onClick: toggle })
         : children({
-            toggle,
-          })}
+          toggle,
+        })}
       <Modal isOpen={isOpen} centered toggle={toggle}>
         <Card className="m-0 shadow-none">
           <Card.Header className="d-flex align-items-center gap-1 justify-content-between border-0">
@@ -233,7 +239,14 @@ export function SelectCouponModal({ children }: GoBackModalProps) {
               type="button"
               onClick={handleInsert}
             >
-              Adicionar
+              {isAddingToList ? (
+                <span className="d-flex align-items-center">
+                  <Spinner size="sm" className="flex-shrink-0" role="status">
+                    Adicionando...
+                  </Spinner>
+                  <span className="flex-grow-1 ms-2">Adicionando...</span>
+                </span>
+              ) : 'Adicionar'}
             </Button>
           </Card.Footer>
         </Card>

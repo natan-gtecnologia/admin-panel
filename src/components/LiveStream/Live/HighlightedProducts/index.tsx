@@ -8,21 +8,94 @@ import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
 
+import { ILiveStream } from "@/@types/livestream";
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { api } from "@/services/apiClient";
+import { queryClient } from "@/services/react-query";
 import { currentPrice, discountPercentage } from "@/utils/price";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 import { InsertProductModal } from "../../CreateOrUpdate/InsertProductModal";
 
 type ProductProps = CreateOrUpdateSchemaType["products"][number] & {
   product: IProduct
+  steam_product_id: number;
 };
 
 interface Props {
   products: ProductProps[]
+  liveId: number;
 }
 
-export function HighlightedProducts({ products }: Props) {
+export function HighlightedProducts({ products, liveId }: Props) {
+  const handleInsertNewProducts = useCallback(async (ids: number[]) => {
+    try {
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          streamProducts: products.map(product => ({
+            id: product.steam_product_id,
+            ...(ids.includes(product.id) && {
+              highlight: true
+            })
+          }))
+        }
+      })
+
+      queryClient.setQueryData<ILiveStream | undefined>(
+        ["liveStream", 'room', liveId], (oldData) => {
+          if (!oldData)
+            return;
+
+          return {
+            ...oldData,
+            streamProducts: oldData.streamProducts.map(streamProduct => ({
+              ...streamProduct,
+              ...(ids.includes(streamProduct.product.id) && {
+                highlight: true
+              })
+            }))
+          };
+        }
+      )
+    } catch (error) {
+
+    }
+  }, [liveId, products])
+
+  const handleRemoveFromHighlight = useCallback(async (product_id: number) => {
+    try {
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          streamProducts: products.map(product => ({
+            id: product.steam_product_id,
+            ...(product.id === product_id && {
+              highlight: false
+            })
+          }))
+        }
+      })
+
+      queryClient.setQueryData<ILiveStream | undefined>(
+        ["liveStream", 'room', liveId], (oldData) => {
+          if (!oldData)
+            return;
+
+          return {
+            ...oldData,
+            streamProducts: oldData.streamProducts.map(streamProduct => ({
+              ...streamProduct,
+              ...(streamProduct.product.id === product_id && {
+                highlight: false
+              })
+            }))
+          };
+        }
+      )
+    } catch (error) {
+
+    }
+  }, [liveId, products])
+
   const columns = useMemo(
     () => [
       {
@@ -103,9 +176,9 @@ export function HighlightedProducts({ products }: Props) {
           return (
             <div className="d-flex align-items-center gap-1">
               <ConfirmationModal
-                changeStatus={() => { }
-                  // handleRemoveProduct(cellProps.row.original.id)
-                }
+                changeStatus={async () => await handleRemoveFromHighlight(
+                  cellProps.row.original.id
+                )}
                 title="Remover produto"
                 message="Deseja realmente remover este produto? A ação não poderá ser desfeita e qualquer alteração será cancelada."
               >
@@ -125,12 +198,8 @@ export function HighlightedProducts({ products }: Props) {
         width: "8%",
       },
     ],
-    []
+    [handleRemoveFromHighlight]
   );
-
-  const handleInsertNewProducts = useCallback((ids: number[]) => {
-    console.log(ids);
-  }, [])
 
   return (
     <Card className="shadow-none">
@@ -139,11 +208,11 @@ export function HighlightedProducts({ products }: Props) {
           Produtos em destaque (Máx. 4)
         </h4>
 
-        <InsertProductModal onSelect={handleInsertNewProducts} products={products.map(product => product.product)}>
+        <InsertProductModal onSelect={handleInsertNewProducts} products={products.filter(product => !product.highlighted).map(product => product.product)}>
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"
-            disabled={products.length === 4}
+            disabled={products.filter(product => product.highlighted).length === 4}
             type="button"
           >
             <span className="bx bx-plus fs-5" />
@@ -155,7 +224,7 @@ export function HighlightedProducts({ products }: Props) {
       <Card.Body>
         <TableContainer
           columns={columns}
-          data={products}
+          data={products.filter(product => product.highlighted)}
           customPageSize={10}
           divClass="table-responsive mb-1"
           tableClass="mb-0 align-middle table-borderless"

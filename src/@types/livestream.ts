@@ -14,7 +14,7 @@ export interface ILiveStream {
   liveDescription: string;
   schedule: string;
   startedDate?: string | null;
-  timeout?: number | null;
+  timeout: number;
   startText: string;
   backgroundColorIfNotHaveBanner: string;
   broadcasters: {
@@ -41,6 +41,7 @@ export interface ILiveStream {
   }[];
   coupons: ICoupon[];
   streamProducts: {
+    id: number;
     product: IProduct;
     price: {
       regularPrice: number;
@@ -50,7 +51,7 @@ export interface ILiveStream {
   }[];
   chat: {
     id: number;
-    active?: boolean;
+    active: boolean;
   };
   metaData: MetaData[];
   bannerLive: {
