@@ -38,6 +38,7 @@ export interface ILiveStream {
       whatsapp: string | null;
       telegram: string | null;
     } | null;
+
   }[];
   coupons: ICoupon[];
   streamProducts: {
@@ -48,6 +49,7 @@ export interface ILiveStream {
       salePrice: number;
     };
     highlight: boolean;
+    metaData: MetaData;
   }[];
   chat: {
     id: number;

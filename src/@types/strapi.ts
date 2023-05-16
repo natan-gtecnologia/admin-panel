@@ -640,6 +640,7 @@ export interface IStrapiLiveStream {
         salePrice: number;
       };
       highlight: boolean;
+      metaData: MetaData;
     }[];
     metaData: MetaData[];
     chat: {

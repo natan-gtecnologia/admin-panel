@@ -46,8 +46,6 @@ function getFormattedBroadcasters(
 export function LiveBroadcasters({ broadcasters, liveId }: Props) {
 
   const handleInsertBroadcasters = useCallback(async (newBroadcasters: number[]) => {
-    console.log("newBroadcasters", newBroadcasters)
-
     const formattedBroadcasters = getFormattedBroadcasters(
       newBroadcasters,
       broadcasters

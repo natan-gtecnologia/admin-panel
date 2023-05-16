@@ -1,5 +1,5 @@
 import { Card } from "@/components/Common/Card";
-import { Button } from "reactstrap";
+import { Button, Input } from "reactstrap";
 
 import type { IProduct } from "@/@types/product";
 import TableContainer from "@/components/Common/TableContainer";
@@ -9,11 +9,13 @@ import type { CellProps } from "react-table";
 // import type { CreateOrUpdateSchemaType } from "../schema";
 
 import { ILiveStream } from "@/@types/livestream";
+// import { Input } from "@/components/Common/Form/Input";
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { api } from "@/services/apiClient";
 import { queryClient } from "@/services/react-query";
 import { currentPrice, discountPercentage } from "@/utils/price";
+import { MetaData } from "@growthventure/utils";
 import { formatNumberToReal } from "@growthventure/utils/lib/formatting/format";
 import { InsertProductModal } from "../../CreateOrUpdate/InsertProductModal";
 import { CreateOrUpdateSchemaType } from "../../CreateOrUpdate/schema";
@@ -22,13 +24,15 @@ import { ChangeDiscountModal } from "./ChangeDiscountModal";
 type ProductProps = CreateOrUpdateSchemaType["products"][number] & {
   product: IProduct
   steam_product_id: number;
+  metaData: MetaData
 };
 interface SaleProductProps {
   products: ProductProps[]
   liveId: number;
+  liveUUID: string;
 }
 
-export function SaleProducts({ products, liveId }: SaleProductProps) {
+export function SaleProducts({ products, liveId, liveUUID }: SaleProductProps) {
   const handleAddToLiveProducts = useCallback(async (ids: number[], productsToSave?: IProduct[]) => {
     try {
       if (!productsToSave) return;
@@ -147,6 +151,72 @@ export function SaleProducts({ products, liveId }: SaleProductProps) {
 
     }
   }, [liveId, products])
+
+  const handleChangeDelay = useCallback(async (type: 'add' | 'remove', stream_product_id: number, currentStep: number) => {
+    if (currentStep <= 5 && type === 'remove') return
+
+    const newValue = type === 'add' ? currentStep + 5 : currentStep - 5
+
+    const currentProducts = products.map(product => ({
+      id: product.steam_product_id,
+      ...(product.steam_product_id === stream_product_id && {
+        metaData: {
+          key: 'delayTime',
+          valueInteger: newValue
+        }
+      })
+    }));
+
+    try {
+      await api.put(`/live-streams/${liveId}`, {
+        data: {
+          streamProducts: currentProducts
+        }
+      });
+
+      queryClient.setQueryData<ILiveStream | undefined>(
+        ["liveStream", 'room', liveId], (oldData) => {
+          if (!oldData)
+            return;
+
+          return {
+            ...oldData,
+            streamProducts: oldData.streamProducts.map((product) => {
+              return {
+                ...product,
+                ...(product.id === stream_product_id && {
+                  metaData: {
+                    ...product.metaData,
+                    key: 'delayTime',
+                    valueInteger: newValue
+                  }
+                })
+              }
+            })
+          };
+        }
+      )
+
+    } catch (error) {
+
+    }
+
+  }, [liveId, products]);
+
+  const handleStartPreview = useCallback(async (product: ProductProps) => {
+    const valueStep = product.metaData.valueInteger || 5;
+
+    try {
+      await api.post('/live-streams/send-metadata', {
+        uuid: liveUUID,
+        productId: product.id,
+        delayTime: valueStep
+      })
+    } catch (error) {
+      console.log(error)
+    }
+
+  }, [liveUUID]);
 
   const columns = useMemo(
     () => [
@@ -269,6 +339,48 @@ export function SaleProducts({ products, liveId }: SaleProductProps) {
         width: "10%",
       },
       {
+        Header: "Tempo visivel",
+        Cell: (cellProps: CellProps<ProductProps>) => {
+          const valueMetaData = cellProps.row.original?.metaData?.key === 'delayTime' ? (cellProps.row.original?.metaData?.valueInteger ?? 0) : 0
+
+          return (
+            <div>
+              <div className="input-step">
+                <button
+                  type="button"
+                  className="minus"
+                  disabled={valueMetaData <= 5}
+                  onClick={() => {
+                    handleChangeDelay('remove', cellProps.row.original.steam_product_id, valueMetaData);
+                  }}
+                >
+                  –
+                </button>
+                <Input
+                  type="number"
+                  className="product-quantity"
+                  value={valueMetaData}
+                  min="0"
+                  max="100"
+                  readOnly
+                />
+                <button
+                  type="button"
+                  className="plus"
+                  onClick={() => {
+                    handleChangeDelay('add', cellProps.row.original.steam_product_id, valueMetaData);
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          )
+        },
+        id: "#time",
+        width: "10%",
+      },
+      {
         Header: "Ações",
         Cell: (cellProps: CellProps<ProductProps>) => {
           const price = currentPrice({
@@ -280,6 +392,17 @@ export function SaleProducts({ products, liveId }: SaleProductProps) {
 
           return (
             <div className="d-flex align-items-center gap-1">
+              <button
+                type="button"
+                color="primary"
+                className="d-flex align-items-center gap-2 border-0 bg-transparent "
+                onClick={() => handleStartPreview(cellProps.row.original)}
+              >
+                <Tooltip message="Iniciar visualização do produto">
+                  <span className="bx bx-play fs-5" />
+                </Tooltip>
+              </button>
+
               <ChangeDiscountModal
                 regularPrice={price.price}
                 price={cellProps.row.original.livePrice}
@@ -322,7 +445,7 @@ export function SaleProducts({ products, liveId }: SaleProductProps) {
         width: "8%",
       },
     ],
-    [handleDeleteProductFromLive, handleUpdatedProductDiscount]
+    [handleChangeDelay, handleDeleteProductFromLive, handleStartPreview, handleUpdatedProductDiscount]
   );
 
   return (

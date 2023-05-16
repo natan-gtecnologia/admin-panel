@@ -1,3 +1,4 @@
+
 export interface IBroadcaster {
     id: number
     name: string
@@ -21,5 +22,4 @@ export interface IBroadcaster {
         whatsapp: string | null;
         telegram: string | null;
     } | null;
-    metaData: any[]
 }

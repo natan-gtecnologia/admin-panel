@@ -7,10 +7,10 @@ import { convert_image_strapi } from "./convert_image";
 export function convert_livestream_strapi(
   livestream: IStrapiLiveStream
 ): ILiveStream {
-  //console.log(
-  //  "🚀 ~ file: convert_live_stream.ts ~ line 70 ~ convert_livestream_strapi ~ livestream",
-  //  livestream
-  //);
+  // console.log(
+  //   "🚀 ~ file: convert_live_stream.ts ~ line 70 ~ convert_livestream_strapi ~ livestream",
+  //   livestream
+  // );
   return {
     id: livestream.id,
     uuid: livestream.attributes.uuid,
@@ -22,11 +22,12 @@ export function convert_livestream_strapi(
     startText: livestream.attributes?.startText ?? "",
     streamProducts:
       livestream.attributes?.streamProducts?.map(
-        ({ product, price, highlight, id }) => {
+        ({ product, price, highlight, id, metaData }) => {
           return {
             id,
             highlight,
             price,
+            metaData,
             product: convert_product_strapi(product.data),
           };
         }

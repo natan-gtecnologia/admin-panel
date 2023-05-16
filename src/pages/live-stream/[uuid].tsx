@@ -204,8 +204,6 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
     }
   }, []);
 
-  console.log('liveStream.broadcasters', liveStream.broadcasters)
-
   return (
     <>
       <div className="page-content">
@@ -279,12 +277,14 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
           <Col lg={12}>
             <SaleProducts products={liveStream.streamProducts.map(product => ({
               steam_product_id: product.id,
+              metaData: product.metaData,
               id: product.product.id,
               product: product.product,
               highlighted: product.highlight,
               livePrice: product.price?.salePrice ?? product.price.regularPrice,
             }))}
               liveId={liveStream.id}
+              liveUUID={liveStream.uuid}
             />
           </Col>
         </Row>
