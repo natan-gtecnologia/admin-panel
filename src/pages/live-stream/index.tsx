@@ -438,9 +438,17 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
   );
 
   const [displayValue, setDisplayValue] = useState<"block" | "none">("block");
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [cardClassName, setCardClassName] = useState("");
 
-  const handleChatBox = (value: "block" | "none") => {
-    setDisplayValue(value);
+  const handleChatBox = () => {
+    if (isMinimized) {
+      setDisplayValue("block");
+      setCardClassName("");
+    } else {
+      setCardClassName("minimized");
+    }
+    setIsMinimized(!isMinimized);
   };
 
   return (
@@ -533,20 +541,24 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
               id="emailchat-detailElem"
               style={{ display: displayValue }}
             >
-              <Card className="mb-0">
+              <Card className={cardClassName}>
                 <Card.Header className="pb-0">
                   <div className="align-items-end d-flex justify-content-end gap-4">
                     <a
                       className="fs-18 text-decoration-none cursor-pointer"
                       id="btn"
-                      onClick={() => handleChatBox("none")}
+                      onClick={handleChatBox}
                     >
-                      <i className="ri-arrow-down-s-line"></i>
+                      {isMinimized ? (
+                        <i className="ri-arrow-up-s-line"></i>
+                      ) : (
+                        <i className="ri-arrow-down-s-line"></i>
+                      )}
                     </a>
                     <a
                       className="fs-18 text-decoration-none cursor-pointer"
                       id="btn-close"
-                      onClick={() => handleChatBox("none")}
+                      onClick={() => setDisplayValue("none")}
                     >
                       <i className="ri-close-fill"></i>
                     </a>
