@@ -21,13 +21,13 @@ export function convert_chat_strapi(chat: IStrapiChat): IChat {
       blocked: user.blocked,
       blockedAt: user.blockedAt,
       chat_user: {
-        id: user.chat_user.id,
-        email: user.chat_user.attributes.email,
-        firstName: user.chat_user.attributes.firstName,
-        lastName: user.chat_user.attributes.lastName,
-        socketId: user.chat_user.attributes.socketId,
-        createdAt: user.chat_user.attributes.createdAt,
-        updatedAt: user.chat_user.attributes.updatedAt
+        id: user.chat_user?.id ?? 0,
+        email: user.chat_user.attributes?.email ?? '',
+        firstName: user.chat_user.attributes?.firstName ?? '',
+        lastName: user.chat_user.attributes?.lastName ?? '',
+        socketId: user.chat_user.attributes?.socketId ?? '',
+        createdAt: user.chat_user.attributes?.createdAt ?? '',
+        updatedAt: user.chat_user.attributes?.updatedAt ?? ''
       },
       isOnline: user.isOnline,
       joinedAt: user.joinedAt,

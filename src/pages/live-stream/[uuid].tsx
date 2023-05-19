@@ -241,7 +241,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
                   <Col lg={4}>
                     <div className="ratio ratio-9x16" style={customStyle}>
                       <iframe
-                        src={`http://localhost:3001/${liveStream.uuid}?step=live-room`}
+                        src={`${process.env.NEXT_PUBLIC_LiVE_URL}/${liveStream.uuid}?step=live-room`}
                         title="YouTube video"
                         allowFullScreen
                       ></iframe>
@@ -277,7 +277,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
           <Col lg={12}>
             <SaleProducts products={liveStream.streamProducts.map(product => ({
               steam_product_id: product.id,
-              metaData: product.metaData,
+              metaData: product?.metaData,
               id: product.product.id,
               product: product.product,
               highlighted: product.highlight,

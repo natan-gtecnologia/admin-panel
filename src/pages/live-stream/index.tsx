@@ -568,7 +568,7 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                 <Card.Body className="p-0">
                   <div className="ratio ratio-1x1">
                     <iframe
-                      src={`http://localhost:3001/${url?.uuid}?step=live-room`}
+                      src={`${process.env.NEXT_PUBLIC_LiVE_URL}/${url.uuid}?step=live-room`}
                       title="YouTube video"
                       allowFullScreen
                     ></iframe>

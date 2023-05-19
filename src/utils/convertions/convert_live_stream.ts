@@ -27,7 +27,7 @@ export function convert_livestream_strapi(
             id,
             highlight,
             price,
-            metaData,
+            metaData: metaData ?? null,
             product: convert_product_strapi(product.data),
           };
         }

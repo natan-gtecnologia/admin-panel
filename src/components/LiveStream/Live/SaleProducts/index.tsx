@@ -301,8 +301,8 @@ export function SaleProducts({ products, liveId, liveUUID }: SaleProductProps) {
           const price = currentPrice({
             regular_price: cellProps.row.original?.product?.price?.regularPrice,
             price:
-              cellProps.row.original.product?.price.salePrice ??
-              cellProps.row.original.product?.price.regularPrice,
+              cellProps.row.original.product?.price?.salePrice ??
+              cellProps.row.original.product?.price?.regularPrice,
           });
 
           return formatNumberToReal(price.price);
@@ -316,8 +316,8 @@ export function SaleProducts({ products, liveId, liveUUID }: SaleProductProps) {
           const price = currentPrice({
             regular_price: cellProps.row.original?.product?.price?.regularPrice,
             price:
-              cellProps.row.original.product?.price.salePrice ??
-              cellProps.row.original.product?.price.regularPrice,
+              cellProps.row.original.product?.price?.salePrice ??
+              cellProps.row.original.product?.price?.regularPrice,
           });
 
           return (
