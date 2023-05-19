@@ -241,7 +241,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
                   <Col lg={4}>
                     <div className="ratio ratio-9x16" style={customStyle}>
                       <iframe
-                        src={`${process.env.NEXT_PUBLIC_LiVE_URL}/${liveStream.uuid}?step=live-room`}
+                        src={`${process.env.NEXT_PUBLIC_LIVE_URL}/${liveStream.uuid}?step=live-room`}
                         title="YouTube video"
                         allowFullScreen
                       ></iframe>
