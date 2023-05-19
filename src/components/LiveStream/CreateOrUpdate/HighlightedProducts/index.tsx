@@ -204,7 +204,7 @@ export function HighlightedProducts() {
         };
       })
     );
-  }, [])
+  }, [getValues, setValue])
 
   return (
     <Card className="shadow-none">

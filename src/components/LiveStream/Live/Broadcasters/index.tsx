@@ -4,7 +4,6 @@ import TableContainer from "@/components/Common/TableContainer";
 import { useCallback, useMemo } from "react";
 import type { CellProps } from "react-table";
 
-import { IBroadcaster } from "@/@types/broadcasters";
 import { ILiveStream } from "@/@types/livestream";
 import { Tooltip } from "@/components/Common/Tooltip";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
@@ -23,7 +22,28 @@ type BroadcasterProps = {
 };
 
 type Props = {
-  broadcasters: IBroadcaster[],
+  broadcasters: {
+    code: string;
+    broadcaster_id: number;
+    id: number | null;
+    name: string | null;
+    email: string | null;
+    avatar: {
+      id: number;
+      src: string;
+      thumbnail: {
+        src: string;
+      };
+    } | null;
+    socialMedias: {
+      id: 1;
+      facebook: string | null;
+      twitter: string | null;
+      instagram: string | null;
+      whatsapp: string | null;
+      telegram: string | null;
+    } | null;
+  }[],
   liveId: number;
 };
 
@@ -155,7 +175,7 @@ export function LiveBroadcasters({ broadcasters, liveId }: Props) {
         width: "8%",
       },
     ],
-    []
+    [handleRemoveBroadcaster]
   );
 
   return (
@@ -163,7 +183,7 @@ export function LiveBroadcasters({ broadcasters, liveId }: Props) {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Lista de apresentadores</h4>
 
-        <SelectBroadcasterModal broadcasters={broadcasters.map(broadcaster => broadcaster.id)} onSelect={handleInsertBroadcasters}>
+        <SelectBroadcasterModal broadcasters={broadcasters.map(broadcaster => broadcaster.broadcaster_id)} onSelect={handleInsertBroadcasters}>
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"

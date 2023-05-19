@@ -304,7 +304,7 @@ export function Products() {
       }));
 
     setValue("products", [...list, ...newProducts]);
-  }, [])
+  }, [getValues, setValue])
 
   return (
     <Card className="shadow-none">

@@ -38,7 +38,6 @@ export interface ILiveStream {
       whatsapp: string | null;
       telegram: string | null;
     } | null;
-
   }[];
   coupons: ICoupon[];
   streamProducts: {

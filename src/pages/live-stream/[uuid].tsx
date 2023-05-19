@@ -202,7 +202,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
       toast.error("Usuário bloqueado com sucesso");
       handleChangeLoading(null)
     }
-  }, []);
+  }, [handleChangeLoading]);
 
   return (
     <>

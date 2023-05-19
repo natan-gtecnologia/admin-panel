@@ -1,4 +1,3 @@
-import { ILiveStream } from "./livestream"
 
 export interface IChat {
     id: number

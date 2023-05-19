@@ -20,16 +20,15 @@ export function convert_chat_strapi(chat: IStrapiChat): IChat {
       id: user.id,
       blocked: user.blocked,
       blockedAt: user.blockedAt,
-      chat_user: user.chat_user,
-      // chat_user: {
-      //   id: user.chat_user.id,
-      //   email: user.chat_user.attributes.email,
-      //   firstName: user.chat_user.attributes.firstName,
-      //   lastName: user.chat_user.attributes.lastName,
-      //   socketId: user.chat_user.attributes.socketId,
-      //   createdAt: user.chat_user.attributes.createdAt,
-      //   updatedAt: user.chat_user.attributes.updatedAt
-      // },
+      chat_user: {
+        id: user.chat_user.id,
+        email: user.chat_user.attributes.email,
+        firstName: user.chat_user.attributes.firstName,
+        lastName: user.chat_user.attributes.lastName,
+        socketId: user.chat_user.attributes.socketId,
+        createdAt: user.chat_user.attributes.createdAt,
+        updatedAt: user.chat_user.attributes.updatedAt
+      },
       isOnline: user.isOnline,
       joinedAt: user.joinedAt,
     })) ?? []
