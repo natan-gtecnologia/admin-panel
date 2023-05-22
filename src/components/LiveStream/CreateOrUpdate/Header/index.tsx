@@ -43,6 +43,7 @@ export function Header({ liveStream }: Props) {
       await api.put(`/live-streams/${id}`, {
         data: {
           state: props.status,
+          liveEventName: liveStream.liveEventName,
         },
       });
 

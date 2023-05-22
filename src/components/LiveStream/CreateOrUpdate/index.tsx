@@ -17,6 +17,7 @@ import { CreateOrUpdateSchemaType, createOrUpdateSchema } from "./schema";
 type Props = {
   data?: CreateOrUpdateSchemaType & {
     bannerId: number | null;
+    chatId: number;
   };
   broadcasters?: {
     broadcaster_id: number;
@@ -135,6 +136,14 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
             data: formData,
           });
 
+          if (values.chatReleased !== data.chatReleased) {
+            await api.put(`/chats/${data.chatId}`, {
+              data: {
+                active: values.chatReleased,
+              },
+            });
+          }
+
           toast.update(id, {
             render: "Live atualizada com sucesso",
             type: "success",
@@ -159,6 +168,12 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
           data: {
             ...formData,
             chat: chat_response.data.data.id,
+            metaData: [
+              {
+                key: "aiTags",
+                valueJson: values.aiTags
+              }
+            ]
           },
         });
 

@@ -43,6 +43,7 @@ const Page: NextPageWithLayout<Props> = ({ livestream }) => {
           scheduledStartTime: new Date(livestream.schedule),
           shortDescription: livestream.liveDescription,
           bannerId: livestream.bannerLive?.id || null,
+          chatId: livestream.chat.id,
         }}
         broadcasters={
           livestream.broadcasters

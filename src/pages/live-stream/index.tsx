@@ -422,12 +422,6 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                   message="Tem certeza que deseja excluir essa tag? Essa ação não pode ser desfeita."
                 >
                 </ConfirmationModal> */}
-                <button
-                  className="btn btn-link shadow-none p-0 text-danger fs-5 text-decoration-none cursor-pointer"
-                  aria-label="Deletar tag"
-                >
-                  <i className="ri-file-copy-line"></i>
-                </button>
               </div>
             </div>
           );
