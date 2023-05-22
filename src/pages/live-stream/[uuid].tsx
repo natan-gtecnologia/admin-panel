@@ -23,6 +23,7 @@ import { GenerealConfigs } from "@/components/LiveStream/Live/GeneralConfigs";
 import { HighlightedProducts } from "@/components/LiveStream/Live/HighlightedProducts";
 import { SaleProducts } from "@/components/LiveStream/Live/SaleProducts";
 import { useLayout } from "@/hooks/useLayout";
+import { api } from "@/services/apiClient";
 import { convert_livestream_strapi } from "@/utils/convertions/convert_live_stream";
 import QueryString from "qs";
 import { toast } from "react-toastify";
@@ -183,23 +184,22 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
 
   const handleBlockUser = useCallback(async (user: any) => {
     handleChangeLoading({
-      description: 'Carregando lives',
+      description: 'Bloqueando usuário',
       title: 'Aguarde',
     });
-    console.log("user", user)
 
     try {
-      // await api.post(`/black-lists`, {
-      //   data: {
+      await api.post(`/chats/blockUser/${user.chat_id}`, {
+        id: user.chat.chat_user.id,
+        blockedAt: new Date(),
+        blocked: true
+      });
 
-      //   }
-      // });
-
-      // await handleRefetchLiveStream();
+      toast.success("Usuário bloqueado com sucesso");
     } catch (error) {
+      console.log(error)
       toast.error("Erro ao excluir bloquar usuário");
     } finally {
-      toast.error("Usuário bloqueado com sucesso");
       handleChangeLoading(null)
     }
   }, [handleChangeLoading]);

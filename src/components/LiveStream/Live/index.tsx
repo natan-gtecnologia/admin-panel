@@ -1,12 +1,40 @@
-import { Col, ListGroup, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
-import classnames from 'classnames'
-import { useState } from "react";
-import SimpleBar from "simplebar-react";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import classnames from 'classnames';
+import { useEffect, useState } from "react";
+import { Col, ListGroup, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
+import SimpleBar from "simplebar-react";
+
+export interface usersFromSocketProps {
+    firstName: string
+    chat_id: number
+    chat: Chat
+}
+
+export interface Chat {
+    id: number
+    joinedAt: string
+    blocked: boolean
+    blockedAt: string
+    isOnline: boolean
+    chat_user: ChatUser
+}
+
+export interface ChatUser {
+    id: number
+    firstName: string
+    lastName: string
+    email: string
+    socketId: string
+    createdAt: string
+    updatedAt: string
+    role: any
+}
 
 export function LiveTabs({ messages, message, setMessage, handleSendMessage, usersFromSocket, handleBlockUser }: any) {
     const [activeTab, setActiveTab] = useState(1);
     const [passedSteps, setPassedSteps] = useState([1]);
+    const [listUsers, setListUsers] = useState<Array<usersFromSocketProps>>([usersFromSocket]);
+    const [listUsersBlock, setListUsersBlock] = useState<Array<usersFromSocketProps>>([]);
 
     async function toggleTab(tab: number): Promise<void> {
         if (activeTab !== tab) {
@@ -18,6 +46,16 @@ export function LiveTabs({ messages, message, setMessage, handleSendMessage, use
             }
         }
     }
+
+
+    useEffect(() => {
+
+        const usersListblock = usersFromSocket.filter((user: usersFromSocketProps) => user?.chat?.blocked === true)
+        const usersListNotBlock = usersFromSocket.filter((user: usersFromSocketProps) => user?.chat?.blocked !== true)
+
+        setListUsersBlock(usersListblock)
+        setListUsers(usersListNotBlock)
+    }, [usersFromSocket])
 
     return (
         <Col lg={8} style={{ height: "60%" }}>
@@ -137,11 +175,11 @@ export function LiveTabs({ messages, message, setMessage, handleSendMessage, use
             <TabContent activeTab={activeTab}>
                 <TabPane tabId={2} id="pills-bill-info">
                     <ListGroup className="list-group max-height-100">
-                        {usersFromSocket.map((user: any) => (
+                        {listUsers.map((user: usersFromSocketProps) => (
                             <>
                                 <div className="d-flex align-items-center w-100 justify-content-between border-bottom py-3" key={user.firstName}>
                                     <div>
-                                        <h5>{user.firstName}</h5>
+                                        <h5>{user.chat?.chat_user?.firstName} {user.chat?.chat_user?.lastName}</h5>
                                     </div>
                                     <div>
                                         <ConfirmationModal
@@ -165,7 +203,17 @@ export function LiveTabs({ messages, message, setMessage, handleSendMessage, use
             </TabContent>
             <TabContent activeTab={activeTab}>
                 <TabPane tabId={3} id="pills-bill-info">
-                    Bloqueados
+                    <ListGroup className="list-group max-height-100">
+                        {listUsersBlock.map((user: usersFromSocketProps) => (
+                            <>
+                                <div className="d-flex align-items-center w-100 justify-content-between border-bottom py-3" key={user.firstName}>
+                                    <div>
+                                        <h5>{user.chat?.chat_user?.firstName} {user.chat?.chat_user?.lastName}</h5>
+                                    </div>
+                                </div>
+                            </>
+                        ))}
+                    </ListGroup>
                 </TabPane>
             </TabContent>
             <TabContent activeTab={activeTab}>
