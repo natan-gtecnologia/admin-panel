@@ -1,6 +1,6 @@
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import classnames from 'classnames';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Col, ListGroup, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
 import SimpleBar from "simplebar-react";
 
@@ -34,7 +34,7 @@ export function LiveTabs({ messages, message, setMessage, handleSendMessage, use
     const [activeTab, setActiveTab] = useState(1);
     const [passedSteps, setPassedSteps] = useState([1]);
     const [listUsers, setListUsers] = useState<Array<usersFromSocketProps>>([usersFromSocket]);
-    const [listUsersBlock, setListUsersBlock] = useState<Array<usersFromSocketProps>>([]);
+    const messagesScrollbarRef = useRef<SimpleBar | null>(null)
 
     async function toggleTab(tab: number): Promise<void> {
         if (activeTab !== tab) {
@@ -47,15 +47,18 @@ export function LiveTabs({ messages, message, setMessage, handleSendMessage, use
         }
     }
 
-
     useEffect(() => {
-
-        const usersListblock = usersFromSocket.filter((user: usersFromSocketProps) => user?.chat?.blocked === true)
         const usersListNotBlock = usersFromSocket.filter((user: usersFromSocketProps) => user?.chat?.blocked !== true)
 
-        setListUsersBlock(usersListblock)
         setListUsers(usersListNotBlock)
     }, [usersFromSocket])
+
+    useEffect(() => {
+        if (messagesScrollbarRef.current) {
+            messagesScrollbarRef.current.getScrollElement().scrollTop = messagesScrollbarRef.current.getScrollElement().scrollHeight
+        }
+    }, [messages.length])
+
 
     return (
         <Col lg={8} style={{ height: "60%" }}>
@@ -144,6 +147,7 @@ export function LiveTabs({ messages, message, setMessage, handleSendMessage, use
                         autoHide={false}
                         className="simplebar-track-primary"
                         style={{ maxHeight: "560px", overflow: "auto" }}
+                        ref={messagesScrollbarRef}
                     >
                         <ListGroup className="list-group max-height-50">
                             {messages.map((message: any) => (
@@ -203,17 +207,7 @@ export function LiveTabs({ messages, message, setMessage, handleSendMessage, use
             </TabContent>
             <TabContent activeTab={activeTab}>
                 <TabPane tabId={3} id="pills-bill-info">
-                    <ListGroup className="list-group max-height-100">
-                        {listUsersBlock.map((user: usersFromSocketProps) => (
-                            <>
-                                <div className="d-flex align-items-center w-100 justify-content-between border-bottom py-3" key={user.firstName}>
-                                    <div>
-                                        <h5>{user.chat?.chat_user?.firstName} {user.chat?.chat_user?.lastName}</h5>
-                                    </div>
-                                </div>
-                            </>
-                        ))}
-                    </ListGroup>
+                    Bloqueados
                 </TabPane>
             </TabContent>
             <TabContent activeTab={activeTab}>

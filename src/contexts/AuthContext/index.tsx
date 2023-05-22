@@ -23,6 +23,7 @@ interface SignInData {
 interface UserAuth {
   id: number;
   username: string;
+  firstName: string;
   email: string;
   provider: string;
   confirmed: boolean;
