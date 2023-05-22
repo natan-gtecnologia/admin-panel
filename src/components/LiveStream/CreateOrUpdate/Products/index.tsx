@@ -72,26 +72,6 @@ export function Products() {
     refetchOnWindowFocus: false,
   });
 
-  //const toggleSelectedId = useCallback(
-  //  (id: number) => {
-  //    if (selectedIds === "all") {
-  //      setSelectedIds(
-  //        products
-  //          .filter((product: any) => product.id !== id)
-  //          .map((product: any) => product.id)
-  //      );
-  //    } else if (selectedIds.includes(id)) {
-  //      setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
-  //    } else {
-  //      const newSelectedIds = [...selectedIds, id];
-  //      setSelectedIds(
-  //        newSelectedIds.length === products.length ? "all" : newSelectedIds
-  //      );
-  //    }
-  //  },
-  //  [products, selectedIds]
-  //);
-
   const handleRemoveProduct = useCallback(
     (id: number) => {
       setValue(
@@ -311,7 +291,7 @@ export function Products() {
       <Card.Header className="d-flex align-items-center justify-content-between">
         <h4 className="card-title mb-0 fw-bold">Produtos</h4>
 
-        <InsertProductModal onSelect={handleInsertNewProducts}>
+        <InsertProductModal onSelect={handleInsertNewProducts} exclude={productsFromForm.map(product => product.id)}>
           <Button
             color="primary"
             className="d-flex align-items-center gap-2"
