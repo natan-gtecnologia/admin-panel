@@ -151,7 +151,7 @@ export function CreateOrUpdate({ data, broadcasters = [] }: Props) {
 
         const chat_response = await api.post("/chats", {
           data: {
-            active: false,
+            active: data?.chatReleased || false,
           },
         });
 
