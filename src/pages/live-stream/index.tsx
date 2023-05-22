@@ -1,9 +1,11 @@
+import { IStrapiLiveStream } from "@/@types/strapi";
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { Card } from "@/components/Common/Card";
 import Link from "@/components/Common/Link";
 import Loader from "@/components/Common/Loader";
 import TableContainer from "@/components/Common/TableContainer";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { CountUp } from "@/components/CountUp";
 import { useLayout } from "@/hooks/useLayout";
 import { api } from "@/services/apiClient";
 import { useQuery } from "@tanstack/react-query";
@@ -43,7 +45,7 @@ const statusDescriptions = {
 };
 
 type LiveStreamProps = {
-  liveStream: ILiveStream;
+  liveStream: ILiveStream[];
   totalPages: number;
 };
 
@@ -52,7 +54,14 @@ async function getLiveStream(
   params: Record<string, any> = { pagination: { pageSize: 10 } }
 ) {
   const apiClient = setupAPIClient(ctx);
-  const liveStreams = await apiClient.get("live-streams", {
+  const liveStreams = await apiClient.get<{
+    data: IStrapiLiveStream[]
+    meta: {
+      pagination: {
+        pageCount: number
+      }
+    };
+  }>("live-streams", {
     params: {
       populate: {
         broadcasters: {
@@ -113,11 +122,6 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
   } = useQuery(
     ["liveStream", currentPage, sortedBy, currentPageSize],
     async () => {
-      // handleChangeLoading({
-      //   description: 'Carregando lives',
-      //   title: 'Aguarde',
-      // });
-
       const response = await getLiveStream(undefined, {
         pagination: {
           pageSize: currentPageSize,
@@ -530,7 +534,8 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
           </Col>
 
           <Col md={1}>
-            <div
+            {url && url.startedDate && (
+              <div
               className="email-chat-detail"
               id="emailchat-detailElem"
               style={{ display: displayValue }}
@@ -568,12 +573,15 @@ const ListLiveStream: NextPageWithLayout<LiveStreamProps> = ({
                     ></iframe>
                   </div>
                   <div className="p-2">
-                    <h5>Live Naluzetes</h5>
-                    <span>01:00:00</span>
+                    <h5>Live {url?.title}</h5>
+                    <span>
+                      <CountUp startDate={new Date(url.startedDate)}  />
+                    </span>
                   </div>
                 </Card.Body>
               </Card>
             </div>
+            )}
           </Col>
         </Row>
       </div>

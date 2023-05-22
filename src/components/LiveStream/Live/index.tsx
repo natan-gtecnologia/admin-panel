@@ -176,45 +176,43 @@ export function LiveTabs({ messages, message, setMessage, handleSendMessage, use
                 </TabPane>
             </TabContent>
 
-            <TabContent activeTab={activeTab}>
-                <TabPane tabId={2} id="pills-bill-info">
-                    <ListGroup className="list-group max-height-100">
-                        {listUsers.map((user: usersFromSocketProps) => (
-                            <>
-                                <div className="d-flex align-items-center w-100 justify-content-between border-bottom py-3" key={user.firstName}>
-                                    <div>
-                                        <h5>{user.chat?.chat_user?.firstName} {user.chat?.chat_user?.lastName}</h5>
-                                    </div>
-                                    <div>
-                                        <ConfirmationModal
-                                            changeStatus={() => handleBlockUser(user)}
-                                            title="Bloquear usuário"
-                                            message="Tem certeza que deseja bloquear esse usuário?"
-                                        >
-                                            <button
-                                                type="button"
-                                                className="btn"
-                                            >
-                                                <i className="bx bx-block align-bottom"></i>
-                                            </button>
-                                        </ConfirmationModal>
-                                    </div>
-                                </div>
-                            </>
-                        ))}
-                    </ListGroup>
-                </TabPane>
-            </TabContent>
-            <TabContent activeTab={activeTab}>
-                <TabPane tabId={3} id="pills-bill-info">
-                    Bloqueados
-                </TabPane>
-            </TabContent>
-            <TabContent activeTab={activeTab}>
-                <TabPane tabId={4} id="pills-bill-info">
-                    Perguntas
-                </TabPane>
-            </TabContent>
-        </Col>
+          <TabContent activeTab={activeTab}>
+              <TabPane tabId={2} id="pills-bill-info">
+                  <ListGroup className="list-group max-height-100">
+                      {usersFromSocket.map((user: any) => (
+                          <div className="d-flex align-items-center w-100 justify-content-between border-bottom py-3" key={user.firstName}>
+                              <div>
+                                  <h5>{user.firstName}</h5>
+                              </div>
+                              <div>
+                                  <ConfirmationModal
+                                      changeStatus={() => handleBlockUser(user)}
+                                      title="Bloquear usuário"
+                                      message="Tem certeza que deseja bloquear esse usuário?"
+                                  >
+                                      <button
+                                          type="button"
+                                          className="btn"
+                                      >
+                                          <i className="bx bx-block align-bottom"></i>
+                                      </button>
+                                  </ConfirmationModal>
+                              </div>
+                          </div>
+                      ))}
+                  </ListGroup>
+              </TabPane>
+          </TabContent>
+          <TabContent activeTab={activeTab}>
+              <TabPane tabId={3} id="pills-bill-info">
+                  Bloqueados
+              </TabPane>
+          </TabContent>
+          <TabContent activeTab={activeTab}>
+              <TabPane tabId={4} id="pills-bill-info">
+                  Perguntas
+              </TabPane>
+          </TabContent>
+      </Col>
     )
 }

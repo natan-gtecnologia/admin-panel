@@ -145,11 +145,13 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   const messages = [...chat.messages, ...messagesFromSocket];
 
   const handleSendMessage = async () => {
-    if (!message || !socketConnection || !user || !user.firstName) return;
+    if (!message || !socketConnection || !user || !user.companies || user.companies.length === 0) return;
+
+    const company = user.companies[0];
 
     socketConnection?.emit("message:send", {
       chat_id: chat.id,
-      firstName: user?.firstName,
+      firstName: company.name,
       author: 0,
       message,
       datetime: new Date(),
@@ -221,7 +223,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
             <Card>
               <Card.Header>
                 <h6 className="card-title mb-0 flex-grow-1">
-                  Naluzetes <span style={{ color: "#0AB39C" }}>Ao vivo</span>
+                  {liveStream.title} <span style={{ color: "#0AB39C" }}>Ao vivo</span>
                 </h6>
               </Card.Header>
             </Card>
