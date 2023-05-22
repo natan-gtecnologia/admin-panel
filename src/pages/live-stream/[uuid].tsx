@@ -22,6 +22,7 @@ import { LiveCoupons } from "@/components/LiveStream/Live/Coupons";
 import { GenerealConfigs } from "@/components/LiveStream/Live/GeneralConfigs";
 import { HighlightedProducts } from "@/components/LiveStream/Live/HighlightedProducts";
 import { SaleProducts } from "@/components/LiveStream/Live/SaleProducts";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLayout } from "@/hooks/useLayout";
 import { convert_livestream_strapi } from "@/utils/convertions/convert_live_stream";
 import QueryString from "qs";
@@ -109,6 +110,7 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   liveStream: initialLiveStream,
   chat,
 }) => {
+  const { user } = useAuth();
 
   const { data: liveStream, refetch: handleRefetchLiveStream } = useQuery(
     ["liveStream", 'room', initialLiveStream.id],
@@ -142,14 +144,15 @@ const LiveStream: NextPageWithLayout<LiveStreamProps> = ({
   const messages = [...chat.messages, ...messagesFromSocket];
 
   const handleSendMessage = async () => {
-    if (!message || !socketConnection) return;
+    if (!message || !socketConnection || !user || !user.firstName) return;
 
     socketConnection?.emit("message:send", {
       chat_id: chat.id,
-      firstName: "Moderador",
+      firstName: user?.firstName,
       author: 0,
       message,
       datetime: new Date(),
+      moderator: true,
     });
 
     setMessage("");
