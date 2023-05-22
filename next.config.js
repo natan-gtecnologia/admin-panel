@@ -16,6 +16,7 @@ const nextConfig = {
       "localhost",
       "images.Liveforce.dev.sejanalu.com.br",
       "via.placeholder.com",
+      'images.growforce.dev.sejanalu.com.br',
     ],
   },
 };
