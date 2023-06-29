@@ -1,5 +1,4 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Aos from "aos";
 import { useEffect } from "react";
 import { DndProvider } from "react-dnd";
@@ -14,9 +13,8 @@ import "@/assets/scss/themes.scss";
 import { AppPropsWithLayout } from "../@types/next";
 
 import Head from "next/head";
-import logo from "../../public/svg/logo.png";
+import logo from "../../public/svg/logo.webp";
 import { MenuWrapper } from "../containers/MenuWrapper";
-import { AuthProvider } from "../contexts/AuthContext";
 import { queryClient } from "../services/react-query";
 
 function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
@@ -35,19 +33,18 @@ function CustomApp({ Component, pageProps }: AppPropsWithLayout) {
   }, []);
 
   return (
-    <AuthProvider>
+    <>
       <Head>
-        <title>Dashboard - Liveforce</title>
+        <title>Admin</title>
       </Head>
       <DndProvider backend={HTML5Backend}>
         <QueryClientProvider client={queryClient}>
           <MenuWrapper>
             {getLayout(<Component {...pageProps} />, logo)}
           </MenuWrapper>
-          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </DndProvider>
-    </AuthProvider>
+    </>
   );
 }
 

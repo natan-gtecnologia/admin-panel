@@ -49,19 +49,19 @@ const Sidebar = () => {
         <div className="navbar-brand-box">
           <Link href="/" className="logo logo-dark">
             <span className="logo-sm">
-              <LogoDark />
+              {/* <LogoDark /> */}
             </span>
             <span className="logo-lg">
-              <LogoDark />
+              {/* <LogoDark /> */}
             </span>
           </Link>
 
           <Link href="/" className="logo logo-light">
             <span className="logo-sm">
-              <LogoLight />
+              {/* <LogoLight /> */}
             </span>
             <span className="logo-lg">
-              <LogoLight />
+              {/* <LogoLight /> */}
             </span>
           </Link>
 

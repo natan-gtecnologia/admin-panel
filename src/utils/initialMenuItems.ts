@@ -8,22 +8,22 @@ export const initialMenuItems: MenuItem[] = [
     icon: "bx bxs-layout",
   },
   {
-    id: "live-stream",
-    label: "Live Shopping",
-    icon: "bx bx-tv",
+    id: "usuario",
+    label: "Usuario",
+    icon: "bx bx-user",
     subItems: [
       {
         id: "read-live-stream",
-        label: "Lista de Lives",
-        link: "/live-stream",
-        parentId: "live-stream",
-      },
-      {
-        id: "create-live-stream",
-        label: "Nova Live",
-        link: "/live-stream/criar",
-        parentId: "live-stream",
+        label: "Cadastrar",
+        link: "/usuario",
+        parentId: "usuario",
       },
     ],
+  },
+  {
+    id: "repasse",
+    label: "Repasse",
+    icon: "bx bx-file",
+    link: '/repasse',
   },
 ];
