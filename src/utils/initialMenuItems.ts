@@ -13,7 +13,7 @@ export const initialMenuItems: MenuItem[] = [
     icon: "bx bx-user",
     subItems: [
       {
-        id: "read-live-stream",
+        id: "read-user",
         label: "Cadastrar",
         link: "/usuario",
         parentId: "usuario",
